@@ -1,0 +1,5 @@
+/bin
+/build
+RCode/.Rhistory
+.Rproj.user
+/target
