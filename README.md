@@ -1,21 +1,12 @@
-GrammarViz 2.0
+Time Series Analysis Tool TSAT
 ==========
-[![Build Status](https://travis-ci.org/GrammarViz2/grammarviz2_src.svg?branch=master)](https://travis-ci.org/GrammarViz2/grammarviz2_src)
-[![codecov.io](http://codecov.io/github/GrammarViz2/grammarviz2_src/coverage.svg?branch=master)](http://codecov.io/github/GrammarViz2/grammarviz2_src?branch=master)
-[![License](http://img.shields.io/:license-gpl2-green.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
+This software is for *time series analysis* with GUI and CLI interfaces.  It is a highly modified version of [GrammarViz](https://github.com/GrammarViz2/grammarviz2_src) with additional functionality.  The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery [4] along with time series classification using Representative Pattern Mining (RPM) using either Euclidean or Dynamic Time Warping (DTW) distance functions [6].
 
-GrammarViz 2.0 source code public repository. This code is released under [GPL v.2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
-
-##### For the detailed software description, please visit our [demo site](http://grammarviz2.github.io/grammarviz2_site).
-
-0.0 In a nutshell
-------------
-GrammarViz 2.0 is a software for *time series exploratory analysis* with GUI and CLI interfaces. The GUI enables interactive time series exploration workflow that allows for variable length recurrent and anomalous patterns discovery from time series [4]:
-![GrammarViz2 screen](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/screen.png)
+From [grammarviz](https://github.com/GrammarViz2/grammarviz2_src):
 
 It is implemented in Java and is based on continuous signal discretization with [SAX](https://github.com/jMotif/SAX), Grammatical Inference with [Sequitur](https://github.com/jMotif/GI) and [Re-Pair](https://github.com/jMotif/GI), and [algorithmic (Kolmogorov) complexity](https://en.wikipedia.org/wiki/Kolmogorov_complexity). 
 
-GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery  which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX:
+TSAT takes from GrammarViz which also implements the "**Rule Density Curve**" and "**Rare Rule Anomaly (RRA)**" algorithms for time series anomaly discovery [5], that significantly outperform HOT-SAX algorithm for time series discord discovery  which is current state of the art. In the table below, the algorithms performance is measured in the amount of calls to the distance function (less is better). The last column shows the RRA performance improvement over HOT-SAX :
 
 | Dataset and SAX parameters         | Dataset size    | Brute Force          | HOT-SAX     | RRA        | Reduction |
 |:-----------------------------------|--------:|---------------------:|------------:|-----------:|------:|
@@ -49,6 +40,8 @@ GrammarViz2 also implements the "**Rule Density Curve**" and "**Rare Rule Anomal
 
 [5] Senin, P., Lin, J., Wang, X., Oates, T., Gandhi, S., Boedihardjo, A.P., Chen, C., Frankenstein, S., Lerner, M.,  [**Time series anomaly discovery with grammar-based compression**](https://csdl-techreports.googlecode.com/svn/trunk/techreports/2014/14-05/14-05.pdf), The International Conference on Extending Database Technology, EDBT 15.
 
+[6] Wang, X., Lin, J., Senin, P., Oates, T., Gandhi, S., Boedihardjo, A., Chen, C., Frankenstein, S. (2016). RPM: Representative Pattern Mining for Efficient Time Series Classification. In EDBT (pp. 185-196).
+
 1.0 Building
 ------------
 
@@ -72,7 +65,7 @@ $ mvn package -Psingle
 [INFO] Scanning for projects...
 ....
 
-[INFO] Building jar: /media/Stock/git/grammarviz2_src.git/target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+[INFO] Building jar: /media/Stock/git/TSAT/target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESSFUL
 [INFO] ------------------------------------------------------------------------
@@ -84,12 +77,8 @@ $ mvn package -Psingle
 
 2.0 Running
 ------------
-To run the GrammarViz 2.0 GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar target/grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
+To run the GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
 
 3.0 CLI interface
 ------------
 By using CLI as discussed in [these tutorials](http://grammarviz2.github.io/grammarviz2_site/experiences/), it is possible to save the inferred grammar, motifs, and discords.
-
-## Made with Aloha!
-![Made with Aloha!](https://raw.githubusercontent.com/GrammarViz2/grammarviz2_src/master/src/resources/assets/aloha.jpg)
-
