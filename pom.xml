@@ -7,13 +7,13 @@
   </properties>
 
   <groupId>net.seninp</groupId>
-  <artifactId>grammarviz2</artifactId>
+  <artifactId>tsat</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>GrammarViz2</name>
-  <description>GrammarViz2 implementation.</description>
-  <url>http://grammarviz2.github.io/grammarviz2_site/</url>
+  <name>TSAT</name>
+  <description>Time Series Analysis Tool</description>
+  
 
   <licenses>
     <license>
@@ -29,12 +29,6 @@
     </developer>
   </developers>
 
-  <scm>
-    <url>http://github.com/GrammarViz2/grammarviz2_src.git</url>
-    <connection>scm:git:git://git@github.com/GrammarViz2/grammarviz2_src.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/GrammarViz2/grammarviz2_src.git</developerConnection>
-    <tag>grammarviz2-0.1.0</tag>
-  </scm>
 
 
   <distributionManagement>
