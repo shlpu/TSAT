@@ -8,3 +8,4 @@ cd ..
 cd user_manual
 cp User\ Manual.pdf ~/Desktop/
 cp -r datasets ~/Desktop/datasets
+cp READEME ~/Desktop/README
