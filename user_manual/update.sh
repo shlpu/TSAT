@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd ~/Documents/src/TSAT/
-git pull
 mvn package -Psingle
 cd target
 chmod +x tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar
