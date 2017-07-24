@@ -44,7 +44,7 @@ public class GrammarVizRPMRepPanel  extends JPanel implements ListSelectionListe
 
     // static block - we instantiate the logger
     //
-    private static final Logger LOGGER = LoggerFactory.getLogger(GrammarRulesPanel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GrammarVizRPMRepPanel.class);
 
     /**
      * Creates the panel and table within the panel for displaying the representative patterns found by RPM.
@@ -143,7 +143,7 @@ public class GrammarVizRPMRepPanel  extends JPanel implements ListSelectionListe
     public void valueChanged(ListSelectionEvent arg) {
         if (!arg.getValueIsAdjusting() && this.acceptListEvents) {
             int[] rows = this.RPMRepTable.getSelectedRows();
-            LOGGER.debug("Selected ROWS: " + Arrays.toString(rows));
+            LOGGER.debug("Selected ROWS (REP): " + Arrays.toString(rows));
             ArrayList<String> rules = new ArrayList<String>(rows.length);
             for (int i = 0; i < rows.length; i++) {
                 int ridx = rows[i];

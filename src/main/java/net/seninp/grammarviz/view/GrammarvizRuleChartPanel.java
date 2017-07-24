@@ -239,17 +239,17 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
 
     System.err.println("DREW selected missclassfied result = " + newlySelectedPatterns.toString());
 
-//    try {
-//      ArrayList<double[]> intervals = new ArrayList<double[]>();
-//      TSPattern[] patterns = this.session.rpmHandler.getRepresentativePatterns();
-//      for (String str : newlySelectedPatterns) {
-//        intervals.add(patterns[Integer.valueOf(str)].getPatternTS());
-//      }
-//      chartIntervals(intervals);
-//    }
-//    catch (Exception e) {
-//      System.err.println(StackTrace.toString(e));
-//    }
+    try {
+      ArrayList<double[]> intervals = new ArrayList<double[]>();
+
+      for (String str : newlySelectedPatterns) {
+        intervals.add(this.session.rpmHandler.getTestingResults().testDataTS[Integer.valueOf(str) - 1]);
+      }
+      chartIntervals(intervals);
+    }
+    catch (Exception e) {
+      System.err.println(StackTrace.toString(e));
+    }
   }
 
   /**
@@ -315,7 +315,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
             .equalsIgnoreCase(evt.getPropertyName())) {
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
-      chartRPMRepPattern(newlySelectedRaw);
+      chartRPMMisclassifiedTS(newlySelectedRaw);
     }
 
   }

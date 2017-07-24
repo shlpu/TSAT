@@ -29,6 +29,8 @@ public class RPMTSTableModel extends GrammarvizRulesTableDataModel {
                 item[nColumn++] = results[rowIndex][0]; // Get TS inst#
                 item[nColumn++] = results[rowIndex][1]; // Get actual class
                 item[nColumn++] = results[rowIndex][2]; // Get predicted class
+                item[nColumn++] = results[rowIndex][3]; // time series
+
                 rows.add(item);
             }
         }

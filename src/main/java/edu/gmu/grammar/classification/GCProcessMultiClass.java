@@ -30,6 +30,7 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
 import weka.core.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -96,15 +97,16 @@ public class GCProcessMultiClass {
 
 		TSPattern[] finalPatterns = combinePatterns(bestSelectedPatternsAllCls);
 
-		double[][] transformedTrainTS = transformTSWithPatternsTest(finalPatterns, trainData);
+		double[][] transformedTrainTS = transformTSWithPatternsTest(finalPatterns, trainData, null);
 
-		double[][] transformedTestTS = transformTSWithPatternsTest(finalPatterns, testData);
+		double[][] transformedTestTS = transformTSWithPatternsTest(finalPatterns, testData, results);
 
 		double error;
 
 		if(results != null) {
 			StringBuffer output = new StringBuffer();
 			error = classifyTransformedData(transformedTrainTS, transformedTestTS, output);
+			//results.
 			results.results = output.toString();
 		} else {
 			error = classifyTransformedData(transformedTrainTS, transformedTestTS);
@@ -266,7 +268,7 @@ public class GCProcessMultiClass {
 		return transformedTS;
 	}
 
-	public double[][] transformTSWithPatternsTest(TSPattern[] allPatterns, Map<String, List<double[]>> dataset) {
+	public double[][] transformTSWithPatternsTest(TSPattern[] allPatterns, Map<String, List<double[]>> dataset, ClassificationResults results) {
 		GrammarVizConfiguration config = GrammarVizConfiguration.getConfiguration();
 
 		int tsNum = 0;
@@ -277,11 +279,15 @@ public class GCProcessMultiClass {
 
 		double[][] transformedTS = new double[tsNum][patternNum + 1];
 
+
+		ArrayList<double[]> timeseries = new ArrayList<>();
+
 		int idxTs = 0;
 		for (Entry<String, List<double[]>> eData : dataset.entrySet()) {
 			String clsLabel = eData.getKey();
 			for (double[] tsInstance : eData.getValue()) {
 
+				timeseries.add(tsInstance);
 				int idxPattern = 0;
 				for (int i = 0; i < patternNum; i++) {
 
@@ -300,6 +306,9 @@ public class GCProcessMultiClass {
 				transformedTS[idxTs][idxPattern] = Integer.parseInt(clsLabel);
 				idxTs++;
 			}
+		}
+		if (results != null) {
+			results.testDataTS = timeseries.toArray(new double[timeseries.size()][]);
 		}
 		return transformedTS;
 	}

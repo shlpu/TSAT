@@ -74,6 +74,9 @@ public class GrammarVizRPMTSPanel extends JPanel implements ListSelectionListene
         this.RPMTable.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         this.RPMTable.setShowGrid(false);
 
+        this.RPMTable.getSelectionModel().addListSelectionListener(this);
+
+
         @SuppressWarnings("unused")
         org.jdesktop.swingx.renderer.DefaultTableRenderer renderer =
                 (org.jdesktop.swingx.renderer.DefaultTableRenderer) RPMTable.getDefaultRenderer(String.class);
@@ -82,6 +85,8 @@ public class GrammarVizRPMTSPanel extends JPanel implements ListSelectionListene
         this.RPMTable.setRowSorter(sorter);
 
         this.RPMPane = new JScrollPane(this.RPMTable);
+        this.RPMPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
     }
 
     /**
@@ -125,7 +130,6 @@ public class GrammarVizRPMTSPanel extends JPanel implements ListSelectionListene
                 String rule = String.valueOf(
                         this.RPMTable.getValueAt(ridx, RPMTSTableColumns.RPM_TS_ID.ordinal()));
 
-                System.err.println("Drew adding id = " + rule);
                 rules.add(rule);
             }
             this.firePropertyChange(FIRING_PROPERTY_RPM_TS, this.selectedResults, rules);

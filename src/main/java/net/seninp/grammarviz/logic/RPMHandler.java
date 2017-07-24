@@ -191,7 +191,6 @@ public class RPMHandler extends Observable implements Runnable {
         if(this.testingResults == null)
             return null;
 
-        HashMap<String, int[]> convertedResults = new HashMap<String, int[]>();
         ArrayList<String[]> out = new ArrayList<>();
         String[] entries = this.testingResults.results.split("\n");
         //System.err.println("Results = " + this.testingResults.results);
@@ -200,17 +199,23 @@ public class RPMHandler extends Observable implements Runnable {
             String instance = columns[0];
             String actualClassLabel = columns[1].split(":")[0];
             String predictedClassLabel = columns[2].split(":")[0];
+            StringBuilder timeSeries = new StringBuilder();
+            for(int j = 0; j < getTestingResults().testDataTS[Integer.parseInt(instance) - 1].length; j++)
+            {
+                timeSeries.append(getTestingResults().testDataTS[Integer.parseInt(instance) - 1][j] + ", ");
+            }
 
             if(columns[3].equals("+")) {
-                String[] result = new String[3];
+                String[] result = new String[4];
                 result[0] = instance;
                 result[1] = actualClassLabel;
                 result[2] = predictedClassLabel;
+                result[3] = timeSeries.toString();
                 out.add(result);
             }
         }
 
-        return out.toArray(new String[out.size()][3]);
+        return out.toArray(new String[out.size()][]);
     }
 
     /**
@@ -332,6 +337,11 @@ public class RPMHandler extends Observable implements Runnable {
     public synchronized void forceRPMModelReload() {
         this.trainingResults.trainData = this.RPM.convertGrammarVizData(this.trainingData, this.trainingLabels);
         this.RPM.loadRPMTrain(this.trainingResults);
+    }
+
+
+    public ClassificationResults getTestingResults() {
+        return testingResults;
     }
 
     /**

@@ -7,7 +7,8 @@ public enum RPMTSTableColumns {
 
     RPM_TS_ID("ID"),
     RPM_ACTUAL("Actual Class"),
-    RPM_PREDICTED("Predicted");
+    RPM_PREDICTED("Predicted"),
+    RPM_TIMESERIES("Time Series");
 
     private final String columnName;
 
