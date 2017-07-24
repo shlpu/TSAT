@@ -17,12 +17,17 @@ import weka.attributeSelection.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 //import weka.classifiers.bayes.*;
+import weka.classifiers.bayes.BayesNet;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.output.prediction.*;
 import weka.classifiers.functions.*;
 import weka.classifiers.functions.supportVector.PolyKernel;
 import weka.classifiers.functions.supportVector.RBFKernel;
 //import weka.classifiers.lazy.IBk;
 //import weka.classifiers.trees.*;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
 import weka.core.*;
 
 import java.util.*;
@@ -399,7 +404,7 @@ public class GCProcessMultiClass {
 	public Classifier chooseClassifier(Instances data) {
 		//int classfier = 4;
 
-		Classifier cls = getPolySvmClassifier(1, 3);
+		Classifier cls = new RandomForest();//getPolySvmClassifier(1, 3);
 		/*switch (classfier) {
 		case 1:
 			cls = new J48();
