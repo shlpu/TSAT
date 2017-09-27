@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
+import java.util.*;
 
 /**
  * Created by David Fleming on 1/24/17.
@@ -156,6 +153,7 @@ public class RPMHandler extends Observable implements Runnable {
         HashMap<String, int[]> convertedResults = new HashMap<String, int[]>();
 
         String[] entries = this.testingResults.results.split("\n");
+        System.err.println("Results = " + this.testingResults.results);
         for(int i = 1; i < entries.length; i++) {
             String[] columns = entries[i].split(",");
             String actualClassLabel = columns[1].split(":")[0];
@@ -181,6 +179,43 @@ public class RPMHandler extends Observable implements Runnable {
         }
 
         return output;
+    }
+
+
+    /**
+     * Parses the results from the testing phase, generating a label and accuracy ratio array.
+     * output: [["inst#", "actual class", "predicted class"]]
+     * @return the results from the testing phase.
+     */
+    public synchronized String[][] getMisclassifiedResults() {
+        if(this.testingResults == null)
+            return null;
+
+        ArrayList<String[]> out = new ArrayList<>();
+        String[] entries = this.testingResults.results.split("\n");
+        //System.err.println("Results = " + this.testingResults.results);
+        for(int i = 1; i < entries.length; i++) {
+            String[] columns = entries[i].split(",");
+            String instance = columns[0];
+            String actualClassLabel = columns[1].split(":")[0];
+            String predictedClassLabel = columns[2].split(":")[0];
+            StringBuilder timeSeries = new StringBuilder();
+            for(int j = 0; j < getTestingResults().testDataTS[Integer.parseInt(instance) - 1].length; j++)
+            {
+                timeSeries.append(getTestingResults().testDataTS[Integer.parseInt(instance) - 1][j] + ", ");
+            }
+
+            if(columns[3].equals("+")) {
+                String[] result = new String[4];
+                result[0] = instance;
+                result[1] = actualClassLabel;
+                result[2] = predictedClassLabel;
+                result[3] = timeSeries.toString();
+                out.add(result);
+            }
+        }
+
+        return out.toArray(new String[out.size()][]);
     }
 
     /**
@@ -302,6 +337,11 @@ public class RPMHandler extends Observable implements Runnable {
     public synchronized void forceRPMModelReload() {
         this.trainingResults.trainData = this.RPM.convertGrammarVizData(this.trainingData, this.trainingLabels);
         this.RPM.loadRPMTrain(this.trainingResults);
+    }
+
+
+    public ClassificationResults getTestingResults() {
+        return testingResults;
     }
 
     /**

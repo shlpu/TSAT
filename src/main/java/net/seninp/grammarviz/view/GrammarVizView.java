@@ -182,6 +182,7 @@ public class GrammarVizView implements Observer, ActionListener {
   private GrammarVizAnomaliesPanel anomaliesPane;
   private GrammarVizRPMPanel rpmPanel;
   private GrammarVizRPMRepPanel rpmRepPanel;
+  private GrammarVizRPMTSPanel rpmTSPanel;
 
   // rule(s) charting auxiliary panel
   //
@@ -305,6 +306,7 @@ public class GrammarVizView implements Observer, ActionListener {
     anomaliesPane.addPropertyChangeListener(ruleChartPane);
 
     rpmRepPanel.addPropertyChangeListener(ruleChartPane);
+    rpmTSPanel.addPropertyChangeListener(ruleChartPane);
 
     // set the main panel layout
     MigLayout mainFrameLayout = new MigLayout("", "[fill,grow,center]",
@@ -678,6 +680,15 @@ public class GrammarVizView implements Observer, ActionListener {
     rpmPanel.setLayout(rpmPanelLayout);
     tabbedRulesPane.addTab("RPM Classification", null, rpmPanel, "Show RPM Classification Statistics");
 
+    // now add the RPM Time Series Panel
+    //
+    rpmTSPanel = new GrammarVizRPMTSPanel();
+    MigLayout rpmTSPanelLayout = new MigLayout(",insets 0 0 0 0", "[fill,grow]", "[fill,grow]");
+    rpmTSPanel.setLayout(rpmTSPanelLayout);
+    tabbedRulesPane.addTab("RPM Time Series Results", null, rpmTSPanel, "Show RPM Classification Time Series");
+
+
+
     // now format the tabbed pane
     //
     tabbedRulesPane.setBorder(
@@ -915,6 +926,8 @@ public class GrammarVizView implements Observer, ActionListener {
             rpmIterationeField.setText(String.valueOf(rpmHandler.getNumberOfIterations()));
             rpmPanel.revalidate();
             rpmPanel.repaint();
+            rpmTSPanel.revalidate();
+            rpmTSPanel.repaint();
             saxParametersPane.revalidate();
             saxParametersPane.repaint();
             rpmRepPanel.updateRPMRepPatterns();
@@ -934,6 +947,10 @@ public class GrammarVizView implements Observer, ActionListener {
             rpmPanel.setClassificationResults(controller.getSession());
             rpmPanel.updateRPMStatistics();
             rpmPanel.resetPanel();
+
+            rpmTSPanel.setClassificationResults(controller.getSession());
+            rpmTSPanel.updateRPMStatistics();
+            rpmTSPanel.resetPanel();
           }
         };
         SwingUtilities.invokeLater(updateTable);

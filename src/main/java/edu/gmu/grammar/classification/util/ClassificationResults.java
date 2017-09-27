@@ -20,6 +20,10 @@ public class ClassificationResults {
     // The results as an output from Weka Evaluation stage
     public String results;
 
+
+    // This is the timeseries data indexed corresponding to weka results
+    public double[][] testDataTS;
+
     /**
      * Function to generate formatted string suitable for printing.
      *

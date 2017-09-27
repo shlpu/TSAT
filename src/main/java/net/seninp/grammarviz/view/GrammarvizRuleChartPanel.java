@@ -229,6 +229,29 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
     }
   }
 
+
+  /**
+   * Charts a Representative pattern that was found by RPM
+   *
+   * @param newlySelectedPatterns
+   */
+  private void chartRPMMisclassifiedTS(ArrayList<String> newlySelectedPatterns) {
+
+    System.err.println("DREW selected missclassfied result = " + newlySelectedPatterns.toString());
+
+    try {
+      ArrayList<double[]> intervals = new ArrayList<double[]>();
+
+      for (String str : newlySelectedPatterns) {
+        intervals.add(this.session.rpmHandler.getTestingResults().testDataTS[Integer.valueOf(str) - 1]);
+      }
+      chartIntervals(intervals);
+    }
+    catch (Exception e) {
+      System.err.println(StackTrace.toString(e));
+    }
+  }
+
   /**
    * Extracts a subsequence of the original time series.
    * 
@@ -287,6 +310,12 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
       @SuppressWarnings("unchecked")
       ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
       chartRPMRepPattern(newlySelectedRaw);
+    }
+    else if (GrammarVizRPMTSPanel.FIRING_PROPERTY_RPM_TS
+            .equalsIgnoreCase(evt.getPropertyName())) {
+      @SuppressWarnings("unchecked")
+      ArrayList<String> newlySelectedRaw = (ArrayList<String>) evt.getNewValue();
+      chartRPMMisclassifiedTS(newlySelectedRaw);
     }
 
   }

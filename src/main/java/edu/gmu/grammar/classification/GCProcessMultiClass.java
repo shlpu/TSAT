@@ -17,14 +17,20 @@ import weka.attributeSelection.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 //import weka.classifiers.bayes.*;
+import weka.classifiers.bayes.BayesNet;
+import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.output.prediction.*;
 import weka.classifiers.functions.*;
 import weka.classifiers.functions.supportVector.PolyKernel;
 import weka.classifiers.functions.supportVector.RBFKernel;
 //import weka.classifiers.lazy.IBk;
 //import weka.classifiers.trees.*;
+import weka.classifiers.lazy.IBk;
+import weka.classifiers.trees.J48;
+import weka.classifiers.trees.RandomForest;
 import weka.core.*;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -91,15 +97,16 @@ public class GCProcessMultiClass {
 
 		TSPattern[] finalPatterns = combinePatterns(bestSelectedPatternsAllCls);
 
-		double[][] transformedTrainTS = transformTSWithPatternsTest(finalPatterns, trainData);
+		double[][] transformedTrainTS = transformTSWithPatternsTest(finalPatterns, trainData, null);
 
-		double[][] transformedTestTS = transformTSWithPatternsTest(finalPatterns, testData);
+		double[][] transformedTestTS = transformTSWithPatternsTest(finalPatterns, testData, results);
 
 		double error;
 
 		if(results != null) {
 			StringBuffer output = new StringBuffer();
 			error = classifyTransformedData(transformedTrainTS, transformedTestTS, output);
+			//results.
 			results.results = output.toString();
 		} else {
 			error = classifyTransformedData(transformedTrainTS, transformedTestTS);
@@ -261,7 +268,7 @@ public class GCProcessMultiClass {
 		return transformedTS;
 	}
 
-	public double[][] transformTSWithPatternsTest(TSPattern[] allPatterns, Map<String, List<double[]>> dataset) {
+	public double[][] transformTSWithPatternsTest(TSPattern[] allPatterns, Map<String, List<double[]>> dataset, ClassificationResults results) {
 		GrammarVizConfiguration config = GrammarVizConfiguration.getConfiguration();
 
 		int tsNum = 0;
@@ -272,11 +279,15 @@ public class GCProcessMultiClass {
 
 		double[][] transformedTS = new double[tsNum][patternNum + 1];
 
+
+		ArrayList<double[]> timeseries = new ArrayList<>();
+
 		int idxTs = 0;
 		for (Entry<String, List<double[]>> eData : dataset.entrySet()) {
 			String clsLabel = eData.getKey();
 			for (double[] tsInstance : eData.getValue()) {
 
+				timeseries.add(tsInstance);
 				int idxPattern = 0;
 				for (int i = 0; i < patternNum; i++) {
 
@@ -295,6 +306,9 @@ public class GCProcessMultiClass {
 				transformedTS[idxTs][idxPattern] = Integer.parseInt(clsLabel);
 				idxTs++;
 			}
+		}
+		if (results != null) {
+			results.testDataTS = timeseries.toArray(new double[timeseries.size()][]);
 		}
 		return transformedTS;
 	}
@@ -399,7 +413,7 @@ public class GCProcessMultiClass {
 	public Classifier chooseClassifier(Instances data) {
 		//int classfier = 4;
 
-		Classifier cls = getPolySvmClassifier(1, 3);
+		Classifier cls = new RandomForest();//getPolySvmClassifier(1, 3);
 		/*switch (classfier) {
 		case 1:
 			cls = new J48();
