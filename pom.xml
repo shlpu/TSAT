@@ -318,10 +318,11 @@
       <version>1.1.7</version>
     </dependency>
 
+
     <dependency>
           <groupId>com.github.jMotif</groupId>
           <artifactId>sax-vsm_classic</artifactId>
-          <version>ebd3ab8</version>
+          <version>sax-vsm-0.0.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
