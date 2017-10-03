@@ -41,10 +41,11 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
+
   <repositories>
     <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
   </repositories>
 
@@ -320,9 +321,9 @@
 
 
     <dependency>
-          <groupId>com.github.jMotif</groupId>
-          <artifactId>sax-vsm_classic</artifactId>
-          <version>sax-vsm-0.0.1</version>
+      <groupId>net.seninp</groupId>
+      <artifactId>sax-vsm</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>
