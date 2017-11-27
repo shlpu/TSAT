@@ -47,7 +47,7 @@ public class GrammarVizRPM {
     @Parameter(names = { "--testD", "-j" }, description = "The testing data file name")
     String testdataFilename;
 
-    @Parameter(names = { "--data", "-n" }, description = "The number of iterations for training")
+    @Parameter(names = { "--numIters", "-n" }, description = "The number of iterations for training")
     int numIterations = 5;
 
     @Parameter(names = { "--model", "-m" }, description = "The trained model file name")
@@ -85,6 +85,9 @@ public class GrammarVizRPM {
             LOGGER.debug("PAA = " + rpmHandler.getPaa());
 
             rpmHandler.RPMSaveModel(rpmCLI.saveTrainedModelFilename);
+            rpmHandler.trainingToJSON(rpmCLI.saveTrainedModelFilename);
+
+
             if (rpmCLI.testdataFilename != null) {
                 GrammarVizConfiguration gconf = GrammarVizConfiguration.getConfiguration();
                 gconf.setDistanceMeasure(GrammarVizConfiguration.EUCLIDEAN_DISTANCE);
@@ -93,13 +96,15 @@ public class GrammarVizRPM {
                 rpmHandler.RPMTestData(rpmCLI.testdataFilename, testdata, rpmCLI.RPMLabels);
                 LOGGER.debug("Results:");
                 LOGGER.debug(rpmHandler.toString());
-                LOGGER.debug("Testing using DTW");
+                rpmHandler.testingToJSON(rpmCLI.saveTrainedModelFilename);
 
-                gconf.setDistanceMeasure(GrammarVizConfiguration.DTW_DISTANCE);
-                gconf.setDTWWindow(rpmCLI.windowSize);
-                rpmHandler.RPMTestData(rpmCLI.testdataFilename, testdata, rpmCLI.RPMLabels);
-                LOGGER.debug("Results:");
-                LOGGER.debug(rpmHandler.toString());
+//                LOGGER.debug("Testing using DTW");
+//
+//                gconf.setDistanceMeasure(GrammarVizConfiguration.DTW_DISTANCE);
+//                gconf.setDTWWindow(rpmCLI.windowSize);
+//                rpmHandler.RPMTestData(rpmCLI.testdataFilename, testdata, rpmCLI.RPMLabels);
+//                LOGGER.debug("Results:");
+//                LOGGER.debug(rpmHandler.toString());
             }
 
         }

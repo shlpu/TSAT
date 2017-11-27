@@ -1,5 +1,7 @@
 package net.seninp.grammarviz.logic;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import edu.gmu.grammar.classification.util.ClassificationResults;
 import edu.gmu.grammar.classification.util.PSDirectTransformAllClass;
 import edu.gmu.grammar.classification.util.RPMTrainedData;
@@ -368,5 +370,19 @@ public class RPMHandler extends Observable implements Runnable {
     private void log(String message) {
         this.setChanged();
         notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "RPM Handler: " + message));
+    }
+
+    public void trainingToJSON(String outputPrefix) throws Exception{
+        try(  PrintWriter out = new PrintWriter( outputPrefix + ".train" )  ){
+            Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+            out.write(g.toJson(finalPatterns));
+        }
+    }
+
+    public void testingToJSON(String outputPrefix) throws Exception{
+        try(  PrintWriter out = new PrintWriter( outputPrefix + ".test" )  ){
+            Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+            out.write(g.toJson(getMisclassifiedResults()));
+        }
     }
 }

@@ -3,6 +3,7 @@ package net.seninp.grammarviz;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,6 +12,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
@@ -777,6 +781,13 @@ public class GrammarVizAnomaly {
 
     System.out.println(discords.toString() + CR + discords.getSize() + " discords found in "
         + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+
+    try(  PrintWriter out = new PrintWriter( outputPrefix )  ){
+      Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+      out.write(g.toJson(discords));
+    }
+
+
 
     // THE DISCORD SEARCH IS DONE RIGHT HERE
     // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM
