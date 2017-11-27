@@ -12,8 +12,8 @@ def RRA(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size
 
 def RPM(pathToTraining, pathToTest, outputFile, num_iters):
 		exitcode = subprocess.call("java -cp ../target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar net.seninp.grammarviz.GrammarVizRPM --trainD {} --testD {} --model {} --numIters {} ".format(pathToTraining, pathToTest, outputFile, num_iters).split())
-		#return (json.loads(open("{}.train".format(outputFile)).read()), json.loads(open("{}.test".format(outputFile)).read()))
+		return (json.loads(open("{}.train".format(outputFile)).read()), json.loads(open("{}.test".format(outputFile)).read()))
 
 #buildMotifs("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
 #RRA("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
-RPM("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT","/home/drew/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
+#train, test = RPM("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT","/home/drew/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
