@@ -120,6 +120,8 @@ public class GrammarvizChartPanel extends JPanel
 
   private ArrayList<ActionListener> listeners = new ArrayList<ActionListener>();
 
+  Color[] colors;
+
   // static block - we instantiate the logger
   //
   private static final Logger LOGGER = LoggerFactory.getLogger(GrammarRulesPanel.class);
@@ -129,6 +131,7 @@ public class GrammarvizChartPanel extends JPanel
    */
   public GrammarvizChartPanel() {
     super();
+    colors = generateColors(15);
   }
 
   /**
@@ -200,6 +203,8 @@ public class GrammarvizChartPanel extends JPanel
   private void highlightPatternInChart(ArrayList<String> rules) {
     LOGGER.debug("Selected rules: " + rules.toString());
     timeseriesPlot.clearDomainMarkers();
+
+    int i = 0;
     for (String rule : rules) {
       int ruleId = Integer.valueOf(rule);
       if (0 == ruleId) {
@@ -207,10 +212,23 @@ public class GrammarvizChartPanel extends JPanel
       }
       ArrayList<RuleInterval> arrPos = this.session.chartData.getRulePositionsByRuleNum(ruleId);
       LOGGER.debug("Size: " + arrPos.size() + " - Positions: " + arrPos);
+
       for (RuleInterval saxPos : arrPos) {
-        addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd());
+        addMarker(timeseriesPlot, saxPos.getStart(), saxPos.getEnd(), colors[i]);
       }
+      i++;
+      i %= colors.length;
     }
+  }
+
+  public Color[] generateColors(int n)
+  {
+    Color[] cols = new Color[n];
+    for(int i = 0; i < n; i++)
+    {
+      cols[i] = Color.getHSBColor((float) i / (float) n, 0.85f, 1.0f);
+    }
+    return cols;
   }
 
   /**
@@ -556,6 +574,32 @@ public class GrammarvizChartPanel extends JPanel
     plot.addDomainMarker(markStart, Layer.BACKGROUND);
     plot.addDomainMarker(markEnd, Layer.BACKGROUND);
   }
+
+
+  /**
+   * @param plot plot for the marker
+   * @param startVal start postion
+   * @param endVal end position
+   */
+  protected void addMarker(XYPlot plot, int startVal, int endVal, Color color) {
+    IntervalMarker marker = new IntervalMarker(startVal, endVal);
+    marker.setLabelOffsetType(LengthAdjustmentType.EXPAND);
+    marker.setPaint(color);
+    marker.setAlpha((float) 0.60);
+    marker.setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+    marker.setLabelPaint(Color.green);
+    marker.setLabelAnchor(RectangleAnchor.TOP_LEFT);
+    marker.setLabelTextAnchor(TextAnchor.TOP_LEFT);
+
+    plot.addDomainMarker(marker, Layer.BACKGROUND);
+
+    ValueMarker markStart = new ValueMarker(startVal, new Color(255, 255, 255),
+            new BasicStroke(2.0f));
+    ValueMarker markEnd = new ValueMarker(endVal, new Color(0, 0, 0), new BasicStroke(2.0f));
+    plot.addDomainMarker(markStart, Layer.BACKGROUND);
+    plot.addDomainMarker(markEnd, Layer.BACKGROUND);
+  }
+
 
   /**
    * Adds a periodicity marker.
