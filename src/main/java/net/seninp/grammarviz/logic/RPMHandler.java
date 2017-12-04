@@ -186,7 +186,7 @@ public class RPMHandler extends Observable implements Runnable {
 
     /**
      * Parses the results from the testing phase, generating a label and accuracy ratio array.
-     * output: [["inst#", "actual class", "predicted class"]]
+     * output: [["inst#", "actual class", "predicted class", "timeSeries"]]
      * @return the results from the testing phase.
      */
     public synchronized String[][] getMisclassifiedResults() {
