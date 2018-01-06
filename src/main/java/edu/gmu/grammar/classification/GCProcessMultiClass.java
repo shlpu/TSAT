@@ -133,6 +133,7 @@ public class GCProcessMultiClass {
 			TSPattern[] patterns = bsp.getBestSelectedPatterns();
 
 			if (existParams.size() < 1) {
+				//System.err.println("patterns = " + patterns);
 				Collections.addAll(finalPatterns, patterns);
 				existParams.add(params);
 			} else {
@@ -414,6 +415,7 @@ public class GCProcessMultiClass {
 		//int classfier = 4;
 
 		Classifier cls = new RandomForest();//getPolySvmClassifier(1, 3);
+
 		/*switch (classfier) {
 		case 1:
 			cls = new J48();

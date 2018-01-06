@@ -197,7 +197,7 @@ public class PSDirectTransformAllClass {
 			}
 
 			TSProcessor tsp = new TSProcessor();
-			double[] series = tsp.znorm(data[i], 0.05);
+			double[] series = data[i];//tsp.znorm(data[i], 0.05);
 
 			if (!res.containsKey(seriesType)) {
 				res.put(seriesType, new ArrayList<double[]>());
@@ -328,6 +328,13 @@ public class PSDirectTransformAllClass {
 		// Load data path and convert data to GrammarViz Supported format
 		this.TRAINING_DATA_PATH = trainingDataFilePath;
 		this.trainData = this.convertGrammarVizData(data, labels);
+
+		// lets check the trainData (this looks right)
+//		for (Map.Entry<String, List<double[]>> e : trainData.entrySet()) {
+//			System.err.println("label = " + e.getKey() + " number of time series = " + e.getValue().size() + " len of first time series = " + e.getValue().get(0).length);
+//		}
+
+
 
 		// lower bound.
 		double lper = 0.1;
@@ -617,6 +624,10 @@ public class PSDirectTransformAllClass {
 					+ minFunctionValuesDouble[j] + " for class " + (j + 1)
 					+ " at " + lowerBounds[0] + ", " + lowerBounds[1] + ", "
 					+ lowerBounds[2]);
+//			System.err.println("iteration: " + count + ", minimal value "
+//					+ minFunctionValuesDouble[j] + " for class " + (j + 1)
+//					+ " at " + lowerBounds[0] + ", " + lowerBounds[1] + ", "
+//					+ lowerBounds[2]);
 		}
 
 		minimum = ValuePointColored.at(startingPoint, minFunctionValue, true);

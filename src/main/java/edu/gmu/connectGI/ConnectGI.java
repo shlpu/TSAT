@@ -48,6 +48,7 @@ public class ConnectGI {
 			String classLabel = entry.getKey();
 			double[] concatenatedTS = entry.getValue();
 			int[] startPositions = allStartPositions.get(classLabel);
+			//System.err.println("Class label = " + classLabel + " length of ts = " + concatenatedTS.length);
 
 			GetRulesFromGI gi = new GetRulesFromGI();
 			ArrayList<int[]> patternsLocation = gi.getGrammars(windowSize,
@@ -56,6 +57,7 @@ public class ConnectGI {
 					overlapTPer, isCoverageFre, pSimilarity);
 
 			if (patternsLocation == null) {
+				//System.err.println("Patterns Location is null so returning null!!");
 				return null;
 			}
 

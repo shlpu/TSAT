@@ -71,6 +71,7 @@ public class GetRulesFromGI {
 		try {
 
 			NumerosityReductionStrategy strategy = numerosityReductionStrategy;
+			//System.err.println("ConcatenatedTS = " + concatenatedTS.length + " starting positions = " + startingPositions);
 			// Get all rules from Sequitur
 			processData(windowSize, paaSize, alphabetSize, strategy, concatenatedTS, giMethod, startingPositions);
 
@@ -82,7 +83,7 @@ public class GetRulesFromGI {
 			// Put all patterns together, get repeated patterns by their
 			// start
 			// position. Prune the repeated pattern less than a threshold.
-
+			//System.err.println("OriginalTSNum = " + originalTSNum + " realRepeatedThreshold = " + realRepeatedThreshold);
 			ArrayList<RepeatedPattern> allRepeatedPatterns = getRepeatedPatterns(realRepeatedThreshold, maxRPNum,
 					overlapTPer, startingPositions, isCoverageFre, pSimilarity);
 
@@ -90,6 +91,7 @@ public class GetRulesFromGI {
 				patterns = findRepeatedPatterns(allRepeatedPatterns, startingPositions, isCoverageFre);
 			} else {
 				patterns = null;
+				//System.err.println("Patterns was set to null so i'm going to return null this is really bad...!!!");
 			}
 
 			allRepeatedPatterns.clear();
@@ -129,6 +131,7 @@ public class GetRulesFromGI {
 		} else {
 			totalRule = chartData.getRulesNumber();
 		}
+		//System.err.println("ChartData totalRule = " + totalRule);
 		for (int idx = 1; idx < totalRule; idx++) {
 			ArrayList<RepeatedPattern> tempRepeatedPatterns = new ArrayList<RepeatedPattern>();
 
@@ -139,10 +142,10 @@ public class GetRulesFromGI {
 
 				arrPos = chartData.getRulePositionsByRuleNum(idx);
 			}
-
 			if (arrPos.size() < realRepeatedThreshold) {
 				continue;
 			}
+			//System.err.println("Number of rule subsequences = " + arrPos.size() + " threshold is = " + realRepeatedThreshold);
 
 			for (RuleInterval p : arrPos) {
 				int len = p.getLength();
@@ -188,8 +191,10 @@ public class GetRulesFromGI {
 			if (allRepeatedPatterns.size() > 1) {
 				double tSimilar = calcDistThreshold2(allRepeatedPatterns);
 				pSimilarity.addCandidate(tSimilar);
+				//System.err.println("TSimilar Candidate ======================================= " + tSimilar);
 			}
 		}
+
 
 		removeNotFrequentGroups(allRepeatedPatterns, maxRPNum, realRepeatedThreshold, isCoverageFre);
 
@@ -334,6 +339,7 @@ public class GetRulesFromGI {
 	 */
 	public void removeOverlapWithinCluster(ArrayList<RepeatedPattern> allRepeatedPatterns, int pDiffThreshold) {
 
+		//System.err.println("Number of repeated patterns before removing them: " + allRepeatedPatterns.size());
 		for (int i = 0; i < allRepeatedPatterns.size(); i++) {
 
 			ArrayList<RuleInterval> arrPos = allRepeatedPatterns.get(i).getSequences();
@@ -575,7 +581,8 @@ public class GetRulesFromGI {
 		sb.append(", Alphabet ").append(alphabetSize);
 		// consoleLogger.info(sb.toString());
 		// this.log(sb.toString());
-
+		//System.err.println(sb.toString());
+		//System.err.println("Timeseries length = " + concatenatedTS.length);
 		// consoleLogger.debug("creating ChartDataStructure");
 		// TODO: Add the data file name.
 		String dataFileName = "";
@@ -592,7 +599,7 @@ public class GetRulesFromGI {
 				SAXRecords saxFrequencyData = null;
 				if (useSlidingWindow) {
 					// consoleLogger.debug("discretizing string ...");
-					saxFrequencyData = sp.ts2saxViaWindow(concatenatedTS, windowSize, paaSize,
+					saxFrequencyData = sp.ts2saxViaWindowGlobalZNorm(concatenatedTS, windowSize, paaSize,
 							normalA.getCuts(alphabetSize), numerosityReductionStrategy, normalizationThreshold);
 					// saxFrequencyData =
 					// SequiturFactory.discretize(concatenatedTS,
@@ -605,6 +612,8 @@ public class GetRulesFromGI {
 					// normalizationThreshold);
 				}
 
+
+				//System.err.println("Sax freq data = " + saxFrequencyData.getAllIndices().size());
 				// consoleLogger.trace("String: "
 				// + saxFrequencyData.getSAXString(SPACE));
 
@@ -615,6 +624,7 @@ public class GetRulesFromGI {
 				saxWordsIndexes.clear();
 				// consoleLogger.debug("collecting grammar rules data ...");
 				GrammarRules rules = sequiturGrammar.toGrammarRulesData();
+				//System.err.println("Number of Grammar rules = " + rules.size());
 
 				// consoleLogger.debug("mapping rule intervals on timeseries
 				// ...");
@@ -623,6 +633,8 @@ public class GetRulesFromGI {
 
 				// consoleLogger.debug("done ...");
 				chartData.setGrammarRules(rules);
+				//System.err.println("Number of rules = " + rules.size());
+
 
 			} else {
 

@@ -167,14 +167,18 @@ public class GCErrorFunctionMultiCls {
 		int paaSize = Long.valueOf(Math.round(coords[1])).intValue();
 		int alphabetSize = Long.valueOf(Math.round(coords[2])).intValue();
 
+		//System.err.println("Starting valule at transform multi class!");
 		// if we stepped above window length with PAA size - for some reason -
 		// return the max possible
 		// error value
 		if (paaSize > windowSize) {
 			pSimilarity.clear();
+			//System.err.println("PAA size > Window Size!");
+
 			return null;
 		}
 
+		//System.err.println(" Going to concatenate stuff");
 		// the whole thing begins here
 		//
 		try {
@@ -194,6 +198,10 @@ public class GCErrorFunctionMultiCls {
 			HashMap<String, double[]> concatenateData = concatenateTrainInTrain(trainDataPerClass,
 							allStartPositions);
 
+//			for (Map.Entry<String, double[]> entry: concatenateData.entrySet()) {
+//				System.err.println(" label = " + entry.getKey() + " ts length = " + entry.getValue().length);
+//			}
+
 			// TODO: write concatenated data.
 			// DataProcessor.writeConcatenatedData(concatenateData);
 
@@ -207,8 +215,12 @@ public class GCErrorFunctionMultiCls {
 
 			if (allPatterns == null) {
 				pSimilarity.clear();
+				// I'm getting that all the patterns are null!!!
+				//System.err.println("All patterns are null!");
 				return null;
 			}
+
+			//System.err.println("All patterns is not null!");
 
 //			HashMap<String, TSPatterns> topFrequentPatterns = GCProcessMultiClass
 //					.selectTopFrequentPatterns(allPatterns, allStartPositions);
@@ -242,6 +254,8 @@ public class GCErrorFunctionMultiCls {
 			// Put patterns from each class together into an array.
 			TSPattern[] allPatternsTogether = pTransformTS.getAllPatterns();
 
+			//System.err.println("Going  to apply feature selection");
+
 			// Apply feature selection method on the transformed data.
 			int[] selectedIndices = gcp.featureSelection(transformedTS);
 			// Selected patterns from the result of feature selection
@@ -255,11 +269,16 @@ public class GCErrorFunctionMultiCls {
 				}
 			}
 
+			//System.err.println("did the new transform");
+
 			selectedRepresentativePatterns = selectedPatterns.clone();
 
 			// Classify train with the transformed data to get error rate.
 			Evaluation evaluation = gcp.cvEvaluationAllCls(newTransformedTS);
 			double allError = evaluation.errorRate();
+
+			//System.err.println("All Error = " + allError);
+
 			double[] error = new double[clsNum];
 			for (int i = 0; i < clsNum; i++) {
 				error[i] = 1 - evaluation.fMeasure(i);
