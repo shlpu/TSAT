@@ -12,6 +12,7 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
+import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -599,8 +600,12 @@ public class GetRulesFromGI {
 				SAXRecords saxFrequencyData = null;
 				if (useSlidingWindow) {
 					// consoleLogger.debug("discretizing string ...");
-					saxFrequencyData = sp.ts2saxViaWindowGlobalZNorm(concatenatedTS, windowSize, paaSize,
+					saxFrequencyData = sp.ts2saxViaWindow(concatenatedTS, windowSize, paaSize,
 							normalA.getCuts(alphabetSize), numerosityReductionStrategy, normalizationThreshold);
+//					ParallelSAXImplementation ps = new ParallelSAXImplementation();
+//					saxFrequencyData = ps.process(concatenatedTS, 8, windowSize, paaSize,
+//							alphabetSize, numerosityReductionStrategy, normalizationThreshold);
+
 					// saxFrequencyData =
 					// SequiturFactory.discretize(concatenatedTS,
 					// numerosityReductionStrategy,
