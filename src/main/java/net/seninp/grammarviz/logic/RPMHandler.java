@@ -155,7 +155,7 @@ public class RPMHandler extends Observable implements Runnable {
         HashMap<String, int[]> convertedResults = new HashMap<String, int[]>();
 
         String[] entries = this.testingResults.results.split("\n");
-        System.err.println("Results = " + this.testingResults.results);
+        //System.err.println("Results = " + this.testingResults.results);
         for(int i = 1; i < entries.length; i++) {
             String[] columns = entries[i].split(",");
             String actualClassLabel = columns[1].split(":")[0];
