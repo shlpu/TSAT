@@ -90,7 +90,7 @@ public class RPMHandler extends Observable implements Runnable {
      * @param filename the path to the saved model.
      * @throws Exception
      */
-    public synchronized void RPMLoadModel(String filename) throws Exception {
+    public synchronized RPMTrainedData RPMLoadModel(String filename) throws Exception {
         RPMTrainedData rpmTrainedData = null;
         //try {
             FileInputStream loadFile = new FileInputStream(filename);
@@ -111,8 +111,15 @@ public class RPMHandler extends Observable implements Runnable {
             this.trainingFilename = rpmTrainedData.training_data_path;
             this.finalPatterns = rpmTrainedData.finalPatterns();
             this.numberOfIterations = rpmTrainedData.iterations_num;
+
         //}
 
+        return rpmTrainedData;
+
+    }
+
+    public void loadRPMTrainedData(String fileName) throws  Exception {
+        RPM.loadRPMTrain(RPMLoadModel(fileName));
     }
 
     /**

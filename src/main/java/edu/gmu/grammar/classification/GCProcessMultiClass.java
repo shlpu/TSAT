@@ -781,7 +781,7 @@ public class GCProcessMultiClass {
 			test.add(new SparseInstance(1.0, vals));
 		}
 		test.setClassIndex(test.numAttributes() - 1);
-		System.err.println(test);
+
 		return (test);
 	}
 
