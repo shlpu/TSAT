@@ -60,6 +60,12 @@ public class RPMTrainedData implements Serializable {
         return gcp.combinePatterns(this.bestSelectedPatternsAllClass);
     }
 
+    public double[][] getFeatureVector(Map<String, List<double[]>> dataset, ClassificationResults results) {
+        GCProcessMultiClass gcp = new GCProcessMultiClass(this.folderNum);
+        TSPattern[] finalPatterns = gcp.combinePatterns(this.bestSelectedPatternsAllClass);
+        return gcp.transformTSWithPatternsTest(finalPatterns, dataset, results);
+    }
+
     /**
      * Convenient way to get the information stored in the model
      * @return - A formatted string suitable for printing

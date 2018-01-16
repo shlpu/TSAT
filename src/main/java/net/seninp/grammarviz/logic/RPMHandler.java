@@ -376,6 +376,7 @@ public class RPMHandler extends Observable implements Runnable {
         try(  PrintWriter out = new PrintWriter( outputPrefix + ".train" )  ){
             Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
             out.write(g.toJson(finalPatterns));
+
         }
     }
 
@@ -384,5 +385,14 @@ public class RPMHandler extends Observable implements Runnable {
             Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
             out.write(g.toJson(getMisclassifiedResults()));
         }
+    }
+
+    public void featureVectorToFile(String filename, double[][] data, String[] labels) throws Exception{
+        try (PrintWriter out = new PrintWriter(filename)) {
+            Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+            out.write(g.toJson(trainingResults.getFeatureVector(RPM.convertGrammarVizData(data, labels), testingResults)));
+        }
+
+
     }
 }

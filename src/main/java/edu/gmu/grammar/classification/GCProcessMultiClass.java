@@ -28,6 +28,7 @@ import weka.classifiers.functions.supportVector.RBFKernel;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
+import weka.classifiers.meta.OneClassClassifier;
 import weka.core.*;
 
 import java.lang.reflect.Array;
@@ -468,7 +469,31 @@ public class GCProcessMultiClass {
 		return cls;
 	}
 
+
+
+//	public Evaluation buildOCC(double [][] transformedTS) {
+//
+//		Instances data = buildArff(transformedTS);
+//
+//		try {
+//			OneClassClassifier cls = new OneClassClassifier();
+//			cls.setTargetClassLabel();
+//
+//			cls.buildClassifier(data);
+//			//eval.crossValidateModel(cls, data, folderNum, new Random(1));
+//			cls.buildClassifier(data);
+//
+//
+//		}catch(Exception e) {
+//
+//		}
+//
+//	}
+
+
 	public Evaluation cvEvaluationAllCls(double[][] transformedTS) {
+
+
 		Instances data = buildArff(transformedTS);
 
 		// AttributeSelectedClassifier classifier = new
@@ -495,6 +520,8 @@ public class GCProcessMultiClass {
 			e.printStackTrace();
 			return null;
 		}
+
+
 	}
 
 	public double cvEvaluation(double[][] transformedTS) {
@@ -701,6 +728,7 @@ public class GCProcessMultiClass {
 		attsel.setSearch(search);
 		try {
 			attsel.SelectAttributes(data);
+			//
 			// obtain the attribute indices that were selected
 			int[] indices = attsel.selectedAttributes();
 			// System.out.println(Utils.arrayToString(indices));
@@ -753,6 +781,7 @@ public class GCProcessMultiClass {
 			test.add(new SparseInstance(1.0, vals));
 		}
 		test.setClassIndex(test.numAttributes() - 1);
+		System.err.println(test);
 		return (test);
 	}
 

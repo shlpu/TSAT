@@ -3,9 +3,6 @@ package net.seninp.grammarviz;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import net.seninp.grammarviz.logic.RPMHandler;
-import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.model.GrammarVizModel;
-import net.seninp.util.StackTrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +53,8 @@ public class GrammarVizRPM {
     @Parameter(names = { "--wsize", "-s" }, description = "The DTW window size default is 10")
     int windowSize = 10;
 
+
+
     /**
      * The main function used to run GrammarViz/RPM from the command line, it takes in an argument list
      * and runs RPM using those parameters.
@@ -76,6 +75,7 @@ public class GrammarVizRPM {
         else { // Else run RPM using the command line arguments
             RPMHandler rpmHandler = new RPMHandler();
             double[][] data = rpmCLI.loadDataPrivate("0", rpmCLI.trainDataFilename);
+
             rpmHandler.setNumberOfIterations(rpmCLI.numIterations);
             LOGGER.debug("loaded training data");
             rpmHandler.RPMTrain(rpmCLI.trainDataFilename, data, rpmCLI.RPMLabels);
@@ -86,6 +86,7 @@ public class GrammarVizRPM {
 
             rpmHandler.RPMSaveModel(rpmCLI.saveTrainedModelFilename);
             rpmHandler.trainingToJSON(rpmCLI.saveTrainedModelFilename);
+            rpmHandler.featureVectorToFile(rpmCLI.saveTrainedModelFilename + "features.train", data, rpmCLI.RPMLabels);
 
 
             if (rpmCLI.testdataFilename != null) {
@@ -97,6 +98,8 @@ public class GrammarVizRPM {
                 LOGGER.debug("Results:");
                 LOGGER.debug(rpmHandler.toString());
                 rpmHandler.testingToJSON(rpmCLI.saveTrainedModelFilename);
+                // write out the testing feature vector
+                rpmHandler.featureVectorToFile(rpmCLI.saveTrainedModelFilename + "features.test", testdata,  rpmCLI.RPMLabels);
 
 //                LOGGER.debug("Testing using DTW");
 //
