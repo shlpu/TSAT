@@ -118,10 +118,6 @@ public class RPMHandler extends Observable implements Runnable {
 
     }
 
-    public void loadRPMTrainedData(String fileName) throws  Exception {
-        RPM.loadRPMTrain(RPMLoadModel(fileName));
-    }
-
     /**
      * Saves an RPM trained model to file.
      *

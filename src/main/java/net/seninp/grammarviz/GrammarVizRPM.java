@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -53,7 +54,8 @@ public class GrammarVizRPM {
     @Parameter(names = { "--wsize", "-s" }, description = "The DTW window size default is 10")
     int windowSize = 10;
 
-
+    @Parameter(names = {"--mode"}, description = "0 train only, 1 train and test, 2 test with model")
+    int mode = 0;
 
     /**
      * The main function used to run GrammarViz/RPM from the command line, it takes in an argument list
@@ -73,44 +75,74 @@ public class GrammarVizRPM {
             jct.usage(); // tell the user how to use this tool
         }
         else { // Else run RPM using the command line arguments
-            RPMHandler rpmHandler = new RPMHandler();
-            double[][] data = rpmCLI.loadDataPrivate("0", rpmCLI.trainDataFilename);
-
-            rpmHandler.setNumberOfIterations(rpmCLI.numIterations);
-            LOGGER.debug("loaded training data");
-            rpmHandler.RPMTrain(rpmCLI.trainDataFilename, data, rpmCLI.RPMLabels);
-            LOGGER.debug("finished training using RPM");
-            LOGGER.debug("Window size = " + rpmHandler.getWindowSize());
-            LOGGER.debug("Alphabet = " + rpmHandler.getAlphabet());
-            LOGGER.debug("PAA = " + rpmHandler.getPaa());
-
-            rpmHandler.RPMSaveModel(rpmCLI.saveTrainedModelFilename);
-            rpmHandler.trainingToJSON(rpmCLI.saveTrainedModelFilename);
-            rpmHandler.featureVectorToFile(rpmCLI.saveTrainedModelFilename + "features.train", data, rpmCLI.RPMLabels);
-
-
-            if (rpmCLI.testdataFilename != null) {
-                GrammarVizConfiguration gconf = GrammarVizConfiguration.getConfiguration();
-                gconf.setDistanceMeasure(GrammarVizConfiguration.EUCLIDEAN_DISTANCE);
-                LOGGER.debug("Testing using Euclidean distance");
-                double[][] testdata = rpmCLI.loadDataPrivate("0", rpmCLI.testdataFilename);
-                rpmHandler.RPMTestData(rpmCLI.testdataFilename, testdata, rpmCLI.RPMLabels);
-                LOGGER.debug("Results:");
-                LOGGER.debug(rpmHandler.toString());
-                rpmHandler.testingToJSON(rpmCLI.saveTrainedModelFilename);
-                // write out the testing feature vector
-                rpmHandler.featureVectorToFile(rpmCLI.saveTrainedModelFilename + "features.test", testdata,  rpmCLI.RPMLabels);
-
-//                LOGGER.debug("Testing using DTW");
-//
-//                gconf.setDistanceMeasure(GrammarVizConfiguration.DTW_DISTANCE);
-//                gconf.setDTWWindow(rpmCLI.windowSize);
-//                rpmHandler.RPMTestData(rpmCLI.testdataFilename, testdata, rpmCLI.RPMLabels);
-//                LOGGER.debug("Results:");
-//                LOGGER.debug(rpmHandler.toString());
-            }
-
+            rpmCLI.process();
         }
+    }
+
+
+    public void process() throws Exception {
+
+        if (mode == 0) {
+            train();
+        }else if (mode == 1) {
+            test(train());
+        } else if (mode == 2) {
+            test(loadModel());
+        }
+    }
+
+
+
+    public RPMHandler train() throws Exception {
+
+        RPMHandler rpmHandler = new RPMHandler();
+        double[][] data = this.loadDataPrivate("0", this.trainDataFilename);
+
+        rpmHandler.setNumberOfIterations(this.numIterations);
+        LOGGER.debug("loaded training data");
+        rpmHandler.RPMTrain(this.trainDataFilename, data, this.RPMLabels);
+        LOGGER.debug("finished training using RPM");
+        LOGGER.debug("Window size = " + rpmHandler.getWindowSize());
+        LOGGER.debug("Alphabet = " + rpmHandler.getAlphabet());
+        LOGGER.debug("PAA = " + rpmHandler.getPaa());
+
+        rpmHandler.RPMSaveModel(this.saveTrainedModelFilename);
+        rpmHandler.trainingToJSON(this.saveTrainedModelFilename);
+        rpmHandler.featureVectorToFile(this.saveTrainedModelFilename + "features.train", data, this.RPMLabels);
+        return rpmHandler;
+    }
+
+    public void test(RPMHandler rpmHandler) throws  Exception {
+        if (this.testdataFilename != null) {
+            GrammarVizConfiguration gconf = GrammarVizConfiguration.getConfiguration();
+            gconf.setDistanceMeasure(GrammarVizConfiguration.EUCLIDEAN_DISTANCE);
+            LOGGER.debug("Testing using Euclidean distance");
+            double[][] testdata = this.loadDataPrivate("0", this.testdataFilename);
+            rpmHandler.RPMTestData(this.testdataFilename, testdata, this.RPMLabels);
+            LOGGER.debug("Results:");
+            LOGGER.debug(rpmHandler.toString());
+            rpmHandler.testingToJSON(this.saveTrainedModelFilename);
+            // write out the testing feature vector
+            rpmHandler.featureVectorToFile(this.saveTrainedModelFilename + "features.test", testdata, this.RPMLabels);
+        }
+    }
+
+
+    public RPMHandler loadModel() throws Exception {
+        RPMHandler rpmHandler = new RPMHandler();
+
+        rpmHandler.RPMLoadModel(this.saveTrainedModelFilename);
+        String filename = rpmHandler.getTrainingFilename();
+        if(!(new File(filename)).exists() || this.trainDataFilename != null) {
+            // use the provided training data location whether or not the one that was originally used still exists
+            filename = trainDataFilename;
+        }
+        double[][] data = this.loadDataPrivate("0", filename);
+        rpmHandler.setTrainingData(data);
+        rpmHandler.setTrainingLabels(this.RPMLabels);
+        rpmHandler.forceRPMModelReload();
+
+        return rpmHandler;
     }
 
     /**
@@ -121,6 +153,8 @@ public class GrammarVizRPM {
     private void log(String message) {
         LOGGER.debug(message);
     }
+
+
 
 
     /**
