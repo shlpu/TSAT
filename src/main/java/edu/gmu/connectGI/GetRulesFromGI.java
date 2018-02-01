@@ -600,11 +600,13 @@ public class GetRulesFromGI {
 				SAXRecords saxFrequencyData = null;
 				if (useSlidingWindow) {
 					// consoleLogger.debug("discretizing string ...");
-					saxFrequencyData = sp.ts2saxViaWindow(concatenatedTS, windowSize, paaSize,
-							normalA.getCuts(alphabetSize), numerosityReductionStrategy, normalizationThreshold);
-//					ParallelSAXImplementation ps = new ParallelSAXImplementation();
-//					saxFrequencyData = ps.process(concatenatedTS, 8, windowSize, paaSize,
-//							alphabetSize, numerosityReductionStrategy, normalizationThreshold);
+//					saxFrequencyData = sp.ts2saxViaWindow(concatenatedTS, windowSize, paaSize,
+//							normalA.getCuts(alphabetSize), numerosityReductionStrategy, normalizationThreshold);
+
+					// DREW Parallel SAX
+					ParallelSAXImplementation ps = new ParallelSAXImplementation();
+					saxFrequencyData = ps.process(concatenatedTS, 8, windowSize, paaSize,
+							alphabetSize, numerosityReductionStrategy, normalizationThreshold);
 
 					// saxFrequencyData =
 					// SequiturFactory.discretize(concatenatedTS,
