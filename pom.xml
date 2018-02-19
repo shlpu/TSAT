@@ -44,6 +44,10 @@
 
   <repositories>
     <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+    <repository>
       <id>ossrh</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </repository>
@@ -353,16 +357,22 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <!--<dependency>-->
+      <!--<groupId>net.seninp</groupId>-->
+      <!--<artifactId>jmotif-gi</artifactId>-->
+      <!--<version>1.0.1</version>-->
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<groupId>org.slf4j</groupId>-->
+          <!--<artifactId>slf4j-simple</artifactId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    <!--</dependency>-->
     <dependency>
-      <groupId>net.seninp</groupId>
-      <artifactId>jmotif-gi</artifactId>
-      <version>1.0.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>com.github.dwicke</groupId>
+      <artifactId>GI</artifactId>
+      <version>c06facc</version>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
