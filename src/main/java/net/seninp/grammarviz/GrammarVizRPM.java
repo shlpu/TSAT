@@ -3,6 +3,8 @@ package net.seninp.grammarviz;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import net.seninp.grammarviz.logic.RPMHandler;
+import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.util.StackTrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 /**
  * Created by dwicke on 4/14/17.
@@ -96,7 +101,7 @@ public class GrammarVizRPM {
     public RPMHandler train() throws Exception {
 
         RPMHandler rpmHandler = new RPMHandler();
-        double[][] data = this.loadDataPrivate("0", this.trainDataFilename);
+        double[][] data = this.loadDataPrivate("0", this.trainDataFilename, false);
 
         rpmHandler.setNumberOfIterations(this.numIterations);
         LOGGER.debug("loaded training data");
@@ -117,7 +122,7 @@ public class GrammarVizRPM {
             GrammarVizConfiguration gconf = GrammarVizConfiguration.getConfiguration();
             gconf.setDistanceMeasure(GrammarVizConfiguration.EUCLIDEAN_DISTANCE);
             LOGGER.debug("Testing using Euclidean distance");
-            double[][] testdata = this.loadDataPrivate("0", this.testdataFilename);
+            double[][] testdata = this.loadDataPrivate("0", this.testdataFilename, true);
             rpmHandler.RPMTestData(this.testdataFilename, testdata, this.RPMLabels);
             LOGGER.debug("Results:");
             LOGGER.debug(rpmHandler.toString());
@@ -137,7 +142,7 @@ public class GrammarVizRPM {
             // use the provided training data location whether or not the one that was originally used still exists
             filename = trainDataFilename;
         }
-        double[][] data = this.loadDataPrivate("0", filename);
+        double[][] data = this.loadDataPrivate("0", filename, false);
         rpmHandler.setTrainingData(data);
         rpmHandler.setTrainingLabels(this.RPMLabels);
         rpmHandler.forceRPMModelReload();
@@ -164,7 +169,7 @@ public class GrammarVizRPM {
      * @param fileName the path to the time series data.
      * @return the time series data.
      */
-    double[][] loadDataPrivate(String limitStr, String fileName) {
+    private double[][] loadDataPrivate(String limitStr, String fileName, boolean isTestDataset) {
         // check if everything is ready
         if ((null == fileName) || fileName.isEmpty()) {
             this.log("unable to load data - no data source selected yet");
@@ -181,7 +186,7 @@ public class GrammarVizRPM {
         // read the input
         //
         // init the data araay
-        ArrayList<ArrayList<Double>> data = new ArrayList<ArrayList<Double> >();
+        ArrayList<ArrayList<Double> > data = new ArrayList<ArrayList<Double> >();
 
         // lets go
         try {
@@ -210,8 +215,29 @@ public class GrammarVizRPM {
                         this.log("Found RPM Data");
                         this.enableRPM = true;
                         ArrayList<String> labels = new ArrayList<String>();
+
                         for(int i = 1; i < lineSplit.length; i++) {
+                            String label = lineSplit[i];
+                            if (label.equals("0")) {
+                                this.enableRPM = false;
+                                throw new DataFormatException("0 is not a valid label.  Please change the label and reload.");
+                            }
+
                             labels.add(lineSplit[i]);
+
+                        }
+
+                        if (!isTestDataset) {
+                            HashSet<String> setlabels = new HashSet<>(labels);
+
+                            if (setlabels.size() == 1) {
+                                throw new DataFormatException("There needs to be more than one class");
+                            }
+                            for (String curlabel : setlabels) {
+                                if (Collections.frequency(labels, curlabel) == 1) {
+                                    throw new DataFormatException("There needs to be more than one example for each class during training");
+                                }
+                            }
                         }
                         this.RPMLabels = labels.toArray(new String[labels.size()]);
                         continue;
@@ -241,11 +267,23 @@ public class GrammarVizRPM {
             }
             reader.close();
         }
-        catch (Exception e) {
+        catch (DataFormatException e) {
+            String stackTrace = StackTrace.toString(e);
+            //System.err.println(StackTrace.toString(e));
+            this.log("error while trying to read data from " + fileName + ":\n" + e.getMessage() + "\n" + stackTrace);
 
             return null;
         }
+        catch (Exception e) {
+            String stackTrace = StackTrace.toString(e);
+            //System.err.println(StackTrace.toString(e));
+            this.log("error while trying to read data from " + fileName + ":\n" + stackTrace);
 
+            return null;
+        }
+        //finally {
+        //  assert true;
+        //}
 
         double[][] output = null;
         // convert to simple doubles array and clean the variable
@@ -259,6 +297,7 @@ public class GrammarVizRPM {
                 }
             }
         }
+        data = new ArrayList<ArrayList<Double> >();
         return output;
     }
 
