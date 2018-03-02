@@ -184,7 +184,10 @@ public class PSDirectTransformAllClass {
 			this.consoleLogger.error("The number of classes (" +
 					data.length + ") and the number of labels (" +
 					labels.length + ") did not match");
-			return null;
+			throw new NullPointerException("The number of classes (" +
+					data.length + ") and the number of labels (" +
+					labels.length + ") did not match");
+			//return null;
 		}
 
 		Map<String, List<double[]>> res = new HashMap<String, List<double[]>>();
