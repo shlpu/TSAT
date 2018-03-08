@@ -63,9 +63,8 @@ public class SequiturFactoryWithEscape {
 			SAXTerminal symbol = new SAXTerminal(token, currentPosition);
 
 			resRule.last().insertAfter(symbol);
-			if ((!checkIntersection(currentPosition, startingPositions, windowSize, saxWordsIndexes).booleanValue())
-					&& (!checkIntersection(currentPosition - 1, startingPositions, windowSize, saxWordsIndexes)
-							.booleanValue())) {
+			if ((!checkIntersection(currentPosition, startingPositions, windowSize, saxWordsIndexes))
+					&& (!checkIntersection(currentPosition - 1, startingPositions, windowSize, saxWordsIndexes))) {
 				resRule.last().p.check();
 			}
 			currentPosition++;

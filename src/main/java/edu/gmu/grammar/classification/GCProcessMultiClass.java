@@ -135,6 +135,9 @@ public class GCProcessMultiClass {
 
 			if (existParams.size() < 1) {
 				//System.err.println("patterns = " + patterns);
+				if (patterns == null) {
+					throw new NullPointerException("Error no patterns found.  Please considering scaling timeseries data.");
+				}
 				Collections.addAll(finalPatterns, patterns);
 				existParams.add(params);
 			} else {

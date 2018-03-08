@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.zip.DataFormatException;
 
 import edu.gmu.grammar.classification.util.ClassificationResults;
 import edu.gmu.grammar.classification.util.PSDirectTransformAllClass;
@@ -91,7 +92,7 @@ public class GrammarVizModel extends Observable implements Observer {
 
   }
 
-  private double[][] loadDataPrivate(String limitStr, String fileName) {
+  private double[][] loadDataPrivate(String limitStr, String fileName, boolean isTestDataset) {
     // check if everything is ready
     if ((null == fileName) || fileName.isEmpty()) {
       this.log("unable to load data - no data source selected yet");
@@ -137,8 +138,29 @@ public class GrammarVizModel extends Observable implements Observer {
             this.log("Found RPM Data");
             this.enableRPM = true;
             ArrayList<String> labels = new ArrayList<String>();
+
             for(int i = 1; i < lineSplit.length; i++) {
+              String label = lineSplit[i];
+              if (label.equals("0")) {
+                this.enableRPM = false;
+                throw new DataFormatException("0 is not a valid label.  Please change the label and reload.");
+              }
+
               labels.add(lineSplit[i]);
+
+            }
+
+            if (!isTestDataset) {
+              HashSet<String> setlabels = new HashSet<>(labels);
+
+              if (setlabels.size() == 1) {
+                throw new DataFormatException("There needs to be more than one class");
+              }
+              for (String curlabel : setlabels) {
+                if (Collections.frequency(labels, curlabel) == 1) {
+                  throw new DataFormatException("There needs to be more than one example for each class during training");
+                }
+              }
             }
             this.RPMLabels = labels.toArray(new String[labels.size()]);
             continue;
@@ -151,6 +173,7 @@ public class GrammarVizModel extends Observable implements Observer {
 
         if (lineSplit.length < data.size()) {
           this.log("line " + (lineCounter+1) + " of file " + fileName + " contains too few data points.");
+          throw new DataFormatException(fileName + " contains too few data points.");
         }
 
         // we read only first column
@@ -167,6 +190,15 @@ public class GrammarVizModel extends Observable implements Observer {
         }
       }
       reader.close();
+    }
+    catch (DataFormatException e) {
+      String stackTrace = StackTrace.toString(e);
+      //System.err.println(StackTrace.toString(e));
+      this.log("error while trying to read data from " + fileName + ":\n" + e.getMessage() + "\n" + stackTrace);
+      setChanged();
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
+              "Data loading error: " + e.getMessage()));
+      return null;
     }
     catch (Exception e) {
       String stackTrace = StackTrace.toString(e);
@@ -204,7 +236,7 @@ public class GrammarVizModel extends Observable implements Observer {
    */
   public synchronized void loadData(String limitStr) {
 
-    this.ts = loadDataPrivate(limitStr, this.dataFileName);
+    this.ts = loadDataPrivate(limitStr, this.dataFileName, false);
     if(!(this.ts == null)) {
       LOGGER.debug("loaded " + this.ts[0].length + " points....");
 
@@ -216,6 +248,7 @@ public class GrammarVizModel extends Observable implements Observer {
       notifyObservers(new GrammarVizMessage(GrammarVizMessage.TIME_SERIES_MESSAGE, this.ts));
       // and if RPM data was found, enable RPM mode
       if(this.enableRPM) {
+
         setChanged();
         notifyObservers(new GrammarVizMessage(GrammarVizMessage.RPM_DATA_MESSAGE, this.RPMLabels));
       }
@@ -472,10 +505,12 @@ public class GrammarVizModel extends Observable implements Observer {
    * @param filename the path to the training time series data.
    * @return true if the file was found and loaded, false otherwise.
    */
-  private boolean loadTrainingDataForModel(String filename) {
+  private boolean loadTrainingDataForModel(String filename) throws IOException{
     String tempDataFileName = this.dataFileName;
     this.dataFileName = filename;
+
     this.loadData("0");
+
     if(!(this.ts == null)) {
       this.rpmHandler.setTrainingData(this.ts);
       this.rpmHandler.setTrainingLabels(this.RPMLabels);
@@ -501,6 +536,7 @@ public class GrammarVizModel extends Observable implements Observer {
       this.rpmHandler.RPMLoadModel(this.dataFileName);
       String filename = this.rpmHandler.getTrainingFilename();
       if((new File(filename)).exists()) {
+
         if(this.loadTrainingDataForModel(filename)) {
           setChanged();
           notifyObservers(new GrammarVizMessage(GrammarVizMessage.RPM_TRAIN_RESULTS_UPDATE_MESSAGE, this.rpmHandler));
@@ -519,6 +555,10 @@ public class GrammarVizModel extends Observable implements Observer {
       setChanged();
       notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
               "Could not load a RPM Model from file: " + this.dataFileName));
+    } catch (IOException e) {
+      setChanged();
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
+              "Error while loading RPM model: " + this.dataFileName + " " + StackTrace.toString(e)));
     } catch (Exception e) {
       this.log("error while loading RPM model " + StackTrace.toString(e));
       e.printStackTrace();
@@ -532,12 +572,20 @@ public class GrammarVizModel extends Observable implements Observer {
    * @param filename the path to the training time series data.
    */
   public synchronized void RPMLoadMissingTrain(String filename) {
-    if(this.loadTrainingDataForModel(filename)) {
+
+    try {
+      if (this.loadTrainingDataForModel(filename)) {
+        setChanged();
+        notifyObservers(new GrammarVizMessage(GrammarVizMessage.RPM_TRAIN_RESULTS_UPDATE_MESSAGE, this.rpmHandler));
+      } else {
+        this.rpmHandler = null;
+      }
+    } catch (IOException e) {
       setChanged();
-      notifyObservers(new GrammarVizMessage(GrammarVizMessage.RPM_TRAIN_RESULTS_UPDATE_MESSAGE, this.rpmHandler));
-    } else {
-      this.rpmHandler = null;
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
+              "Error while loading RPM model: " + this.dataFileName + " " + StackTrace.toString(e)));
     }
+
   }
 
   /**
@@ -548,7 +596,7 @@ public class GrammarVizModel extends Observable implements Observer {
   public synchronized void RPMTest(String filename) {
     this.log("Testing Model using " + filename + "...");
     try {
-      double[][] testData = loadDataPrivate("0", filename);
+      double[][] testData = loadDataPrivate("0", filename, true);
       if(this.enableRPM) {
         this.rpmHandler.RPMTestData(filename, testData, this.RPMLabels);
         setChanged();
@@ -557,6 +605,10 @@ public class GrammarVizModel extends Observable implements Observer {
       } else {
         this.log("Not RPM Data");
       }
+    } catch (IOException e) {
+      setChanged();
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
+              "Error while loading RPM model: " + this.dataFileName + " " + StackTrace.toString(e)));
     } catch (Exception e) {
       this.log("error while testing RPM model " + StackTrace.toString(e));
       e.printStackTrace();

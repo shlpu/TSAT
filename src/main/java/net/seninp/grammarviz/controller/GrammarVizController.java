@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
 import java.util.logging.Level;
-import javax.swing.JFileChooser;
+import java.util.zip.DataFormatException;
+import javax.swing.*;
+
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.session.UserSession;
