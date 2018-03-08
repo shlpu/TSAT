@@ -11,13 +11,25 @@ def RRA(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size
 		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizAnomaly -i {} -o {} -w {} -p {} -a {} --threshold {} --discords_num {}".format(TSAT_JAR_LOCATION, pathToTimeseries, outputFile, window_size, word_size, alphabet_size, threshold, discords_num).split())
 		return json.loads(open(outputFile).read())
 
-def RPM(pathToTraining, pathToTest, outputFile, num_iters):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --trainD {} --testD {} --model {} --numIters {} ".format(TSAT_JAR_LOCATION, pathToTraining, pathToTest, outputFile, num_iters).split())
+def RPMTrainTest(pathToTraining, pathToTest, outputFile, num_iters):
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --trainD {} --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTraining, pathToTest, outputFile, num_iters, 1).split())
 		return (json.loads(open("{}.train".format(outputFile)).read()), json.loads(open("{}.test".format(outputFile)).read()))
+
+def RPMTrain(pathToTraining, outputFile, num_iters):
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --trainD {} --model {} --numIters {} ".format(TSAT_JAR_LOCATION, pathToTraining, outputFile, num_iters,0).split())
+		# return the representative patterns
+		return json.loads(open("{}.train".format(outputFile)).read())
+
+def RPMTest(pathToTest, modelFile, num_iters):
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTest, modelFile, num_iters, 2).split())
+		#return the results
+		return json.loads(open("{}.test".format(modelFile)).read())
 
 
 
 #motifs = buildMotifs("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
 #print(motifs['rules']['1']['ruleIntervals'][0]['endPos'])
 #RRA("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
-# train, test = RPM("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT","/home/drew/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
+#train, test = RPMTrainTest("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT","/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
+# train = RPMTrain("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT", "CBFData", 3)
+# test = RPMTest("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
