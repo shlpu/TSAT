@@ -2,6 +2,7 @@ package net.seninp.grammarviz;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import edu.gmu.dataprocess.UCRUtils;
 import net.seninp.grammarviz.logic.RPMHandler;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.util.StackTrace;
@@ -10,17 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.zip.DataFormatException;
+
+import static edu.gmu.dataprocess.UCRUtils.readUCRData;
 
 /**
  * Created by dwicke on 4/14/17.
@@ -183,6 +184,77 @@ public class GrammarVizRPM {
             return null;
         }
 
+        int formatStyle = 0;
+        // lets go
+        try {
+
+            // set the lines limit
+            long loadLimit = 0l;
+            if (!(null == limitStr) && !(limitStr.isEmpty())) {
+                loadLimit = Long.parseLong(limitStr);
+            }
+
+            // open the reader
+            BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
+
+            // read by the line in the loop from reader
+            String line = reader.readLine();
+            String[] lineSplit = line.trim().split("\\s+");
+            if (lineSplit[0].compareTo("#") == 0 && lineSplit.length == 1) {
+                formatStyle = 1;
+            }
+            reader.close();
+        }catch(IOException e) {
+
+        }
+
+        if (formatStyle == 0) {
+            return loadDataColumnWise(limitStr,fileName,isTestDataset);
+        }else {
+            try {
+                Map<String, List<double[]>> data =  UCRUtils.readUCRData(fileName);
+                int numEntries = 0;
+                for (Map.Entry<String, List<double[]>> en : data.entrySet())
+                {
+                    numEntries += en.getValue().size();
+                }
+                double dataset[][] = new double[numEntries][];
+                RPMLabels = new String[numEntries];
+                int index = 0;
+                for (Map.Entry<String, List<double[]>> en : data.entrySet())
+                {
+                    for (double[] lis : en.getValue()) {
+                        RPMLabels[index] = en.getKey();
+                        dataset[index] = lis;
+                        index++;
+                    }
+                }
+                this.enableRPM = true;
+                return dataset;
+
+            }catch(Exception e) {
+
+            }finally {
+            }
+        }
+        return null;
+
+    }
+
+
+    private double[][] loadDataColumnWise(String limitStr, String fileName, boolean isTestDataset) {
+        if ((null == fileName) || fileName.isEmpty()) {
+            this.log("unable to load data - no data source selected yet");
+            return null;
+        }
+
+        // make sure the path exists
+        Path path = Paths.get(fileName);
+        if (!(Files.exists(path))) {
+            this.log("file " + fileName + " doesn't exist.");
+            return null;
+        }
+
         // read the input
         //
         // init the data araay
@@ -300,5 +372,6 @@ public class GrammarVizRPM {
         data = new ArrayList<ArrayList<Double> >();
         return output;
     }
+
 
 }

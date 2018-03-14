@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.DataFormatException;
 
+import edu.gmu.dataprocess.UCRUtils;
 import edu.gmu.grammar.classification.util.ClassificationResults;
 import edu.gmu.grammar.classification.util.PSDirectTransformAllClass;
 import edu.gmu.grammar.classification.util.RPMTrainedData;
@@ -99,6 +100,81 @@ public class GrammarVizModel extends Observable implements Observer {
       return null;
     }
 
+
+    // make sure the path exists
+    Path path = Paths.get(fileName);
+    if (!(Files.exists(path))) {
+      this.log("file " + fileName + " doesn't exist.");
+      return null;
+    }
+
+    int formatStyle = 0;
+    // lets go
+    try {
+
+      // set the lines limit
+      long loadLimit = 0l;
+      if (!(null == limitStr) && !(limitStr.isEmpty())) {
+        loadLimit = Long.parseLong(limitStr);
+      }
+
+      // open the reader
+      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
+
+      // read by the line in the loop from reader
+      String line = reader.readLine();
+      String[] lineSplit = line.trim().split("\\s+");
+      if (lineSplit[0].compareTo("#") == 0 && lineSplit.length == 1) {
+        formatStyle = 1;
+      }
+      reader.close();
+    }catch(IOException e) {
+
+    }
+
+    if (formatStyle == 0) {
+      return loadDataColumnWise(limitStr,fileName,isTestDataset);
+    }else {
+      try {
+        System.err.println("Loading from ucr format");
+        Map<String, List<double[]>> data =  UCRUtils.readUCRData(fileName);
+        System.err.println("loaded data");
+        int numEntries = 0;
+        for (Map.Entry<String, List<double[]>> en : data.entrySet())
+        {
+          numEntries += en.getValue().size();
+        }
+        double dataset[][] = new double[numEntries][];
+        RPMLabels = new String[numEntries];
+        int index = 0;
+        System.err.println("creating the dataset");
+        for (Map.Entry<String, List<double[]>> en : data.entrySet())
+        {
+          for (double[] lis : en.getValue()) {
+            RPMLabels[index] = en.getKey();
+            dataset[index] = lis;
+            index++;
+          }
+        }
+        System.err.println("Done");
+        this.enableRPM = true;
+        return dataset;
+
+      }catch(Exception e) {
+
+      }
+    }
+    return null;
+
+  }
+
+
+  private double[][] loadDataColumnWise(String limitStr, String fileName, boolean isTestDataset) {
+    if ((null == fileName) || fileName.isEmpty()) {
+      this.log("unable to load data - no data source selected yet");
+      return null;
+    }
+
     // make sure the path exists
     Path path = Paths.get(fileName);
     if (!(Files.exists(path))) {
@@ -173,7 +249,6 @@ public class GrammarVizModel extends Observable implements Observer {
 
         if (lineSplit.length < data.size()) {
           this.log("line " + (lineCounter+1) + " of file " + fileName + " contains too few data points.");
-          throw new DataFormatException(fileName + " contains too few data points.");
         }
 
         // we read only first column
@@ -195,18 +270,14 @@ public class GrammarVizModel extends Observable implements Observer {
       String stackTrace = StackTrace.toString(e);
       //System.err.println(StackTrace.toString(e));
       this.log("error while trying to read data from " + fileName + ":\n" + e.getMessage() + "\n" + stackTrace);
-      setChanged();
-      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
-              "Data loading error: " + e.getMessage()));
+
       return null;
     }
     catch (Exception e) {
       String stackTrace = StackTrace.toString(e);
       //System.err.println(StackTrace.toString(e));
       this.log("error while trying to read data from " + fileName + ":\n" + stackTrace);
-      setChanged();
-      notifyObservers(new GrammarVizMessage(GrammarVizMessage.LOAD_FILE_ERROR_UPDATE_MESSAGE,
-              "Data File could not be read: " + this.dataFileName));
+
       return null;
     }
     //finally {

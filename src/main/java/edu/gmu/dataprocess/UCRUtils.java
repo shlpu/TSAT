@@ -26,6 +26,7 @@ public class UCRUtils {
 
 		BufferedReader br = new BufferedReader(new FileReader(new File(fileName)));
 		String line = "";
+		int count = 0;
 		while ((line = br.readLine()) != null) {
 			if (line.trim().length() == 0) {
 				continue;
@@ -44,20 +45,28 @@ public class UCRUtils {
 			}
 			
 			TSProcessor tsp = new TSProcessor();
-			series = tsp.znorm(series, 0.05);
-			
+			double max = tsp.max(series);
+			double min = tsp.min(series);
+			for (int i = 0; i < series.length; i++) {
+				series[i] = (max - series[i]) / (max - min);
+			}
+//			series = tsp.znorm(series, 0.05);
+
 			if (!res.containsKey(seriesType)) {
 				res.put(seriesType, new ArrayList<double[]>());
 			}
-
+			System.err.println("loaded class " + seriesType + " number = " + count++);
 			res.get(seriesType).add(series);
 		}
 
-	    res = refineClassLabel(res);
+	    //res = refineClassLabel(res);
 		br.close();
 		return res;
 
 	}
+
+
+
 
 	/**
 	 * Converts a string to a double if it is possible, returning Not a Number (NaN) if it fails.
