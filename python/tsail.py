@@ -29,7 +29,8 @@ def RPMTest(pathToTest, modelFile, num_iters):
 
 #motifs = buildMotifs("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
 #print(motifs['rules']['1']['ruleIntervals'][0]['endPos'])
-#RRA("/home/drew/Desktop/ecg0606_1.csv", "pythonOutTest", window_size=300)
+jsonData = RRA("/home/dwicke/Desktop/testpcapconnection3.txt", "pythonOutTest", window_size=15,word_size=4,threshold=0.05, discords_num=10)
+print(jsonData)
 #train, test = RPMTrainTest("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT","/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
 # train = RPMTrain("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT", "CBFData", 3)
 # test = RPMTest("/home/dwicke/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)

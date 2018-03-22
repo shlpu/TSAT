@@ -144,6 +144,11 @@ public class GrammarVizModel extends Observable implements Observer {
         {
           numEntries += en.getValue().size();
         }
+
+        if (data.keySet().size() == 1) {
+          throw new DataFormatException("There needs to be more than one example for each class during training");
+        }
+        System.err.println("There are " + data.keySet().size() + " number of classes");
         double dataset[][] = new double[numEntries][];
         RPMLabels = new String[numEntries];
         int index = 0;
@@ -161,10 +166,13 @@ public class GrammarVizModel extends Observable implements Observer {
         return dataset;
 
       }catch(Exception e) {
+        String stackTrace = StackTrace.toString(e);
+        //System.err.println(StackTrace.toString(e));
+        this.log("error while trying to read data from " + fileName + ":\n " + e.getMessage() + " \n" + stackTrace);
 
+        return null;
       }
     }
-    return null;
 
   }
 

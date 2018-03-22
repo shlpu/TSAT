@@ -6,15 +6,13 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.seninp.gi.sequitur.SAXRule;
+import net.seninp.grammarviz.logic.RuleDescriptor;
+import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.beust.jcommander.JCommander;
@@ -160,7 +158,7 @@ public class GrammarVizAnomaly {
             GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
       }
       else if (AnomalyAlgorithm.RRA.equals(GrammarVizAnomalyParameters.ALGORITHM)) {
-        findRRA(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
+        findRRA2(series, GrammarVizAnomalyParameters.SAX_WINDOW_SIZE,
             GrammarVizAnomalyParameters.SAX_PAA_SIZE, GrammarVizAnomalyParameters.SAX_ALPHABET_SIZE,
             GrammarVizAnomalyParameters.SAX_NR_STRATEGY, GrammarVizAnomalyParameters.DISCORDS_NUM,
             GrammarVizAnomalyParameters.GI_ALGORITHM_IMPLEMENTATION,
@@ -682,6 +680,188 @@ public class GrammarVizAnomaly {
     }
   }
 
+
+
+
+
+  private static void findRRA2(double[] ts, int windowSize, int paaSize, int alphabetSize,
+                               NumerosityReductionStrategy saxNRStrategy, int discordsToReport, GIAlgorithm giImplementation,
+                               String outputPrefix, double normalizationThreshold) throws Exception {
+    NormalAlphabet na = new NormalAlphabet();
+    LOGGER.info("running RRA algorithm...");
+    Date start = new Date();
+    String SPACE = " ";
+    GrammarRules grules = null;
+      if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
+
+        SAXProcessor sp = new SAXProcessor();
+
+
+        SAXRecords saxFrequencyData = sp.ts2saxViaWindow(ts, windowSize, paaSize, na.getCuts(alphabetSize),
+                saxNRStrategy, normalizationThreshold);
+
+
+        LOGGER.debug("running sequitur ...");
+        SAXRule sequiturGrammar = SequiturFactory
+                .runSequitur(saxFrequencyData.getSAXString(SPACE));
+
+        LOGGER.debug("collecting grammar rules data ...");
+        grules = sequiturGrammar.toGrammarRulesData();
+
+        LOGGER.debug("mapping rule intervals on timeseries ...");
+        // only use first time series, updateRuleInterval only cares about length (why does it take an array?)
+        SequiturFactory.updateRuleIntervals(grules, saxFrequencyData, true, ts,
+                windowSize, paaSize);
+
+      }
+
+    // [1] build an array of rules along with their use frequency
+    //
+    HashMap<RuleDescriptor, ArrayList<RuleInterval>> rules = new HashMap<RuleDescriptor, ArrayList<RuleInterval>>();
+
+    for (GrammarRuleRecord r : grules) {
+      if (0 == r.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> intervals = grules.get(r.ruleNumber()).getRuleIntervals();
+      rules.put(new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(),
+              r.getMeanLength(), r.getRuleUseFrequency()), intervals);
+    }
+
+    // [2] populate all intervals with their coverage
+    //
+    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
+    for (Map.Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
+      for (RuleInterval ri : e.getValue()) {
+        // ri.setCoverage(e.getKey().getRuleFrequency());
+        ri.setCoverage(e.getValue().size());
+        ri.setId(e.getKey().getRuleIndex());
+        intervals.add(ri);
+      }
+    }
+
+    // [3] compute the coverage
+    //
+
+    int[] coverageArray = new int[ts.length];
+
+    for (GrammarRuleRecord ruleEntry : grules) {
+      if (0 == ruleEntry.ruleNumber()) {
+        continue;
+      }
+      ArrayList<RuleInterval> ruleIntervals = grules.get(ruleEntry.ruleNumber()).getRuleIntervals();
+      for (RuleInterval interval : ruleIntervals) {
+        for (int j = interval.getStart(); j < interval.getEnd(); j++) {
+          coverageArray[j]++;
+        }
+      }
+    }
+
+    // [3] check if somewhere there is a ZERO coverage!
+    //
+    for (int i = 0; i < coverageArray.length; i++) {
+      if (0 == coverageArray[i]) {
+        int j = i;
+        while ((j < coverageArray.length - 1) && (0 == coverageArray[j])) {
+          j++;
+        }
+        if (Math.abs(i - j) > 1) {
+          intervals.add(new RuleInterval(0, i, j, 0.0d));
+        }
+        i = j;
+      }
+    }
+
+    List<RuleInterval> zeros = GrammarVizAnomaly.getZeroIntervals(coverageArray);
+    if (zeros.size() > 0) {
+      intervals.addAll(zeros);
+    }
+    else {
+    }
+
+    // run HOTSAX with this intervals set
+    //
+    DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, discordsToReport,
+            intervals);
+    Date end = new Date();
+
+    System.out.println(discords.toString() + CR + discords.getSize() + " discords found in "
+            + SAXProcessor.timeToString(start.getTime(), end.getTime()) + CR);
+
+    try(  PrintWriter out = new PrintWriter( outputPrefix )  ){
+      Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
+      out.write(g.toJson(discords));
+    }
+
+
+
+    // THE DISCORD SEARCH IS DONE RIGHT HERE
+    // BELOW IS THE CODE WHICH WRITES THE CURVE AND THE DISTANCE FILE ON FILESYSTEM
+    //
+    if (!(outputPrefix.isEmpty())) {
+
+      // write the coverage array
+      //
+      String currentPath = new File(".").getCanonicalPath();
+      BufferedWriter bw = new BufferedWriter(
+              new FileWriter(new File(currentPath + File.separator + outputPrefix + "_coverage.txt")));
+      for (int i : coverageArray) {
+        bw.write(i + "\n");
+      }
+      bw.close();
+
+      Collections.sort(intervals, new Comparator<RuleInterval>() {
+        public int compare(RuleInterval c1, RuleInterval c2) {
+          if (c1.getStart() > c2.getStart()) {
+            return 1;
+          }
+          else if (c1.getStart() < c2.getStart()) {
+            return -1;
+          }
+          return 0;
+        }
+      });
+
+      // now lets find all the distances to non-self match
+      //
+      double[] distances = new double[ts.length];
+      double[] widths = new double[ts.length];
+
+      for (RuleInterval ri : intervals) {
+
+        int ruleStart = ri.getStart();
+        int ruleEnd = ruleStart + ri.getLength();
+        int window = ruleEnd - ruleStart;
+
+        double[] cw = tp.subseriesByCopy(ts, ruleStart, ruleStart + window);
+
+        double cwNNDist = Double.MAX_VALUE;
+
+        // this effectively finds the furthest hit
+        //
+        for (int j = 0; j < ts.length - window - 1; j++) {
+          if (Math.abs(ruleStart - j) > window) {
+            double[] currentSubsequence = tp.subseriesByCopy(ts, j, j + window);
+            double dist = ed.distance(cw, currentSubsequence);
+            if (dist < cwNNDist) {
+              cwNNDist = dist;
+            }
+          }
+        }
+
+        distances[ruleStart] = cwNNDist;
+        widths[ruleStart] = ri.getLength();
+      }
+
+      bw = new BufferedWriter(
+              new FileWriter(new File(currentPath + File.separator + outputPrefix + "_distances.txt")));
+      for (int i = 0; i < distances.length; i++) {
+        bw.write(i + "," + distances[i] + "," + widths[i] + "\n");
+      }
+      bw.close();
+    }
+  }
+
   /**
    * Finds discords in classic manner (i.e., using a trie).
    * 
@@ -724,6 +904,11 @@ public class GrammarVizAnomaly {
       LOGGER.info(rules.size() + " RePair rules inferred in "
           + SAXProcessor.timeToString(start.getTime(), end.getTime()));
     }
+
+
+
+
+
 
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>(rules.size() * 2);
 
@@ -772,6 +957,8 @@ public class GrammarVizAnomaly {
     else {
       LOGGER.info("the whole timeseries is covered by rule intervals ...");
     }
+
+
 
     // run HOTSAX with this intervals set
     //

@@ -177,6 +177,7 @@ public class GrammarVizRPM {
             return null;
         }
 
+
         // make sure the path exists
         Path path = Paths.get(fileName);
         if (!(Files.exists(path))) {
@@ -212,15 +213,24 @@ public class GrammarVizRPM {
             return loadDataColumnWise(limitStr,fileName,isTestDataset);
         }else {
             try {
+                System.err.println("Loading from ucr format");
                 Map<String, List<double[]>> data =  UCRUtils.readUCRData(fileName);
+                System.err.println("loaded data");
                 int numEntries = 0;
                 for (Map.Entry<String, List<double[]>> en : data.entrySet())
                 {
                     numEntries += en.getValue().size();
                 }
+
+                if (data.keySet().size() == 1) {
+                    throw new DataFormatException("There needs to be more than one example for each class during training");
+                }
+                System.err.println("There are " + data.keySet().size() + " number of classes");
+
                 double dataset[][] = new double[numEntries][];
                 RPMLabels = new String[numEntries];
                 int index = 0;
+                System.err.println("creating the dataset");
                 for (Map.Entry<String, List<double[]>> en : data.entrySet())
                 {
                     for (double[] lis : en.getValue()) {
@@ -229,15 +239,18 @@ public class GrammarVizRPM {
                         index++;
                     }
                 }
+                System.err.println("Done");
                 this.enableRPM = true;
                 return dataset;
 
             }catch(Exception e) {
+                String stackTrace = StackTrace.toString(e);
+                //System.err.println(StackTrace.toString(e));
+                this.log("error while trying to read data from " + fileName + ":\n " + e.getMessage() + " \n" + stackTrace);
 
-            }finally {
+                return null;
             }
         }
-        return null;
 
     }
 
