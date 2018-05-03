@@ -52,7 +52,7 @@ public class UCRUtils {
 			double max = tsp.max(series);
 			double min = tsp.min(series);
 			for (int i = 0; i < series.length; i++) {
-				series[i] = (max - series[i]) / (max - min);
+				series[i] = (series[i] - min) / (max - min);
 			}
 //			series = tsp.znorm(series, 0.05);
 
