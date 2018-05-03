@@ -26,6 +26,7 @@ import weka.classifiers.functions.supportVector.RBFKernel;
 //import weka.classifiers.lazy.IBk;
 //import weka.classifiers.trees.*;
 import weka.classifiers.lazy.IBk;
+import weka.classifiers.misc.InputMappedClassifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
 //import weka.classifiers.meta.OneClassClassifier;
@@ -50,6 +51,7 @@ public class GCProcessMultiClass {
 			new Tag(FILTER_NONE, "No normalization/standardization"), };
 
 	private int folderNum;
+	private boolean testUnlabeled = false;
 
 	private static final Logger consoleLogger;
 	private static final Level LOGGING_LEVEL = Level.INFO;
@@ -308,7 +310,11 @@ public class GCProcessMultiClass {
 					idxPattern++;
 
 				}
+				if (clsLabel.contains("?")) {
+					clsLabel = "-1";
+				}
 				transformedTS[idxTs][idxPattern] = Integer.parseInt(clsLabel);
+
 				idxTs++;
 			}
 		}
@@ -564,9 +570,19 @@ public class GCProcessMultiClass {
 		// return svmClassify(trainData, testData);
 
 		Instances train = buildArff(trainData);
-		Instances test = buildArff(testData);
+		Instances test = buildArff(testData, trainData, train);
 
-		Classifier classifier = chooseClassifier(train);
+//		System.err.println("Training:");
+//		System.err.println(train.toString());
+//		System.err.println("testing:");
+//		System.err.println(test.toString());
+
+
+		Classifier chosenclassifier = chooseClassifier(train);
+
+		InputMappedClassifier classifier = new InputMappedClassifier();
+		classifier.setClassifier(chosenclassifier);
+		classifier.setSuppressMappingReport(true);
 
 		// Select attibutes again
 		// AttributeSelectedClassifier classifier = new
@@ -582,19 +598,34 @@ public class GCProcessMultiClass {
 			classifier.buildClassifier(train);
 			// evaluate classifier and print some statistics
 			Evaluation eval = new Evaluation(train);
-			eval.evaluateModel(classifier, test);
 
-			if(output != null) {
-				CSV results = new CSV();
-				results.setBuffer(output);
-				results.setHeader(test);
-				results.print(classifier,test);
+			if (!testUnlabeled) {
+				eval.evaluateModel(classifier, test);
+
+
+
+				if (output != null) {
+					CSV results = new CSV();
+					results.setBuffer(output);
+					results.setHeader(test);
+					results.print(classifier, test);
+				}
+
+				String rltString = eval.toSummaryString("\n\n======\nResults: ", false);
+				System.out.println(rltString);
+
+				return eval.errorRate();
 			}
 
-			String rltString = eval.toSummaryString("\n\n======\nResults: ", false);
-			System.out.println(rltString);
-
-			return eval.errorRate();
+			for (Instance i : test) {
+				double[] val = classifier.distributionForInstance(i);
+				for (int j = 0; j < val.length; j++) {
+					System.err.print(val[j] + ", ");
+					output.append(val[j] + ", ");
+				}
+				output.append(classifier.classifyInstance(i) + "\n");
+				System.err.println(classifier.classifyInstance(i));
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -750,6 +781,59 @@ public class GCProcessMultiClass {
 		}
 	}
 
+	public Instances buildArff(double[][] array, double[][] trainData, Instances train) {
+		FastVector atts = new FastVector();
+		int attrNum = trainData[0].length;
+		System.err.println("trainData length = " + attrNum + " test = " + array[0].length);
+		for (int i = 0; i < attrNum - 1; i++) {
+			atts.addElement(new Attribute("C" + String.valueOf(i + 1)));
+		}
+
+		FastVector classVal = new FastVector();
+		List<Integer> clsLabel = new ArrayList<Integer>();
+		for (int i = 0; i < trainData.length; i++) {
+			clsLabel.add((int) trainData[i][attrNum - 1]);
+		}
+
+		int clsNum = Collections.max(clsLabel);
+		boolean wasNeg = false;
+
+		for (int i = 1; i <= clsNum; i++) {
+			classVal.addElement(String.valueOf(i));
+		}
+
+
+		atts.addElement(new Attribute("@@class@@", classVal));
+		// atts.add(new Attribute("@@class@@", classVal));
+
+		// 2. create Instances object
+		Instances test = new Instances("DistanceToPatterns", atts, 0);
+
+		// 3. fill with data
+
+		for (int i = 0; i < array.length; i++) {
+			DenseInstance denseInstance = new DenseInstance(attrNum);
+			for (int j = 0; j < array[i].length - 1; j++) {
+				denseInstance.setValue(j, array[i][j]);
+			}
+			if (array[i][array[i].length - 1] == -1) {
+				//denseInstance.setValue(array[i].length - 1, "?");
+				testUnlabeled = true;
+				denseInstance.setMissing(array[i].length - 1);
+			} else {
+				denseInstance.setValue(array[i].length - 1, array[i][array[i].length - 1] - 1);
+			}
+			denseInstance.setDataset(train);
+			test.add(denseInstance);
+		}
+
+		test.setClassIndex(test.numAttributes() - 1);
+
+
+
+		return (test);
+}
+
 	public Instances buildArff(double[][] array) {
 		FastVector atts = new FastVector();
 		int attrNum = array[0].length;
@@ -762,9 +846,17 @@ public class GCProcessMultiClass {
 		for (int i = 0; i < array.length; i++) {
 			clsLabel.add((int) array[i][attrNum - 1]);
 		}
+
 		int clsNum = Collections.max(clsLabel);
-		for (int i = 1; i <= clsNum; i++) {
-			classVal.addElement(String.valueOf(i));
+		boolean wasNeg = false;
+		if (clsNum != -1) {
+			for (int i = 1; i <= clsNum; i++) {
+				classVal.addElement(String.valueOf(i));
+			}
+		}else {
+			System.err.println("adding ?");
+			wasNeg = true;
+			classVal.addElement("?");
 		}
 
 		atts.addElement(new Attribute("@@class@@", classVal));
@@ -774,16 +866,42 @@ public class GCProcessMultiClass {
 		Instances test = new Instances("DistanceToPatterns", atts, 0);
 
 		// 3. fill with data
-		for (int tsI = 0; tsI < array.length; tsI = tsI + 1) {
-			double vals[] = new double[test.numAttributes()];
 
-			for (int attrI = 0; attrI < attrNum - 1; attrI++) {
-				vals[attrI] = array[tsI][attrI];
+		for (int i = 0; i < array.length; i++) {
+			DenseInstance denseInstance = new DenseInstance(attrNum);
+			for (int j = 0; j < array[i].length - 1; j++) {
+				denseInstance.setValue(j,array[i][j]);
 			}
-			vals[attrNum - 1] = array[tsI][attrNum - 1] - 1;
-			test.add(new SparseInstance(1.0, vals));
+			if (array[i][array[i].length - 1] == -1){
+				denseInstance.setValue(array[i].length - 1,0);
+			} else {
+				denseInstance.setValue(array[i].length - 1, array[i][array[i].length - 1] - 1);
+			}
+			test.add(denseInstance);
 		}
+
+//		for (int tsI = 0; tsI < array.length; tsI = tsI + 1) {
+//			double vals[] = new double[test.numAttributes()];
+//
+//			for (int attrI = 0; attrI < attrNum - 1; attrI++) {
+//				vals[attrI] = array[tsI][attrI];
+//			}
+//			// not sure why we subtract one from the class label??
+//			if (array[tsI][attrNum - 1] == -1) {
+//				//System.err.println("it is -1!!!");
+//				vals[attrNum - 1] = 0;//array[tsI][attrNum - 1] + 1;
+//			}else {
+//				//System.err.println("it is not!!!");
+//				vals[attrNum - 1] = array[tsI][attrNum - 1] - 1;
+//			}
+//
+//
+//			test.add(new SparseInstance(1.0, vals));
+//		}
+
 		test.setClassIndex(test.numAttributes() - 1);
+
+
 
 		return (test);
 	}
