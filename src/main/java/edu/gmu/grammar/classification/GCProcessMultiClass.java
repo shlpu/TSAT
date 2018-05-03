@@ -616,7 +616,7 @@ public class GCProcessMultiClass {
 
 				return eval.errorRate();
 			}
-
+			output.append("#\n");
 			for (Instance i : test) {
 				double[] val = classifier.distributionForInstance(i);
 				for (int j = 0; j < val.length; j++) {

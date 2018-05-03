@@ -158,32 +158,44 @@ public class RPMHandler extends Observable implements Runnable {
         HashMap<String, int[]> convertedResults = new HashMap<String, int[]>();
 
         String[] entries = this.testingResults.results.split("\n");
-        //System.err.println("Results = " + this.testingResults.results);
-        for(int i = 1; i < entries.length; i++) {
-            String[] columns = entries[i].split(",");
-            String actualClassLabel = columns[1].split(":")[0];
+        if (entries[0].contains("#")) {
+            String[][] output = new String[entries.length][2];
+            for (int i = 0; i < entries.length; i++) {
+                String[] columns = entries[i].split(",");
+                output[i][0] = columns[columns.length - 1];
+                for (int j = 0; j < columns.length - 1; j++) {
+                    output[i][1] += columns[j] + ",";
+                }
+            }
+            return output;
+        }else {
+            //System.err.println("Results = " + this.testingResults.results);
+            for (int i = 1; i < entries.length; i++) {
+                String[] columns = entries[i].split(",");
+                String actualClassLabel = columns[1].split(":")[0];
 
-            if(!convertedResults.containsKey(actualClassLabel)) {
-                convertedResults.put(actualClassLabel, new int[2]);
+                if (!convertedResults.containsKey(actualClassLabel)) {
+                    convertedResults.put(actualClassLabel, new int[2]);
+                }
+
+                int[] ratio = convertedResults.get(actualClassLabel);
+                ratio[1]++;
+                if (columns[3].equals("+")) {
+                    ratio[0]++;
+                }
             }
 
-            int[] ratio = convertedResults.get(actualClassLabel);
-            ratio[1]++;
-            if(columns[3].equals("+")) {
-                ratio[0]++;
+            String[][] output = new String[convertedResults.size()][2];
+            int i = 0;
+            for (Map.Entry<String, int[]> entry : convertedResults.entrySet()) {
+                output[i][0] = entry.getKey();
+                int[] ratio = entry.getValue();
+                output[i][1] = ratio[0] + "/" + ratio[1];
+                i++;
             }
-        }
 
-        String[][] output = new String[convertedResults.size()][2];
-        int i = 0;
-        for(Map.Entry<String, int[]> entry : convertedResults.entrySet()) {
-            output[i][0] = entry.getKey();
-            int[] ratio = entry.getValue();
-            output[i][1] = ratio[0] + "/" + ratio[1];
-            i++;
+            return output;
         }
-
-        return output;
     }
 
 
@@ -197,30 +209,36 @@ public class RPMHandler extends Observable implements Runnable {
             return null;
 
         ArrayList<String[]> out = new ArrayList<>();
+
         String[] entries = this.testingResults.results.split("\n");
-        //System.err.println("Results = " + this.testingResults.results);
-        for(int i = 1; i < entries.length; i++) {
-            String[] columns = entries[i].split(",");
-            String instance = columns[0];
-            String actualClassLabel = columns[1].split(":")[0];
-            String predictedClassLabel = columns[2].split(":")[0];
-            StringBuilder timeSeries = new StringBuilder();
-            for(int j = 0; j < getTestingResults().testDataTS[Integer.parseInt(instance) - 1].length; j++)
-            {
-                timeSeries.append(getTestingResults().testDataTS[Integer.parseInt(instance) - 1][j] + ", ");
+        if (entries[0].contains("#")) {
+            String[][] output = new String[entries.length][4];
+            return output;
+
+        }else {
+            //System.err.println("Results = " + this.testingResults.results);
+            for (int i = 1; i < entries.length; i++) {
+                String[] columns = entries[i].split(",");
+                String instance = columns[0];
+                String actualClassLabel = columns[1].split(":")[0];
+                String predictedClassLabel = columns[2].split(":")[0];
+                StringBuilder timeSeries = new StringBuilder();
+                for (int j = 0; j < getTestingResults().testDataTS[Integer.parseInt(instance) - 1].length; j++) {
+                    timeSeries.append(getTestingResults().testDataTS[Integer.parseInt(instance) - 1][j] + ", ");
+                }
+
+                if (columns[3].equals("+")) {
+                    String[] result = new String[4];
+                    result[0] = instance;
+                    result[1] = actualClassLabel;
+                    result[2] = predictedClassLabel;
+                    result[3] = timeSeries.toString();
+                    out.add(result);
+                }
             }
 
-            if(columns[3].equals("+")) {
-                String[] result = new String[4];
-                result[0] = instance;
-                result[1] = actualClassLabel;
-                result[2] = predictedClassLabel;
-                result[3] = timeSeries.toString();
-                out.add(result);
-            }
+            return out.toArray(new String[out.size()][]);
         }
-
-        return out.toArray(new String[out.size()][]);
     }
 
     /**
