@@ -160,10 +160,14 @@ public class RPMHandler extends Observable implements Runnable {
         String[] entries = this.testingResults.results.split("\n");
         if (entries[0].contains("#")) {
             String[][] output = new String[entries.length][2];
-            for (int i = 0; i < entries.length; i++) {
+            output[0][0] = "Classified";
+            output[0][1] = "Label probability for each class:";
+
+            for (int i = 1; i < entries.length; i++) {
                 String[] columns = entries[i].split(",");
                 output[i][0] = columns[columns.length - 1];
-                for (int j = 0; j < columns.length - 1; j++) {
+                output[i][1] = "";
+                for (int j = 1; j < columns.length - 1; j++) {
                     output[i][1] += columns[j] + ",";
                 }
             }
@@ -212,8 +216,33 @@ public class RPMHandler extends Observable implements Runnable {
 
         String[] entries = this.testingResults.results.split("\n");
         if (entries[0].contains("#")) {
-            String[][] output = new String[entries.length][4];
-            return output;
+            String[] header = new String[4];
+            header[0] = "Instance Number";
+            header[1] = "Label probability for each class:";
+            header[2] = "Predicted class";
+            header[3] = "Time Series";
+            out.add(header);
+
+            for (int i = 1; i < entries.length; i++) {
+                String[] columns = entries[i].split(",");
+                String instance = columns[0];
+                String predictedClassLabel = columns[columns.length - 1];
+                StringBuilder timeSeries = new StringBuilder();
+                for (int j = 0; j < getTestingResults().testDataTS[Integer.parseInt(instance) - 1].length; j++) {
+                    timeSeries.append(getTestingResults().testDataTS[Integer.parseInt(instance) - 1][j] + ", ");
+                }
+                String actualClassLabel = "";
+                for (int j = 1; j < columns.length - 1; j++) {
+                    actualClassLabel += columns[j] + ",";
+                }
+
+                String[] result = new String[4];
+                result[0] = instance;
+                result[1] = actualClassLabel;
+                result[2] = predictedClassLabel;
+                result[3] = timeSeries.toString();
+                out.add(result);
+            }
 
         }else {
             //System.err.println("Results = " + this.testingResults.results);
@@ -236,9 +265,8 @@ public class RPMHandler extends Observable implements Runnable {
                     out.add(result);
                 }
             }
-
-            return out.toArray(new String[out.size()][]);
         }
+        return out.toArray(new String[out.size()][]);
     }
 
     /**

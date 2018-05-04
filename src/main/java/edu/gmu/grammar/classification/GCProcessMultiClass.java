@@ -617,14 +617,19 @@ public class GCProcessMultiClass {
 				return eval.errorRate();
 			}
 			output.append("#\n");
+			int instNum = 1;
 			for (Instance i : test) {
 				double[] val = classifier.distributionForInstance(i);
+				System.err.print(instNum + ", ");
+				output.append(instNum + ", ");
+				instNum++;
 				for (int j = 0; j < val.length; j++) {
 					System.err.print(val[j] + ", ");
 					output.append(val[j] + ", ");
 				}
-				output.append(classifier.classifyInstance(i) + "\n");
-				System.err.println(classifier.classifyInstance(i));
+
+				output.append(test.classAttribute().value((int) classifier.classifyInstance(i)) + "\n");
+				System.err.println(test.classAttribute().value((int) classifier.classifyInstance(i)));
 			}
 
 		} catch (Exception e) {
