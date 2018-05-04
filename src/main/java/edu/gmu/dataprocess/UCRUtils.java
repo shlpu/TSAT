@@ -49,11 +49,11 @@ public class UCRUtils {
 			}
 			
 			TSProcessor tsp = new TSProcessor();
-			double max = tsp.max(series);
-			double min = tsp.min(series);
-			for (int i = 0; i < series.length; i++) {
-				series[i] = (series[i] - min) / (max - min);
-			}
+//			double max = tsp.max(series);
+//			double min = tsp.min(series);
+//			for (int i = 0; i < series.length; i++) {
+//				series[i] = (series[i] - min) / (max - min);
+//			}
 //			series = tsp.znorm(series, 0.05);
 
 			if (!res.containsKey(seriesType)) {
