@@ -115,7 +115,7 @@ public class GCProcessMultiClass {
 			error = classifyTransformedData(transformedTrainTS, transformedTestTS);
 		}
 
-		consoleLogger.info("Classification Accuracy: " + String.valueOf(error));
+		//consoleLogger.info("Classification Accuracy: " + String.valueOf(error));
 
 	}
 

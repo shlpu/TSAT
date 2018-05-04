@@ -158,7 +158,7 @@ public class RPMHandler extends Observable implements Runnable {
         HashMap<String, int[]> convertedResults = new HashMap<String, int[]>();
 
         String[] entries = this.testingResults.results.split("\n");
-        if (entries[0].contains("#")) {
+        if (entries[0].equals("#")) {
             String[][] output = new String[entries.length][2];
             output[0][0] = "Classified";
             output[0][1] = "Label probability for each class:";
@@ -215,7 +215,7 @@ public class RPMHandler extends Observable implements Runnable {
         ArrayList<String[]> out = new ArrayList<>();
 
         String[] entries = this.testingResults.results.split("\n");
-        if (entries[0].contains("#")) {
+        if (entries[0].equals("#")) {
             String[] header = new String[4];
             header[0] = "Instance Number";
             header[1] = "Label probability for each class:";
