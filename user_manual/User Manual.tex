@@ -6,6 +6,7 @@
 \usepackage{float}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\newenvironment{allintypewriter}{\ttfamily}{\par}
 \hypersetup{
   colorlinks,
   citecolor=black,
@@ -21,6 +22,28 @@
 \maketitle
 \tableofcontents
 \newpage
+\section{Installation}
+
+This tutorial assumes that you are running Ubuntu 16.04 with Java 1.8 or greater installed.
+
+\begin{allintypewriter}
+	\noindent git clone https://github.com/dwicke/TSAT.git\\
+	cd TSAT\\
+	mvn package -Psingle\\
+\end{allintypewriter}
+This will create tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar in the target directory.  You can execute the jar and run the GUI by double clicking on it after changing its permissions:
+\begin{verbatim}
+chmod +x tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+\end{verbatim}  
+
+
+To run the GUI from a shell you can do:
+\begin{verbatim}
+$ java -Xmx2g -jar target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar 
+\end{verbatim}
+	
+The -Xmx2g allocates max of 2Gb of memory for the software.
+
 
 \section{The Data}
 
@@ -30,7 +53,7 @@
 Training data is the primary data and will be used to create a model that can identify similar patterns in new, unlabeled, data. This data must have a label for each time series so that RPM can learn what the labels can look like. This is where the bulk of the data shall be as RPM will need many samples to find representative patterns.
 
 \paragraph{Testing Data}
-Testing data is a small subset of data usually from the same source as the training data but not found in the training data. This set of data will be used to test the model that RPM made for accuracy.
+Testing data is a small subset of data usually from the same source as the training data but not found in the training data. This set of data will be used to test the model that RPM made for accuracy or to predict labels for unlabeled test data.
 
 \subsection{Data Format}
 
@@ -52,7 +75,30 @@ Testing data is a small subset of data usually from the same source as the train
   \end{subfigure}
 \end{figure}
 
-The formatting of the data is important because the system will not run unless it can read that data. The data files are simple text files that store the time series data with one entry per column, with a space delimiter, with each row representing a time step in the time series data. With RPM compatible data the first row in the file is prepended by a ``\#'' with rest of the row containing the label for each entry rather then the time series values. Keep note that TSAT data has the same format except it does not have the row containing the labels, if the data is missing this row RPM will not be enabled in TSAT. Also note that labels are treated as strings so there is no requirement that they be numbers. Examples of RPM compatible data can be seen in figure \ref{fig:rpm-data-exs}.
+The formatting of the data is important because the system will not run unless it can read that data. The data files are simple text files that store the time series data with one entry per column, with a space delimiter, with each row representing a time step in the time series data. With RPM compatible data the first row in the file is prepended by a ``\#'' with rest of the row containing the label for each entry rather then the time series values. Keep note that TSAT data has the same format except it does not have the row containing the labels, if the data is missing this row RPM will not be enabled in TSAT. Also note that labels consist of the integers greater than zero (float values will be converted to integers). Examples of RPM compatible data can be seen in figure \ref{fig:rpm-data-exs}.  Another thing to keep in mind is that in this format the time series must all be the same length.
+
+If the time series are not all the same length then use the row format.  In this format the first line of the file is a ``\#'' followed by a new line.  Then each line starts with the label followed by the corresponding time series (each value separated by a space).  For example,
+\newpage
+\begin{allintypewriter}
+	\noindent\#\\
+	1 -5.3 -23 5 ...\\
+	1 23 1 5 3 1 ...\\
+	2 23 3 4 200 ...\\
+	2 42 3 4 102 ...\\
+	...
+\end{allintypewriter}
+
+In either format, one exception to the integer label rule is when predicting unlabeled test data.  In this case the test data labels will all be ``?'' (note that there must not be any labeled test data if any of the test data is labeled with a ``?'').  For example,
+
+\begin{allintypewriter}
+	\noindent\#\\
+	? -5.3 -23 5 ...\\
+	? 23 1 5 3 1 ...\\
+	? 23 3 4 200 ...\\
+	...
+\end{allintypewriter}
+
+When training there must always be more than one example from each class label and there must be more than one label.
 
 \newpage
 \section{Using RPM}
@@ -197,6 +243,15 @@ Once the model has been selected, click the ``Load Model'' button and the model 
 \end{figure}
 
 \newpage
+\section{Testing Unlabeled Data}
+Using the same method for loading the test data when the data is labeled we can see the results for unlabeled data.  Here the test data labels are all question marks so the results will consist of the probability that the test example is in each of the different training classes and the predicted label.  For example, in figure \ref{fig:TSAT-Results-Unknown-Test} the solid box has the label probability for each class and dashed box has the predicted class label.
+\begin{figure}[H]
+	\includegraphics[width=\textwidth]{RPMTimeSeriesResultsUnknown}
+	\caption{Solid box highlights the probability that the time series was in each of the different class labels and the dashed box highlights the predicted label.}
+	\label{fig:TSAT-Results-Unknown-Test}
+\end{figure}
+
+\newpage
 \section{RPM settings and what they do}
 There are a few options that can be changed when using RPM in TSAT, some of them have already been mentioned and will be covered again.
 
@@ -239,7 +294,7 @@ Now select the ``Dynamic Time Warping'' option and the desired ``Window'' then c
 
 \newpage
 \subsection{Iterations}
-During the operation of RPM it goes though a step that gets repeated many times. This step only stops under two conditions, a minimum threshold is met or if the maximum number of iterations are reached. The iterations setting found under the ``Run RPM'' section of the main window in TSAT is how the user can control the maximum number of iterations, figure \ref{fig:TSAT-iterations-setting}. The number of iterations can have an effect on how accurate the model can get, however the more iterations RPM runs through the longer it will take to complete. This becomes a balance between the quality of the model and the how long the training phase will take. It should also should be noted that RPM can stop before the maximum number of iterations is met if the model has reached an ideal state. However, this does not mean that all models will or even can reach an ideal state before the maximum number of iterations is reached, indeed some data sets may never return a model that meets the requirements. As RPM runs through the iterations the model should get better but the amount it gets better by can be come increasingly insignificant and therefore adding another 10 iterations may not add any significant results to the model. The only way to know if adding more iterations will improve the model is by experimentation which would involve training multiple times, increasing the maximum number of iterations every run until the testing results return no significant improvements.
+During the operation of RPM it goes though a step that gets repeated many times. This step only stops under two conditions, a minimum threshold is met or if the maximum number of iterations are reached. The iterations setting found under the ``Run RPM'' section of the main window in TSAT is how the user can control the maximum number of iterations, figure \ref{fig:TSAT-iteration-setting}. The number of iterations can have an effect on how accurate the model can get, however the more iterations RPM runs through the longer it will take to complete. This becomes a balance between the quality of the model and the how long the training phase will take. It should also should be noted that RPM can stop before the maximum number of iterations is met if the model has reached an ideal state. However, this does not mean that all models will or even can reach an ideal state before the maximum number of iterations is reached, indeed some data sets may never return a model that meets the requirements. As RPM runs through the iterations the model should get better but the amount it gets better by can be come increasingly insignificant and therefore adding another 10 iterations may not add any significant results to the model. The only way to know if adding more iterations will improve the model is by experimentation which would involve training multiple times, increasing the maximum number of iterations every run until the testing results return no significant improvements.
 
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{TSAT-iterations-setting}
