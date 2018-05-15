@@ -2,7 +2,7 @@ TSAT stands for Time Series Analysis Tool and is an offshoot of GrammarViz that 
 
 To get started double click on TSAT.jar and follow along in the User Manual to run RPM in TSAT.  The paper describing RPM is in Papers called "rpm paper.pdf".
 
-If you have an internet connection and you want to the most up-to-date version of TSAT please open a terminal window and type
+If you have an internet connection and you want the most up-to-date version of TSAT please open a terminal window and type
 
 cd Desktop
 sh update.sh
