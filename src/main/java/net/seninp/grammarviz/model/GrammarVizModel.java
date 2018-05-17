@@ -145,7 +145,7 @@ public class GrammarVizModel extends Observable implements Observer {
           numEntries += en.getValue().size();
         }
 
-        if (data.keySet().size() == 1) {
+        if (data.keySet().size() == 1 && !data.keySet().toArray(new String[data.keySet().size()])[0].equals("-1")) {
           throw new DataFormatException("There needs to be more than one example for each class during training");
         }
         System.err.println("There are " + data.keySet().size() + " number of classes");

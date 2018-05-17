@@ -613,6 +613,16 @@ public class GCProcessMultiClass {
 
 				String rltString = eval.toSummaryString("\n\n======\nResults: ", false);
 				System.out.println(rltString);
+				System.out.println("F1 score:");
+
+				for (int i = 0; i < train.numClasses(); i++) {
+					System.out.println("class " + (i + 1) + "F1 Score: " + eval.fMeasure(i) + " AUC: " + eval.areaUnderROC(i));
+				}
+				System.out.println("Weighted F1 Score = " + eval.weightedFMeasure());
+				System.out.println("Weighted AUC = " + eval.weightedAreaUnderROC());
+				System.out.println(eval.toMatrixString());
+
+
 
 				return eval.errorRate();
 			}

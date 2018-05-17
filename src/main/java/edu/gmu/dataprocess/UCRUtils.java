@@ -38,7 +38,12 @@ public class UCRUtils {
 			String[] split = line.trim().split("[\\,\\s]+");
 
 			String label = split[0];
-			Double num = parseValue(label);
+			Double num;
+			if (label.equals("?")) {
+				num = -1.0;
+			} else {
+				num = parseValue(label);
+			}
 			String seriesType = label;
 			if (!(Double.isNaN(num))) {
 				seriesType = String.valueOf(num.intValue());
