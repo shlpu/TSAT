@@ -115,16 +115,6 @@ public class PSDirectTransformAllClass {
 	private GrammarInductionMethod giMethod = GrammarInductionMethod.SEQUITUR;
 
 
-	/**
-	 * Loads training data from a path, setting the appropriate fields.
-	 *
-	 * @param trainingDataFilePath - A file path to RPM formatted (UCR) data.
-	 * @throws IOException
-	 */
-	private void loadTrainingData(String trainingDataFilePath) throws IOException {
-		TRAINING_DATA_PATH = trainingDataFilePath;
-		trainData = UCRUtils.readUCRData(TRAINING_DATA_PATH);
-	}
 
 	/**
 	 * Converts a string to a double if it is possible, returning Not a Number (NaN) if it fails.
@@ -193,6 +183,7 @@ public class PSDirectTransformAllClass {
 		Map<String, List<double[]>> res = new HashMap<String, List<double[]>>();
 
 		for(int i = 0; i < labels.length; i++) {
+
 			Double num = parseValue(labels[i]);
 			String seriesType = labels[i];
 			if (!(Double.isNaN(num))) {

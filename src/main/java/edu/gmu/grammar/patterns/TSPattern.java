@@ -148,6 +148,11 @@ public class TSPattern implements Cloneable, Comparable<TSPattern>, Serializable
 		this.startP = startP;
 	}
 
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
 	/**
 	 * Compares to TSPattern objects based on their frequency. If the comparing object's frequency is greater then
 	 * the object being compared to it will return a 1. If the frequency of the comparing object is less then

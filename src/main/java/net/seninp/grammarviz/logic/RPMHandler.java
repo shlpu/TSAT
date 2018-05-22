@@ -16,6 +16,7 @@ import java.util.*;
 
 /**
  * Created by David Fleming on 1/24/17.
+ * updated by Drew
  *
  * A class to handle the state of RPM for GrammarViz.
  */
@@ -25,9 +26,11 @@ public class RPMHandler extends Observable implements Runnable {
     private RPMTrainedData trainingResults;
     private String trainingFilename;
     private double[][] trainingData;
-    private String[] trainingLabels;
+    private String[] trainingLabels; // these must be the integer values
     private ClassificationResults testingResults;
-    private String[] testingLabels;
+    private String[] testingLabels; // these must be the integer values
+    private Map<String, Integer> classLabs; // this maps the string label that was loaded to the integer that we use
+    private Map<String, String> labsToClass; // this maps the lab that we use to the class that was given
     private TSPattern[] finalPatterns;
     private int numberOfIterations;
 
@@ -38,6 +41,7 @@ public class RPMHandler extends Observable implements Runnable {
         super();
         this.RPM = new PSDirectTransformAllClass();
         this.numberOfIterations = PSDirectTransformAllClass.DEFAULT_NUMBER_OF_ITERATIONS;
+        classLabs = new HashMap<>();
     }
 
     /**
@@ -49,7 +53,8 @@ public class RPMHandler extends Observable implements Runnable {
      * @throws java.io.IOException
      */
     public synchronized void RPMTrain(String filename, double[][] data, String[] labels) throws java.io.IOException {
-        this.trainingResults = this.RPM.RPMTrain(filename, data, labels, PSDirectTransformAllClass.DEFAULT_STRATEGY,
+        String[] newLabels = createReformattedLabels(labels);
+        this.trainingResults = this.RPM.RPMTrain(filename, data, newLabels, PSDirectTransformAllClass.DEFAULT_STRATEGY,
                 this.numberOfIterations);
         this.finalPatterns = this.trainingResults.finalPatterns();
     }
@@ -80,8 +85,8 @@ public class RPMHandler extends Observable implements Runnable {
      * @throws java.io.IOException
      */
     public synchronized void RPMTestData(String filename, double[][] data, String[] labels) throws java.io.IOException {
-        this.testingLabels = labels;
-        this.testingResults = this.RPM.RPMTestData(filename, data, labels);
+        this.testingLabels = getReformattedLabels(labels);
+        this.testingResults = this.RPM.RPMTestData(filename, data, this.testingLabels);
     }
 
     /**
@@ -92,27 +97,18 @@ public class RPMHandler extends Observable implements Runnable {
      */
     public synchronized RPMTrainedData RPMLoadModel(String filename) throws Exception {
         RPMTrainedData rpmTrainedData = null;
-        //try {
-            FileInputStream loadFile = new FileInputStream(filename);
-            ObjectInputStream loadStream = new ObjectInputStream(loadFile);
-            rpmTrainedData = (RPMTrainedData) loadStream.readObject();
-            loadStream.close();
-            loadFile.close();
-        /*} catch(ClassNotFoundException e) {
-            this.log("error " + filename + " is not a RPM Model");
-            e.printStackTrace();
-        } catch(Exception e) {
-            this.log("error while loading RPM model " + StackTrace.toString(e));
-            e.printStackTrace();
-        }*/
+        FileInputStream loadFile = new FileInputStream(filename);
+        ObjectInputStream loadStream = new ObjectInputStream(loadFile);
+        rpmTrainedData = (RPMTrainedData) loadStream.readObject();
+        loadStream.close();
+        loadFile.close();
 
-        //if(!(rpmTrainedData == null)) {
-            this.trainingResults = rpmTrainedData;
-            this.trainingFilename = rpmTrainedData.training_data_path;
-            this.finalPatterns = rpmTrainedData.finalPatterns();
-            this.numberOfIterations = rpmTrainedData.iterations_num;
+        this.trainingResults = rpmTrainedData;
+        this.trainingFilename = rpmTrainedData.training_data_path;
+        this.finalPatterns = rpmTrainedData.finalPatterns();
+        this.numberOfIterations = rpmTrainedData.iterations_num;
 
-        //}
+
 
         return rpmTrainedData;
 
@@ -143,6 +139,11 @@ public class RPMHandler extends Observable implements Runnable {
      * @return the representative patterns.
      */
     public synchronized TSPattern[] getRepresentativePatterns() {
+
+        for (TSPattern p : finalPatterns) {
+            p.setLabel(labsToClass.get(p.getLabel()));
+        }
+
         return this.finalPatterns;
     }
 
@@ -174,9 +175,15 @@ public class RPMHandler extends Observable implements Runnable {
             return output;
         }else {
             //System.err.println("Results = " + this.testingResults.results);
+            for (Map.Entry<String, String> ent : labsToClass.entrySet()) {
+                System.err.println("Key = " + ent.getKey() + " value: " + ent.getValue());
+            }
             for (int i = 1; i < entries.length; i++) {
                 String[] columns = entries[i].split(",");
-                String actualClassLabel = columns[1].split(":")[0];
+                String actualClassLabel = labsToClass.get(columns[1].split(":")[0]);
+                System.err.println("actual Class label = " + actualClassLabel + " before conversion = " + columns[1].split(":")[0]);
+
+
 
                 if (!convertedResults.containsKey(actualClassLabel)) {
                     convertedResults.put(actualClassLabel, new int[2]);
@@ -259,8 +266,8 @@ public class RPMHandler extends Observable implements Runnable {
                 if (columns[3].equals("+")) {
                     String[] result = new String[4];
                     result[0] = instance;
-                    result[1] = actualClassLabel;
-                    result[2] = predictedClassLabel;
+                    result[1] = labsToClass.get(actualClassLabel);
+                    result[2] = labsToClass.get(predictedClassLabel);
                     result[3] = timeSeries.toString();
                     out.add(result);
                 }
@@ -381,6 +388,43 @@ public class RPMHandler extends Observable implements Runnable {
     public synchronized void setTrainingLabels(String[] trainingLabels) {
         this.trainingLabels = trainingLabels;
     }
+
+    public synchronized String[] createReformattedLabels(String[] curLabels) {
+        // ok so here I'm going to work the magic...
+        // trainingLabels are not in the right format they are going to be just any old string
+        // i need them to be integer values from 1 to n (where n is the number of classes)
+        // so lets reformat so as to be useful
+        classLabs = new HashMap<>(); // need to reset
+        labsToClass = new HashMap<>();
+        System.err.println("Going to create the labels");
+        String[] newLabels = new String[curLabels.length];
+        //Map<String, Integer> classLabs = new HashMap<>();
+        for (int i = 0; i < curLabels.length; i++) {
+            int num = classLabs.size() + 1;
+            if (!classLabs.containsKey(curLabels[i])) {
+                classLabs.put(curLabels[i], num);
+                labsToClass.put(Integer.toString(num), curLabels[i]);
+            }
+            newLabels[i] = classLabs.get(curLabels[i]).toString();
+        }
+        labsToClass.put("?", "?");
+        return newLabels;
+    }
+
+    public synchronized String[] getReformattedLabels(String[] curLabels) {
+        // so from the classLabs get the reformated labels
+        String[] newLabels = new String[curLabels.length];
+        //Map<String, Integer> classLabs = new HashMap<>();
+        for (int i = 0; i < curLabels.length; i++) {
+            if (curLabels[i].equals("?")) {
+                newLabels[i] = "-1";
+            } else {
+                newLabels[i] = classLabs.get(curLabels[i]).toString();
+            }
+        }
+        return newLabels;
+    }
+
 
     /**
      * Forces a reload of the training model by reconverting the data and loading the model.

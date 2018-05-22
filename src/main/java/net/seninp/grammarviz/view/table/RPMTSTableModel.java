@@ -41,9 +41,9 @@ public class RPMTSTableModel extends GrammarvizRulesTableDataModel {
         if(columnIndex == RPMTSTableColumns.RPM_TS_ID.ordinal())
             return Integer.class;
         if(columnIndex == RPMTSTableColumns.RPM_ACTUAL.ordinal())
-            return Integer.class;
+            return String.class;
         if(columnIndex == RPMTSTableColumns.RPM_PREDICTED.ordinal())
-            return Integer.class;
+            return String.class;
         return String.class;
     }
 }

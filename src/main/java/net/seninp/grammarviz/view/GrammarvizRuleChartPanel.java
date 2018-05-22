@@ -237,7 +237,7 @@ public class GrammarvizRuleChartPanel extends JPanel implements PropertyChangeLi
    */
   private void chartRPMMisclassifiedTS(ArrayList<String> newlySelectedPatterns) {
 
-    System.err.println("DREW selected missclassfied result = " + newlySelectedPatterns.toString());
+    //System.err.println("DREW selected missclassfied result = " + newlySelectedPatterns.toString());
 
     try {
       ArrayList<double[]> intervals = new ArrayList<double[]>();

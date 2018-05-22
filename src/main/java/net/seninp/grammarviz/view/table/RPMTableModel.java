@@ -36,7 +36,7 @@ public class RPMTableModel extends GrammarvizRulesTableDataModel {
 
     public Class<?> getColumnClass(int columnIndex) {
         if(columnIndex == RPMTableColumns.RPM_CLASSES.ordinal())
-            return Integer.class;
+            return String.class;
         if(columnIndex == RPMTableColumns.RPM_CLASS_STATS.ordinal())
             return Integer.class;
 
