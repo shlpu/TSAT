@@ -468,7 +468,7 @@ public class RPMHandler extends Observable implements Runnable {
     public void trainingToJSON(String outputPrefix) throws Exception{
         try(  PrintWriter out = new PrintWriter( outputPrefix + ".train" )  ){
             Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-            out.write(g.toJson(finalPatterns));
+            out.write(g.toJson(getRepresentativePatterns()));
 
         }
     }
@@ -483,7 +483,24 @@ public class RPMHandler extends Observable implements Runnable {
     public void featureVectorToFile(String filename, double[][] data, String[] labels) throws Exception{
         try (PrintWriter out = new PrintWriter(filename)) {
             Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
-            out.write(g.toJson(trainingResults.getFeatureVector(RPM.convertGrammarVizData(data, labels), testingResults)));
+            String[] myLabels = getReformattedLabels(labels);
+            double[][] tout = trainingResults.getFeatureVector(RPM.convertGrammarVizData(data, myLabels), testingResults);
+            String[][] sout = new String[tout.length][];
+
+            // convert the last value to the string label
+            for (int i = 0; i < tout.length; i++) {
+                String[] a = new String[tout[i].length];
+                for (int j = 0; j < tout[i].length; j++) {
+                    a[j] = Double.toString(tout[i][j]);
+                    if (j == tout.length - 1) {
+                        // this is the label so covert to the user's label
+                        a[j] = labsToClass.get(String.valueOf(Integer.valueOf(a[j])));
+                    }
+                }
+                sout[i] = a;
+            }
+
+            out.write(g.toJson(sout));
         }
 
 
