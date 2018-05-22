@@ -166,7 +166,7 @@ public class RPMHandler extends Observable implements Runnable {
 
             for (int i = 1; i < entries.length; i++) {
                 String[] columns = entries[i].split(",");
-                output[i][0] = columns[columns.length - 1];
+                output[i][0] = labsToClass.get(columns[columns.length - 1].trim());
                 output[i][1] = "";
                 for (int j = 1; j < columns.length - 1; j++) {
                     output[i][1] += columns[j] + ",";
@@ -175,9 +175,7 @@ public class RPMHandler extends Observable implements Runnable {
             return output;
         }else {
             //System.err.println("Results = " + this.testingResults.results);
-            for (Map.Entry<String, String> ent : labsToClass.entrySet()) {
-                System.err.println("Key = " + ent.getKey() + " value: " + ent.getValue());
-            }
+
             for (int i = 1; i < entries.length; i++) {
                 String[] columns = entries[i].split(",");
                 String actualClassLabel = labsToClass.get(columns[1].split(":")[0]);
@@ -246,7 +244,8 @@ public class RPMHandler extends Observable implements Runnable {
                 String[] result = new String[4];
                 result[0] = instance;
                 result[1] = actualClassLabel;
-                result[2] = predictedClassLabel;
+
+                result[2] = labsToClass.get(predictedClassLabel.trim());
                 result[3] = timeSeries.toString();
                 out.add(result);
             }
