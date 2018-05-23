@@ -32,5 +32,6 @@ def RPMTest(pathToTest, modelFile, num_iters):
 #jsonData = RRA("/home/dwicke/Desktop/testpcapconnection3.txt", "pythonOutTest", window_size=15,word_size=4,threshold=0.05, discords_num=10)
 #print(jsonData)
 # train, test = RPMTrainTest("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT_LETTERS","/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT_LETTERS", "CBFData", 3)
-# train = RPMTrain("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT", "CBFData", 3)
-# test = RPMTest("/home/drew/Desktop/TSATtutorial/CBF/CBF_TEST_TSAT", "CBFData", 3)
+# train = RPMTrain("/home/drew/Desktop/TSATtutorial/CBF/CBF_TRAIN_TSAT_LETTERS", "CBFData", 3)
+# test = RPMTest("/home/drew/Desktop/TSATtutorial/CBF/CBF_TEST_WEKA", "CBFData", 3)
+# print(test)

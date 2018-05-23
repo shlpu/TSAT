@@ -124,6 +124,10 @@ public class GrammarVizRPM {
             gconf.setDistanceMeasure(GrammarVizConfiguration.EUCLIDEAN_DISTANCE);
             LOGGER.debug("Testing using Euclidean distance");
             double[][] testdata = this.loadDataPrivate("0", this.testdataFilename, true);
+            if (testdata == null) {
+                System.err.println("Error: File" + this.testdataFilename +  " not found");
+                System.exit(9);
+            }
             rpmHandler.RPMTestData(this.testdataFilename, testdata, this.RPMLabels);
             LOGGER.debug("Results:");
             LOGGER.debug(rpmHandler.toString());
@@ -146,6 +150,7 @@ public class GrammarVizRPM {
         double[][] data = this.loadDataPrivate("0", filename, false);
         rpmHandler.setTrainingData(data);
         rpmHandler.setTrainingLabels(this.RPMLabels);
+        rpmHandler.createReformattedLabels(this.RPMLabels);
         rpmHandler.forceRPMModelReload();
 
         return rpmHandler;

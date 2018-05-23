@@ -140,11 +140,16 @@ public class RPMHandler extends Observable implements Runnable {
      */
     public synchronized TSPattern[] getRepresentativePatterns() {
 
+        TSPattern[] copied = new TSPattern[finalPatterns.length];
+        int cur = 0;
         for (TSPattern p : finalPatterns) {
-            p.setLabel(labsToClass.get(p.getLabel()));
+            TSPattern n = new TSPattern(p);
+            n.setLabel(labsToClass.get(p.getLabel()));
+            copied[cur] = n;
+            cur++;
         }
 
-        return this.finalPatterns;
+        return copied;
     }
 
     /**
@@ -179,7 +184,7 @@ public class RPMHandler extends Observable implements Runnable {
             for (int i = 1; i < entries.length; i++) {
                 String[] columns = entries[i].split(",");
                 String actualClassLabel = labsToClass.get(columns[1].split(":")[0]);
-                System.err.println("actual Class label = " + actualClassLabel + " before conversion = " + columns[1].split(":")[0]);
+                //System.err.println("actual Class label = " + actualClassLabel + " before conversion = " + columns[1].split(":")[0]);
 
 
 
@@ -395,7 +400,7 @@ public class RPMHandler extends Observable implements Runnable {
         // so lets reformat so as to be useful
         classLabs = new HashMap<>(); // need to reset
         labsToClass = new HashMap<>();
-        System.err.println("Going to create the labels");
+        //System.err.println("Going to create the labels");
         String[] newLabels = new String[curLabels.length];
         //Map<String, Integer> classLabs = new HashMap<>();
         for (int i = 0; i < curLabels.length; i++) {
@@ -413,6 +418,7 @@ public class RPMHandler extends Observable implements Runnable {
     public synchronized String[] getReformattedLabels(String[] curLabels) {
         // so from the classLabs get the reformated labels
         String[] newLabels = new String[curLabels.length];
+
         //Map<String, Integer> classLabs = new HashMap<>();
         for (int i = 0; i < curLabels.length; i++) {
             if (curLabels[i].equals("?")) {
@@ -429,7 +435,8 @@ public class RPMHandler extends Observable implements Runnable {
      * Forces a reload of the training model by reconverting the data and loading the model.
      */
     public synchronized void forceRPMModelReload() {
-        this.trainingResults.trainData = this.RPM.convertGrammarVizData(this.trainingData, this.trainingLabels);
+        String[] newLabels = createReformattedLabels(this.trainingLabels);
+        this.trainingResults.trainData = this.RPM.convertGrammarVizData(this.trainingData, newLabels);
         this.RPM.loadRPMTrain(this.trainingResults);
     }
 
