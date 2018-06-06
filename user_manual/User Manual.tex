@@ -75,7 +75,7 @@ Testing data is a small subset of data usually from the same source as the train
   \end{subfigure}
 \end{figure}
 
-The format of the data is important because the system will not run unless it can read that data. The data files are simple text files that store the time series data with one entry per column, with a space delimiter, with each row representing a time step in the time series data. With RPM compatible data the first row in the file is prepended by a ``\#'' with rest of the row containing the label for each entry rather then the time series values. Note that TSAT data has the same format except it does not have the row containing the labels and starting with a ``\#'', if the data is missing this row RPM will not be enabled in TSAT. Also note that labels may be any string excluding white space and ``?'' as this is reserved for unknown values in test data. Examples of RPM compatible data can be seen in figure \ref{fig:rpm-data-exs}.  Another thing to keep in mind is that in this format the time series must all be the same length.
+The format of the data is important because the system will not run unless it can read that data. The data files are simple text files that store the time series data with one entry per column, with a space delimiter, with each row representing a time step in the time series data. With RPM compatible data the first row in the file starts with a ``\#'' with rest of the row containing the label for each time series rather then the time series values. Note that TSAT data has the same format except it does not have the row containing the labels and starting with a ``\#'', if the data is missing this row RPM will not be enabled in TSAT. Also the labels for the time series may be any string excluding white space and ``?'' as this is reserved for unknown values in test data. Examples of RPM compatible data can be seen in figure~\ref{fig:rpm-data-exs}.  Another thing to keep in mind is that in this format the time series must all be the same length.
 
 If the time series are not all the same length then use the row format.  In this format the first line of the file is a ``\#'' followed by a new line.  Then each line starts with the label followed by the corresponding time series (each value separated by a space).  For example,\\
 %\newpage
@@ -83,12 +83,12 @@ If the time series are not all the same length then use the row format.  In this
 	\noindent\#\\
 	1 -5.3 -23 5 ...\\
 	1 23 1 5 3 1 ...\\
-	2 23 3 4 200 ...\\
-	2 42 3 4 102 ...\\
+	niftylabel 23 3 4 200 ...\\
+	niftylabel 42 3 4 102 ...\\
 	...
 \end{allintypewriter}
 
-In either format, when predicting unlabeled test data, the test data must be labeled as ``?'' (note that there must not be any labeled test data if any of the test data is labeled with a ``?'').  For example,
+In either format, when predicting unlabeled test data, the test data must be labeled as ``?'' (note that there must only be test data that is labeled with a ``?'').  For example,
 
 \begin{allintypewriter}
 	\noindent\#\\
@@ -301,5 +301,6 @@ During the operation of RPM it goes though a step that gets repeated many times.
   \caption{TSAT RPM Iteration Setting}
   \label{fig:TSAT-iteration-setting}
 \end{figure}
+
 
 \end{document}
