@@ -7,7 +7,6 @@ import com.dwicke.tsat.rpm.connectGI.GrammarInductionMethod;
 import com.dwicke.tsat.rpm.patterns.*;
 import com.dwicke.tsat.rpm.util.ClassificationResults;
 import com.dwicke.tsat.rpm.util.DistMethods;
-import com.dwicke.tsat.rpm.grammar.patterns.*;
 import org.slf4j.LoggerFactory;
 import weka.attributeSelection.AttributeSelection;
 import weka.attributeSelection.CfsSubsetEval;

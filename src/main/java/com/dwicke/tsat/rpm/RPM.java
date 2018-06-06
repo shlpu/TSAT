@@ -2,6 +2,7 @@ package com.dwicke.tsat.rpm;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.dwicke.tsat.dataprocess.GVToRPM;
 import com.dwicke.tsat.rpm.connectGI.GrammarInductionMethod;
 import com.dwicke.tsat.rpm.classification.ProcessMultiClass;
 import com.dwicke.tsat.rpm.classification.TSClassEvaluation;
@@ -115,69 +116,6 @@ public class RPM {
 
 	private GrammarInductionMethod giMethod = GrammarInductionMethod.SEQUITUR;
 
-
-
-	/**
-	 * Converts a string to a double if it is possible, returning Not a Number (NaN) if it fails.
-	 *
-	 * @param string - A string that should hold a decimal number only
-	 * @return - The value from the string or NaN
-	 */
-	private Double parseValue(String string) {
-		Double res = Double.NaN;
-		try {
-			Double r = Double.valueOf(string);
-			res = r;
-		} catch (NumberFormatException e) {
-			assert true;
-		}
-		return res;
-	}
-
-
-
-	/**
-	 * Converts the time series data from the data structures used by
-	 * GrammarViz (2D double array plus an Array of strings) to that used by RPM (A HashMap with labels as keys and
-	 * a List of doubles arrays of time series).
-	 *
-	 * @param data - 2D double array of time series data
-	 * @param labels - Array of labels, there must be a label for every array of times series data
-	 * @return - A Map from the labels to a List of double arrays
-	 */
-	public Map<String, List<double[]>> convertGrammarVizData(double[][] data, String[] labels) {
-		if(data.length != labels.length) {
-			this.consoleLogger.error("The number of classes (" +
-					data.length + ") and the number of labels (" +
-					labels.length + ") did not match");
-			throw new NullPointerException("The number of classes (" +
-					data.length + ") and the number of labels (" +
-					labels.length + ") did not match");
-			//return null;
-		}
-
-		Map<String, List<double[]>> res = new HashMap<String, List<double[]>>();
-
-		for(int i = 0; i < labels.length; i++) {
-
-			Double num = parseValue(labels[i]);
-			String seriesType = labels[i];
-			if (!(Double.isNaN(num))) {
-				seriesType = String.valueOf(num.intValue());
-			}
-
-			double[] series = data[i];
-
-			if (!res.containsKey(seriesType)) {
-				res.put(seriesType, new ArrayList<>());
-			}
-
-			res.get(seriesType).add(series);
-		}
-
-		return res;
-	}
-
 	/**
 	 * This is the internal function for training RPM using GrammarViz, it is used by public facing functions only.
 	 *
@@ -241,40 +179,9 @@ public class RPM {
 		return rpmTrainedOutput;
 	}
 
-	/**
-	 * Trains the RPM model with all options set to default.
-	 *
-	 * @param trainingDataFilePath - Path to the file containing the training data.
-	 * @param data - Times series data in a 2D double array with each entry being an array of time stamps.
-	 * @param labels - The labels that are associated with the time series in data (data[0] is label[0]).
-	 * @return - An object that represent the trained model and associating metadata.
-	 * @throws IOException -
-	 */
-	public RPMTrainedData RPMTrain(String trainingDataFilePath,
-								   double[][] data, String[] labels) throws IOException {
-		// Call main RPM train function
-		return this.RPMTrain(trainingDataFilePath,
-				data, labels,
-				DEFAULT_STRATEGY);
-	}
 
-	/**
-	 * Trains the RPM model with the selected strategy and all other options set to default.
-	 *
-	 * @param trainingDataFilePath - Path to the file containing the training data.
-	 * @param data - Times series data in a 2D double array with each entry being an array of time stamps.
-	 * @param labels - The labels that are associated with the time series in data (data[0] is label[0]).
-	 * @param strategy - The strategy to be used for sampling.
-	 * @return - An object that represent the trained model and associating metadata.
-	 * @throws IOException
-	 */
-	public RPMTrainedData RPMTrain(String trainingDataFilePath,
-								   double[][] data, String[] labels,
-								   String strategy) throws IOException {
-		// Call main RPM train function
-		return this.RPMTrain(trainingDataFilePath, data, labels, strategy,
-				DEFAULT_NUMBER_OF_ITERATIONS);
-	}
+
+
 
 	/**
 	 * Trains the RPM model with the selected strategy, number of iterations and all other options set to default.
@@ -294,7 +201,7 @@ public class RPM {
 
 		// Load data path and convert data to GrammarViz Supported format
 		this.TRAINING_DATA_PATH = trainingDataFilePath;
-		this.trainData = this.convertGrammarVizData(data, labels);
+		this.trainData = GVToRPM.convertGrammarVizData(data, labels);
 
 		// lets check the trainData (this looks right)
 //		for (Map.Entry<String, List<double[]>> e : trainData.entrySet()) {
@@ -326,44 +233,7 @@ public class RPM {
 				iterations);
 	}
 
-	/**
-	 * * This is the internal function for training RPM using GrammarViz, it is used by public facing functions only.
-	 *
-	 * @param trainingDataFilePath - Path to the file containing the training data.
-	 * @param data - Times series data in a 2D double array with each entry being an array of time stamps.
-	 * @param labels - The labels that are associated with the time series in data (data[0] is label[0]).
-	 * @param strategy - The strategy to be used for sampling.
-	 * @param lowerWindow - The lower bounds for the Window Size.
-	 * @param upperWindow - The upper bounds for the Window Size.
-	 * @param lowerPaa - The lower bounds for the PAA Size.
-	 * @param upperPaa - The upper bounds for the PAA Size.
-	 * @param lowerAlphabet - The lower bounds for the Alphabet.
-	 * @param upperAlphabet - The upper bounds for the Alphabet.
-	 * @param iterations - The maximum number of times to train on the data before returning
-	 *                      (Will end before if threshold is met).
-	 * @return An object that represent the trained model and associating metadata.
-	 * @throws IOException
-	 */
-	public RPMTrainedData RPMTrain(String trainingDataFilePath,
-								   double[][] data, String[] labels,
-								   String strategy,
-								   int lowerWindow, int upperWindow,
-								   int lowerPaa, int upperPaa,
-								   int lowerAlphabet, int upperAlphabet,
-								   int iterations) throws IOException {
 
-		// Load data path and convert data to GrammarViz Supported format
-		this.TRAINING_DATA_PATH = trainingDataFilePath;
-		this.trainData = this.convertGrammarVizData(data, labels);
-
-		// Call main RPM train function
-		return this.RPMTrainPrivate(strategy,
-				lowerWindow, upperWindow,
-				lowerPaa, upperPaa,
-				lowerAlphabet, upperAlphabet,
-				iterations);
-
-	}
 
 	/**
 	 * Loads a trained RPM model for use with testing, setting all parameters to match that in the model.
@@ -416,7 +286,7 @@ public class RPM {
 		results.testDataPath = TEST_DATA_PATH = testingDataFilePath;
 		// Convert test data to GrammarViz compatible format (Used for information display)
 
-		results.testData = this.testData = convertGrammarVizData(data, labels);
+		results.testData = this.testData = GVToRPM.convertGrammarVizData(data, labels);
 
 		// Test the model
 		classifyWithTransformedDataAllCls(bestSelectedPatternsAllClass, results);

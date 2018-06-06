@@ -1,5 +1,6 @@
 package com.dwicke.tsat.logic;
 
+import com.dwicke.tsat.dataprocess.GVToRPM;
 import com.dwicke.tsat.model.GrammarVizMessage;
 import com.dwicke.tsat.rpm.util.ClassificationResults;
 import com.dwicke.tsat.rpm.RPM;
@@ -437,7 +438,7 @@ public class RPMHandler extends Observable implements Runnable {
      */
     public synchronized void forceRPMModelReload() {
         String[] newLabels = createReformattedLabels(this.trainingLabels);
-        this.trainingResults.trainData = this.RPM.convertGrammarVizData(this.trainingData, newLabels);
+        this.trainingResults.trainData = GVToRPM.convertGrammarVizData(this.trainingData, newLabels);
         this.RPM.loadRPMTrain(this.trainingResults);
     }
 
@@ -491,7 +492,7 @@ public class RPMHandler extends Observable implements Runnable {
         try (PrintWriter out = new PrintWriter(filename)) {
             Gson g = new GsonBuilder().serializeSpecialFloatingPointValues().create();
             String[] myLabels = getReformattedLabels(labels);
-            double[][] tout = trainingResults.getFeatureVector(RPM.convertGrammarVizData(data, myLabels), testingResults);
+            double[][] tout = trainingResults.getFeatureVector(GVToRPM.convertGrammarVizData(data, myLabels), testingResults);
             String[][] sout = new String[tout.length][];
 
             // convert the last value to the string label
