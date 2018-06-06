@@ -240,7 +240,7 @@
               </descriptorRefs>
               <archive>
                 <manifest>
-                  <mainClass>net.seninp.grammarviz.GrammarVizGUI</mainClass>
+                    <mainClass>com.dwicke.tsat.TSATGUI</mainClass>
                 </manifest>
               </archive>
               <!-- <filters> <filter>src/assembly/filter.properties</filter> </filters> <descriptors> 

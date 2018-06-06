@@ -77,7 +77,7 @@ $ mvn package -Psingle
 
 2.0 Running
 ------------
-To run the GUI use `net.seninp.grammarviz.GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
+To run the GUI use `GrammarVizGUI` class, or run the `jar` from the command line: `$ java -Xmx2g -jar target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar` (here I have allocated max of 2Gb of memory for the software).
 
 3.0 CLI interface
 ------------
