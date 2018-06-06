@@ -4,24 +4,24 @@ import subprocess
 TSAT_JAR_LOCATION = "../target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
 
 def buildMotifs(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size=4, strategy="EXACT", threshold=0.01, numworkers=2):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.TS2SequiturGrammar -d {} -o {} -w {} -p {} -a {} --strategy {} --threshold {} --num-workers {}".format(TSAT_JAR_LOCATION,pathToTimeseries, outputFile, window_size, word_size, alphabet_size, strategy, threshold, numworkers).split())
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.motif.TS2SequiturGrammar -d {} -o {} -w {} -p {} -a {} --strategy {} --threshold {} --num-workers {}".format(TSAT_JAR_LOCATION,pathToTimeseries, outputFile, window_size, word_size, alphabet_size, strategy, threshold, numworkers).split())
 		return json.loads(open(outputFile).read())
 	
 def RRA(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size=4, threshold=0.01, discords_num=5):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizAnomaly -i {} -o {} -w {} -p {} -a {} --threshold {} --discords_num {}".format(TSAT_JAR_LOCATION, pathToTimeseries, outputFile, window_size, word_size, alphabet_size, threshold, discords_num).split())
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.RRA.GrammarVizAnomaly -i {} -o {} -w {} -p {} -a {} --threshold {} --discords_num {}".format(TSAT_JAR_LOCATION, pathToTimeseries, outputFile, window_size, word_size, alphabet_size, threshold, discords_num).split())
 		return json.loads(open(outputFile).read())
 
 def RPMTrainTest(pathToTraining, pathToTest, outputFile, num_iters):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --trainD {} --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTraining, pathToTest, outputFile, num_iters, 1).split())
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.RPM.GrammarVizRPM --trainD {} --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTraining, pathToTest, outputFile, num_iters, 1).split())
 		return (json.loads(open("{}.train".format(outputFile)).read()), json.loads(open("{}.test".format(outputFile)).read()))
 
 def RPMTrain(pathToTraining, outputFile, num_iters):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --trainD {} --model {} --numIters {} ".format(TSAT_JAR_LOCATION, pathToTraining, outputFile, num_iters,0).split())
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.RPM.GrammarVizRPM --trainD {} --model {} --numIters {} ".format(TSAT_JAR_LOCATION, pathToTraining, outputFile, num_iters,0).split())
 		# return the representative patterns
 		return json.loads(open("{}.train".format(outputFile)).read())
 
 def RPMTest(pathToTest, modelFile, num_iters):
-		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.GrammarVizRPM --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTest, modelFile, num_iters, 2).split())
+		exitcode = subprocess.call("java -cp {} net.seninp.grammarviz.cli.RPM.GrammarVizRPM --testD {} --model {} --numIters {} --mode {}".format(TSAT_JAR_LOCATION, pathToTest, modelFile, num_iters, 2).split())
 		#return the results
 		return json.loads(open("{}.test".format(modelFile)).read())
 

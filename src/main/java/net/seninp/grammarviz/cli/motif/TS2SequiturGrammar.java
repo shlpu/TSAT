@@ -1,4 +1,4 @@
-package net.seninp.grammarviz.cli;
+package net.seninp.grammarviz.cli.motif;
 
 import com.beust.jcommander.JCommander;
 import net.seninp.gi.logic.GrammarRules;

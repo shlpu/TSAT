@@ -1,4 +1,4 @@
-package net.seninp.grammarviz;
+package net.seninp.grammarviz.model;
 
 /**
  * Created by sdcollins on 3/30/17.

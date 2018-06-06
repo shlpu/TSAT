@@ -12,19 +12,6 @@ public class PackedRuleRecord {
 
   private int maxLength;
 
-  // public void addIndexes(int[] indexes2) {
-  // for (Integer i : indexes2) {
-  // this.indexes.add(i);
-  // }
-  // }
-
-  // public int getRuleLength() {
-  // return ruleLength;
-  // }
-  //
-  // public void setRuleLength(int ruleLength) {
-  // this.ruleLength = ruleLength;
-  // }
 
   public int getClassIndex() {
     return classIndex;

@@ -1,22 +1,6 @@
 package net.seninp.grammarviz.model;
 
-import java.io.*;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.zip.DataFormatException;
-
 import edu.gmu.dataprocess.UCRUtils;
-import edu.gmu.grammar.classification.util.ClassificationResults;
-import edu.gmu.grammar.classification.util.PSDirectTransformAllClass;
-import edu.gmu.grammar.classification.util.RPMTrainedData;
-import net.seninp.grammarviz.logic.RPMHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
@@ -26,12 +10,25 @@ import net.seninp.gi.repair.RePairGrammar;
 import net.seninp.gi.sequitur.SAXRule;
 import net.seninp.gi.sequitur.SequiturFactory;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.logic.RPMHandler;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
 import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 import net.seninp.util.StackTrace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.zip.DataFormatException;
 
 /**
  * Implements the Sequitur Model component of MVC GUI pattern.
@@ -452,7 +449,7 @@ public class GrammarVizModel extends Observable implements Observer {
 
       // only giving chart data the first time series
       // should probably give it all of the time series
-      this.chartData = new GrammarVizChartData(this.dataFileName, this.ts[0], useSlidingWindow,
+      this.chartData = new GrammarVizChartData(this.ts[0], useSlidingWindow,
           numerosityReductionStrategy, windowSize, paaSize, alphabetSize);
 
       NormalAlphabet na = new NormalAlphabet();

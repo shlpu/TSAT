@@ -1,11 +1,12 @@
-package net.seninp.grammarviz;
+package net.seninp.grammarviz.cli.RRA;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.beust.jcommander.Parameter;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements a parameters template for CLI conversion.

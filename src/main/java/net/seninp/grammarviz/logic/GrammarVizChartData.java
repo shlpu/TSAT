@@ -1,17 +1,5 @@
 package net.seninp.grammarviz.logic;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Random;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
-import com.apporiented.algorithm.clustering.AverageLinkageStrategy;
-import com.apporiented.algorithm.clustering.Cluster;
-import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
-import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
@@ -19,6 +7,13 @@ import net.seninp.gi.rulepruner.RulePrunerFactory;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * The main data structure used in SAXSequitur. It contains all the information needed for charting
@@ -36,15 +31,10 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected final int saxAlphabetSize;
   protected final int saxPAASize;
 
-  /** Original data file name. */
-  @SuppressWarnings("unused")
-  private final String fname;
 
   /** Original data which will be used for the chart. */
   protected final double[] originalTimeSeries;
 
-  /** The whole timeseries as a string */
-  private String saxDisplayString = null;
 
   /** The grammar rules. */
   private GrammarRules grammarRules;
@@ -52,30 +42,24 @@ public class GrammarVizChartData extends Observable implements Observer {
   /** The discords. */
   protected DiscordRecords discords;
 
-  /** JMotif's data structure, product of series conversion into SAX words. */
-  // protected SAXFrequencyData saxFrequencyData = new SAXFrequencyData();
 
   /** Pruning related vars. */
-  private SAXPointsNumber[] pointsNumberRemoveStrategy;
   private ArrayList<SameLengthMotifs> allClassifiedMotifs;
   private ArrayList<PackedRuleRecord> arrPackedRuleRecords;
 
   /**
    * Constructor.
-   * 
-   * @param dataFileName the original filename.
-   * @param ts the time series.
+   *  @param ts the time series.
    * @param useSlidingWindow
    * @param numerosityReductionStrategy
    * @param windowSize SAX window size.
-   * @param alphabetSize SAX alphabet size.
    * @param paaSize SAX PAA size.
+   * @param alphabetSize SAX alphabet size.
    */
-  public GrammarVizChartData(String dataFileName, double[] ts, boolean useSlidingWindow,
-      NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
-      int alphabetSize) {
+  public GrammarVizChartData(double[] ts, boolean useSlidingWindow,
+                             NumerosityReductionStrategy numerosityReductionStrategy, int windowSize, int paaSize,
+                             int alphabetSize) {
 
-    this.fname = dataFileName;
 
     this.slidingWindowOn = useSlidingWindow;
     this.numerosityReductionStrategy = numerosityReductionStrategy;
@@ -144,14 +128,6 @@ public class GrammarVizChartData extends Observable implements Observer {
     return arrPackedRuleRecords;
   }
 
-  /**
-   * Set the collection of transformed rule records.
-   * 
-   * @param arrPackedRuleRecords the collection of transformed rules.
-   */
-  public void setArrPackedRuleRecords(ArrayList<PackedRuleRecord> arrPackedRuleRecords) {
-    this.arrPackedRuleRecords = arrPackedRuleRecords;
-  }
 
   /**
    * converts rules from a foreign alphabet to the internal original SAX alphabet
@@ -169,19 +145,6 @@ public class GrammarVizChartData extends Observable implements Observer {
     return textRule;
   }
 
-  /**
-   * @return SAX display formatted string
-   */
-  public String getSAXDisplay() {
-    return saxDisplayString;
-  }
-
-  /**
-   * @param SAXDisplay SAX display formatted string
-   */
-  public void setSAXDisplay(String SAXDisplay) {
-    saxDisplayString = SAXDisplay;
-  }
 
   /**
    * Recovers start and stop coordinates ofRule's subsequences.
@@ -247,82 +210,6 @@ public class GrammarVizChartData extends Observable implements Observer {
     return grammarRules.size();
   }
 
-  // ********************************
-  // Refactoring in Xing's code below
-  // ********************************
-
-  /**
-   * This method counts how many times each data point is used in ANY sequitur rule (i.e. data point
-   * 1 appears only in R1 and R2, the number for data point 1 is two). The function will get the
-   * occurrence time for all points, and write the result into a text file named as
-   * "PointsNumber.txt".
-   */
-  protected void countPointNumber() {
-
-    // init the data structure and copy the original values
-    SAXPointsNumber pointsNumber[] = new SAXPointsNumber[this.originalTimeSeries.length];
-    for (int i = 0; i < this.originalTimeSeries.length; i++) {
-      pointsNumber[i] = new SAXPointsNumber();
-      pointsNumber[i].setPointIndex(i);
-      pointsNumber[i].setPointValue(this.originalTimeSeries[i]);
-    }
-
-    // get all the rules and populate the occurrence density
-    int rulesNum = this.getRulesNumber();
-    for (int i = 0; i < rulesNum; i++) {
-      ArrayList<RuleInterval> arrPos = this.getRulePositionsByRuleNum(i);
-      for (RuleInterval saxPos : arrPos) {
-        int start = saxPos.getStart();
-        int end = saxPos.getEnd() - 1;
-        for (int position = start; position <= end; position++) {
-          pointsNumber[position]
-              .setPointOccurenceNumber(pointsNumber[position].getPointOccurenceNumber() + 1);
-        }
-      }
-    }
-
-    // make an output
-    // String path = "Result" + System.getProperties().getProperty("file.separator");
-    // String fileName = "PointsNumber.txt";
-    // SAXFileIOHelper.deleteFile(path, fileName);
-    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
-
-    this.pointsNumberRemoveStrategy = pointsNumber;
-  }
-
-  /**
-   * This method counts how many times each data point is used in REDUCED sequitur rule (i.e. data
-   * point 1 appears only in R1 and R2, the number for data point 1 is two). The function will get
-   * the occurrence time for all points, and write the result into a text file named as
-   * "PointsNumberAfterRemoving.txt".
-   */
-  protected void countPointNumberAfterRemoving() {
-
-    // init the data structure and copy the original values
-    SAXPointsNumber pointsNumber[] = new SAXPointsNumber[this.originalTimeSeries.length];
-    for (int i = 0; i < this.originalTimeSeries.length; i++) {
-      pointsNumber[i] = new SAXPointsNumber();
-      pointsNumber[i].setPointIndex(i);
-      pointsNumber[i].setPointValue(this.originalTimeSeries[i]);
-    }
-
-    for (SameLengthMotifs sameLenMotifs : this.getReducedMotifs()) {
-      for (SAXMotif motif : sameLenMotifs.getSameLenMotifs()) {
-        RuleInterval pos = motif.getPos();
-        for (int i = pos.getStart(); i <= pos.getEnd() - 1; i++) {
-          pointsNumber[i].setPointOccurenceNumber(pointsNumber[i].getPointOccurenceNumber() + 1);
-          // pointsNumber[i].setRule(textRule);
-        }
-      }
-    }
-
-    // make an output
-    // String path = "Result" + System.getProperties().getProperty("file.separator");
-    // String fileName = "PointsNumberAfterRemoving.txt";
-    // SAXFileIOHelper.deleteFile(path, fileName);
-    // SAXFileIOHelper.writeFile(path, fileName, Arrays.toString(pointsNumber));
-
-  }
 
   /**
    * Cleans-up the rules set by classifying the sub-sequences by length and removing the overlapping
@@ -341,14 +228,6 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected void removeOverlapping(double intraThreshold, double interThreshould) {
 
     classifyMotifs(intraThreshold);
-    // ArrayList<SAXMotif> motifsBeDeleted = removeOverlappingInSimiliar(interThreshould);
-
-    // String path = "Result" +
-    // System.getProperties().getProperty("file.separator");
-    // String fileName = "Deleted Motifs.txt";
-    // SAXFileIOHelper.deleteFile(path, fileName);
-    // SAXFileIOHelper.writeFile(path, fileName, motifsBeDeleted.toString());
-
   }
 
   /**
@@ -363,7 +242,7 @@ public class GrammarVizChartData extends Observable implements Observer {
   protected void classifyMotifs(double lengthThreshold) {
 
     // reset vars
-    allClassifiedMotifs = new ArrayList<SameLengthMotifs>();
+    allClassifiedMotifs = new ArrayList<>();
 
     // down to business
     ArrayList<SAXMotif> allMotifs = getAllMotifs();
@@ -418,303 +297,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     // System.out.println();
   }
 
-  protected ArrayList<SAXMotif> removeOverlappingInSimiliar(double thresouldCom) {
 
-    ArrayList<SAXMotif> motifsBeDeleted = new ArrayList<SAXMotif>();
-
-    countPointNumber();
-    for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
-      outer: for (int j = 0; j < sameLenMotifs.getSameLenMotifs().size(); j++) {
-        SAXMotif tempMotif = sameLenMotifs.getSameLenMotifs().get(j);
-        int tempMotifLen = tempMotif.getPos().getEnd() - tempMotif.getPos().getStart() + 1;
-
-        for (int i = j + 1; i < sameLenMotifs.getSameLenMotifs().size(); i++) {
-          SAXMotif anotherMotif = sameLenMotifs.getSameLenMotifs().get(i);
-          int anotherMotifLen = anotherMotif.getPos().getEnd() - anotherMotif.getPos().getStart()
-              + 1;
-
-          double minEndPos = Math.min(tempMotif.getPos().getEnd(), anotherMotif.getPos().getEnd());
-          double maxStartPos = Math.max(tempMotif.getPos().getStart(),
-              anotherMotif.getPos().getStart());
-          // the length in common.
-          double commonLen = minEndPos - maxStartPos + 1;
-
-          // if they are overlapped motif, remove the shorter one
-          if (commonLen > (tempMotifLen * thresouldCom)) {
-            SAXMotif deletedMotif = new SAXMotif();
-            SAXMotif similarWith = new SAXMotif();
-
-            boolean isAnotherBetter;
-
-            if (pointsNumberRemoveStrategy != null) {
-              isAnotherBetter = decideRemove(anotherMotif, tempMotif);
-            }
-            else {
-              isAnotherBetter = anotherMotifLen > tempMotifLen;
-
-            }
-            if (isAnotherBetter) {
-              deletedMotif = tempMotif;
-              similarWith = anotherMotif;
-              sameLenMotifs.getSameLenMotifs().remove(j);
-              deletedMotif.setSimilarWith(similarWith);
-              motifsBeDeleted.add(deletedMotif);
-              j--;
-              continue outer;
-            }
-            else {
-              deletedMotif = anotherMotif;
-              similarWith = tempMotif;
-              sameLenMotifs.getSameLenMotifs().remove(i);
-              deletedMotif.setSimilarWith(similarWith);
-              motifsBeDeleted.add(deletedMotif);
-              i--;
-            }
-          }
-        }
-      }
-
-      int minLength = sameLenMotifs.getSameLenMotifs().get(0).getPos().endPos
-          - sameLenMotifs.getSameLenMotifs().get(0).getPos().startPos + 1;
-      int sameLenMotifsSize = sameLenMotifs.getSameLenMotifs().size();
-      int maxLength = sameLenMotifs.getSameLenMotifs().get(sameLenMotifsSize - 1).getPos().endPos
-          - sameLenMotifs.getSameLenMotifs().get(sameLenMotifsSize - 1).getPos().startPos + 1;
-      sameLenMotifs.setMinMotifLen(minLength);
-      sameLenMotifs.setMaxMotifLen(maxLength);
-    }
-    countPointNumberAfterRemoving();
-
-    refinePatternsByClustering();
-    return motifsBeDeleted;
-  }
-
-  protected double eculideanDistNormEAbandon(double[] ts1, double[] ts2, double bsfDist) {
-    double dist = 0;
-    double tsLen = ts1.length;
-
-    double bsf = Math.pow(tsLen * bsfDist, 2);
-
-    for (int i = 0; i < ts1.length; i++) {
-      double diff = ts1[i] - ts2[i];
-      dist += Math.pow(diff, 2);
-
-      if (dist > bsf)
-        return Double.NaN;
-
-    }
-    return Math.sqrt(dist) / tsLen;
-  }
-
-  protected double eculideanDistNorm(double[] ts1, double[] ts2) {
-    double dist = 0;
-    double tsLen = ts1.length;
-
-    for (int i = 0; i < ts1.length; i++) {
-      double diff = ts1[i] - ts2[i];
-      dist += Math.pow(diff, 2);
-    }
-
-    return Math.sqrt(dist) / tsLen;
-  }
-
-  /**
-   * Calculating the distance between time series and pattern.
-   * 
-   * @param ts , a series of points for time series.
-   * @param pValue , a series of points for pattern.
-   * @return
-   */
-  protected double calcDistTSAndPattern(double[] ts, double[] pValue) {
-    double INF = 10000000000000000000f;
-    double bestDist = INF;
-    int patternLen = pValue.length;
-
-    int lastStartP = ts.length - pValue.length + 1;
-    if (lastStartP < 1)
-      return bestDist;
-
-    Random rand = new Random();
-    int startP = rand.nextInt((lastStartP - 1 - 0) + 1);
-
-    double[] slidingWindow = new double[patternLen];
-
-    System.arraycopy(ts, startP, slidingWindow, 0, patternLen);
-    bestDist = eculideanDistNorm(pValue, slidingWindow);
-
-    for (int i = 0; i < lastStartP; i++) {
-      System.arraycopy(ts, i, slidingWindow, 0, patternLen);
-
-      double tempDist = eculideanDistNormEAbandon(pValue, slidingWindow, bestDist);
-
-      if (tempDist < bestDist) {
-        bestDist = tempDist;
-      }
-    }
-
-    return bestDist;
-  }
-
-  protected void refinePatternsByClustering() {
-    double[] origTS = originalTimeSeries;
-    ArrayList<SameLengthMotifs> newAllClassifiedMotifs = new ArrayList<SameLengthMotifs>();
-    for (SameLengthMotifs sameLenMotifs : allClassifiedMotifs) {
-      ArrayList<RuleInterval> arrPos = new ArrayList<RuleInterval>();
-      ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
-      for (SAXMotif ss : subsequences) {
-        arrPos.add(ss.getPos());
-      }
-
-      int patternNum = arrPos.size();
-      if (patternNum < 2) {
-        continue;
-      }
-      double dt[][] = new double[patternNum][patternNum];
-      // Build distance matrix.
-      for (int i = 0; i < patternNum; i++) {
-        RuleInterval saxPos = arrPos.get(i);
-
-        int start1 = saxPos.getStart();
-        int end1 = saxPos.getEnd();
-        double[] ts1 = Arrays.copyOfRange(origTS, start1, end1);
-
-        for (int j = 0; j < arrPos.size(); j++) {
-          RuleInterval saxPos2 = arrPos.get(j);
-          if (dt[i][j] > 0) {
-            continue;
-          }
-          double d = 0;
-          dt[i][j] = d;
-          if (i == j) {
-            continue;
-          }
-          int start2 = saxPos2.getStart();
-          int end2 = saxPos2.getEnd();
-          double[] ts2 = Arrays.copyOfRange(origTS, start2, end2);
-
-          if (ts1.length > ts2.length)
-            d = calcDistTSAndPattern(ts1, ts2);
-          else
-            d = calcDistTSAndPattern(ts2, ts1);
-
-          // DTW dtw = new DTW(ts1, ts2);
-          // d = dtw.warpingDistance;
-
-          dt[i][j] = d;
-        }
-      }
-
-      String[] patternsName = new String[patternNum];
-      for (int i = 0; i < patternNum; i++) {
-        patternsName[i] = String.valueOf(i);
-      }
-
-      ClusteringAlgorithm alg = new DefaultClusteringAlgorithm();
-      Cluster cluster = alg.performClustering(dt, patternsName, new AverageLinkageStrategy());
-
-      // int minPatternPerCls = (int) (0.3 * patternNum);
-      // minPatternPerCls = minPatternPerCls > 0 ? minPatternPerCls : 1;
-      int minPatternPerCls = 1;
-
-      if (cluster.getDistance() == null) {
-        // System.out.print(false);
-        continue;
-      }
-
-      // TODO: refine hard coded threshold
-      // double cutDist = cluster.getDistance() * 0.67;
-      double cutDist = cluster.getDistanceValue() * 0.67;
-
-      ArrayList<String[]> clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
-      while (clusterTSIdx.size() <= 0) {
-        cutDist += cutDist / 2;
-        clusterTSIdx = findCluster(cluster, cutDist, minPatternPerCls);
-      }
-
-      newAllClassifiedMotifs.addAll(SeparateMotifsByClustering(clusterTSIdx, sameLenMotifs));
-    }
-    allClassifiedMotifs = newAllClassifiedMotifs;
-  }
-
-  private ArrayList<SameLengthMotifs> SeparateMotifsByClustering(ArrayList<String[]> clusterTSIdx,
-      SameLengthMotifs sameLenMotifs) {
-    ArrayList<SameLengthMotifs> newResult = new ArrayList<SameLengthMotifs>();
-    if (clusterTSIdx.size() > 1) {
-      ArrayList<SAXMotif> subsequences = sameLenMotifs.getSameLenMotifs();
-      for (String[] idxesInCluster : clusterTSIdx) {
-        SameLengthMotifs newIthSLM = new SameLengthMotifs();
-        ArrayList<SAXMotif> sameLenSS = new ArrayList<SAXMotif>();
-        int minL = sameLenMotifs.getMinMotifLen();
-        int maxL = sameLenMotifs.getMaxMotifLen();
-
-        for (String i : idxesInCluster) {
-          SAXMotif ssI = subsequences.get(Integer.parseInt(i));
-          int len = ssI.getPos().getEnd() - ssI.getPos().getStart();
-          if (len < minL) {
-            minL = len;
-          }
-          else if (len > maxL) {
-            maxL = len;
-          }
-          sameLenSS.add(ssI);
-        }
-
-        newIthSLM.setSameLenMotifs(sameLenSS);
-        newIthSLM.setMaxMotifLen(maxL);
-        newIthSLM.setMinMotifLen(minL);
-        newResult.add(newIthSLM);
-      }
-    }
-    else {
-      newResult.add(sameLenMotifs);
-    }
-
-    return newResult;
-  }
-
-  private ArrayList<String[]> findCluster(Cluster cluster, double cutDist, int minPatternPerCls) {
-
-    ArrayList<String[]> clusterTSIdx = new ArrayList<String[]>();
-
-    if (cluster.getDistance() != null) {
-      // if (cluster.getDistance() > cutDist) {
-      if (cluster.getDistanceValue() > cutDist) {
-        if (cluster.getChildren().size() > 0) {
-          clusterTSIdx.addAll(findCluster(cluster.getChildren().get(0), cutDist, minPatternPerCls));
-          clusterTSIdx.addAll(findCluster(cluster.getChildren().get(1), cutDist, minPatternPerCls));
-        }
-      }
-      else {
-        // String[] idxes = cluster.getName().split("&");
-        ArrayList<String> itemsInCluster = getNameInCluster(cluster);
-        String[] idxes = itemsInCluster.toArray(new String[itemsInCluster.size()]);
-        if (idxes.length > minPatternPerCls) {
-          clusterTSIdx.add(idxes);
-        }
-      }
-    }
-
-    return clusterTSIdx;
-  }
-
-  private ArrayList<String> getNameInCluster(Cluster cluster) {
-    ArrayList<String> itemsInCluster = new ArrayList<String>();
-
-    String nodeName;
-    if (cluster.isLeaf()) {
-      nodeName = cluster.getName();
-      itemsInCluster.add(nodeName);
-    }
-    else {
-      // String[] clusterName = cluster.getName().split("#");
-      // nodeName = clusterName[1];
-    }
-
-    for (Cluster child : cluster.getChildren()) {
-      ArrayList<String> childrenNames = getNameInCluster(child);
-      itemsInCluster.addAll(childrenNames);
-    }
-    return itemsInCluster;
-  }
 
   /**
    * Stores all the sub-sequences that generated by Sequitur rules into an array list sorted by
@@ -747,62 +330,7 @@ public class GrammarVizChartData extends Observable implements Observer {
     return allMotifs;
   }
 
-  /**
-   * Decide which one from overlapping subsequences should be removed. The decision rule is that
-   * each sub-sequence has a weight, the one with the smaller weight should be removed.
-   * 
-   * The weight is S/(A * L). S is the sum of occurrence time of all data points in that
-   * sub-sequence, A is the average weight of the whole time series, and L is the length of that
-   * sub-sequence.
-   * 
-   * @param motif1
-   * @param motif2
-   * 
-   * @return
-   */
-  protected boolean decideRemove(SAXMotif motif1, SAXMotif motif2) {
 
-    // motif1 details
-    int motif1Start = motif1.getPos().getStart();
-    int motif1End = motif1.getPos().getEnd() - 1;
-    int length1 = motif1End - motif1Start;
-
-    // motif2 details
-    int motif2Start = motif2.getPos().getStart();
-    int motif2End = motif1.getPos().getEnd() - 1;
-    int length2 = motif2End - motif2Start;
-
-    int countsMotif1 = 0;
-    int countsMotif2 = 0;
-
-    // compute the averageWeight
-    double averageWeight = 1;
-    int count = 0;
-    for (int i = 0; i < pointsNumberRemoveStrategy.length; i++) {
-      count += pointsNumberRemoveStrategy[i].getPointOccurenceNumber();
-    }
-    averageWeight = (double) count / (double) pointsNumberRemoveStrategy.length;
-
-    // compute counts for motif 1
-    for (int i = motif1Start; i <= motif1End; i++) {
-      countsMotif1 += pointsNumberRemoveStrategy[i].getPointOccurenceNumber();
-    }
-
-    // compute counts for motif 2
-    for (int i = motif2Start; i <= motif2End; i++) {
-      countsMotif2 += pointsNumberRemoveStrategy[i].getPointOccurenceNumber();
-    }
-
-    // get weights
-    double weight1 = countsMotif1 / (averageWeight * length1);
-    double weight2 = countsMotif2 / (averageWeight * length2);
-
-    if (weight1 > weight2) {
-      return true;
-    }
-
-    return false;
-  }
 
   /**
    * Performs rules pruning based on their overlap.
@@ -814,7 +342,7 @@ public class GrammarVizChartData extends Observable implements Observer {
 
     removeOverlapping(thresholdLength, thresholdCom);
 
-    arrPackedRuleRecords = new ArrayList<PackedRuleRecord>();
+    arrPackedRuleRecords = new ArrayList<>();
 
     int i = 0;
     for (SameLengthMotifs subsequencesInClass : allClassifiedMotifs) {
@@ -835,10 +363,6 @@ public class GrammarVizChartData extends Observable implements Observer {
 
   }
 
-  public ArrayList<SameLengthMotifs> getReducedMotifs() {
-    // TODO Auto-generated method stub
-    return allClassifiedMotifs;
-  }
 
   /**
    * This computes anomalies.
@@ -861,38 +385,6 @@ public class GrammarVizChartData extends Observable implements Observer {
       this.setChanged();
       notifyObservers(arg);
     }
-  }
-
-  public GrammarRuleRecord getRule(Integer ruleIndex) {
-    return this.grammarRules.get(ruleIndex);
-  }
-
-  @SuppressWarnings("unused")
-  private double getPeriodError(int[] starts, double meanPeriod) {
-    double sqd = 0.0;
-    for (int i = 1; i < starts.length; i++) {
-      double periodDiff = ((double) starts[i] - starts[i - 1]) - meanPeriod;
-      sqd = sqd + periodDiff * periodDiff;
-    }
-    return Math.sqrt(sqd / (starts.length - 1));
-  }
-
-  @SuppressWarnings("unused")
-  private double getMeanPeriod(int[] starts) {
-    int sum = 0;
-    for (int i = 1; i < starts.length; i++) {
-      sum = sum + starts[i] - starts[i - 1];
-    }
-    return ((double) sum) / (double) (starts.length - 1);
-  }
-
-  @SuppressWarnings("unused")
-  private Integer getMeanLength(int[] lengths) {
-    int sum = 0;
-    for (int l : lengths) {
-      sum = sum + l;
-    }
-    return sum / lengths.length;
   }
 
   public boolean isSlidingWindowOn() {

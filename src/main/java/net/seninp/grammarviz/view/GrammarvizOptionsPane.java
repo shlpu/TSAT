@@ -1,30 +1,22 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.Component;
-import java.awt.*;
-import java.awt.event.*;
-import java.text.NumberFormat;
-import java.util.Locale;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
+import net.miginfocom.swing.MigLayout;
+import net.seninp.gi.GIAlgorithm;
+import net.seninp.grammarviz.logic.CoverageCountStrategy;
+import net.seninp.grammarviz.model.GrammarVizConfiguration;
+import net.seninp.grammarviz.session.UserSession;
+
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.JSpinner;
-import net.miginfocom.swing.MigLayout;
-import net.seninp.gi.GIAlgorithm;
-import net.seninp.grammarviz.GrammarVizConfiguration;
-import net.seninp.grammarviz.logic.CoverageCountStrategy;
-import net.seninp.grammarviz.session.UserSession;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Implements the parameter panel for GrammarViz.

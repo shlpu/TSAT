@@ -1,4 +1,35 @@
-package net.seninp.grammarviz;
+package net.seninp.grammarviz.cli.RRA;
+
+import com.beust.jcommander.JCommander;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.seninp.gi.GIAlgorithm;
+import net.seninp.gi.logic.GrammarRuleRecord;
+import net.seninp.gi.logic.GrammarRules;
+import net.seninp.gi.logic.RuleInterval;
+import net.seninp.gi.repair.RePairFactory;
+import net.seninp.gi.repair.RePairGrammar;
+import net.seninp.gi.rulepruner.ReductionSorter;
+import net.seninp.gi.rulepruner.RulePruner;
+import net.seninp.gi.rulepruner.RulePrunerFactory;
+import net.seninp.gi.rulepruner.SampledPoint;
+import net.seninp.gi.sequitur.SAXRule;
+import net.seninp.gi.sequitur.SequiturFactory;
+import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
+import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.jmotif.distance.EuclideanDistance;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.jmotif.sax.SAXProcessor;
+import net.seninp.jmotif.sax.TSProcessor;
+import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
+import net.seninp.jmotif.sax.datastructure.SAXRecords;
+import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
+import net.seninp.jmotif.sax.discord.DiscordRecords;
+import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
+import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
+import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,39 +38,6 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.seninp.gi.sequitur.SAXRule;
-import net.seninp.grammarviz.logic.RuleDescriptor;
-import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.beust.jcommander.JCommander;
-import net.seninp.gi.GIAlgorithm;
-import net.seninp.gi.logic.GrammarRuleRecord;
-import net.seninp.gi.logic.GrammarRules;
-import net.seninp.gi.logic.RuleInterval;
-import net.seninp.gi.repair.RePairFactory;
-import net.seninp.gi.repair.RePairGrammar;
-import net.seninp.gi.rulepruner.ReducedGrammarSizeSorter;
-import net.seninp.gi.rulepruner.ReductionSorter;
-import net.seninp.gi.rulepruner.RulePruner;
-import net.seninp.gi.rulepruner.RulePrunerFactory;
-import net.seninp.gi.rulepruner.SampledPoint;
-import net.seninp.gi.sequitur.SequiturFactory;
-import net.seninp.grammarviz.anomaly.AnomalyAlgorithm;
-import net.seninp.grammarviz.anomaly.RRAImplementation;
-import net.seninp.jmotif.distance.EuclideanDistance;
-import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.jmotif.sax.SAXProcessor;
-import net.seninp.jmotif.sax.TSProcessor;
-import net.seninp.jmotif.sax.datastructure.SAXRecords;
-import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
-import net.seninp.jmotif.sax.discord.DiscordRecords;
-import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
-import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
-import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
 
 /**
  * Main executable wrapping all the discord discovery methods.
@@ -226,86 +224,19 @@ public class GrammarVizAnomaly {
               GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
               GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
           res.add(p);
-          ///
-          ///
-          ///
-          ///
-          // GrammarRules rules;
-          // if (GIAlgorithm.SEQUITUR.equals(giImplementation)) {
-          // rules = SequiturFactory.series2SequiturRules(ts, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-          // GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
-          // GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-          // }
-          // else {
-          // ParallelSAXImplementation ps = new ParallelSAXImplementation();
-          // SAXRecords parallelRes = ps.process(ts, 2, WINDOW_SIZE, PAA_SIZE, ALPHABET_SIZE,
-          // GrammarVizAnomalyParameters.SAX_NR_STRATEGY,
-          // GrammarVizAnomalyParameters.SAX_NORM_THRESHOLD);
-          // RePairGrammar rePairGrammar = RePairFactory.buildGrammar(parallelRes);
-          // rePairGrammar.expandRules();
-          // rePairGrammar.buildIntervals(parallelRes, ts, WINDOW_SIZE);
-          // rules = rePairGrammar.toGrammarRulesData();
-          // }
-          //
-          // // prune grammar' rules
-          // GrammarRules prunedRulesSet = RulePrunerFactory.performPruning(ts, rules);
-          //
-          // // pruned intervals
-          // ArrayList<RuleInterval> prunedIntervals = new ArrayList<RuleInterval>();
-          //
-          // // coverage intervals
-          // int[] coverageArray = new int[ts.length];
-          //
-          // // populate all intervals with their frequency
-          // for (GrammarRuleRecord rule : prunedRulesSet) {
-          // if (0 == rule.ruleNumber()) {
-          // continue;
-          // }
-          // for (RuleInterval ri : rule.getRuleIntervals()) {
-          // ri.setCoverage(rule.getRuleIntervals().size());
-          // ri.setId(rule.ruleNumber());
-          // prunedIntervals.add(ri);
-          // //
-          // int startPos = ri.getStartPos();
-          // int endPos = ri.getEndPos();
-          // for (int j = startPos; j < endPos; j++) {
-          // coverageArray[j] = coverageArray[j] + 1;
-          // }
-          // }
-          // }
-          //
-          // // look for zero-covered intervals and add those to the list
-          // List<RuleInterval> zeros = getZeroIntervals(coverageArray);
-          // if (zeros.size() > 0) {
-          // prunedIntervals.addAll(zeros);
-          // }
 
-          // // run HOTSAX with this intervals set
-          // DiscordRecords discords = RRAImplementation.series2RRAAnomalies(ts, 1,
-          // prunedIntervals);
-          //
-          // if (discords.getSize() > 0) {
-          // // if the discord(s) found
           LOGGER.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
               + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
               + "," + p.getGrammarRules() + "," + p.getPrunedRules() + "," + p.getCoverage() + ","
               + p.getMaxFrequency());
-          // }
-          // else {
-          // // no discords were discovered
-          // // need to increase the granularity of discretization
-          // LOGGER.info("# " + WINDOW_SIZE + "," + PAA_SIZE + "," + ALPHABET_SIZE + ","
-          // + p.getApproxDist() + "," + p.getGrammarSize() + "," + p.getCompressedGrammarSize()
-          // + "," + p.getCoverage() + ",-1,-1");
-          // }
-          ///
-          ///
+
         }
       }
     }
 
     // Collections.sort(res, new ReductionSorter());
-    Collections.sort(res, new GrammarSizeSorter());
+
+    Collections.sort(res, Comparator.comparing(SampledPoint::getGrammarSize));
 
     System.out.println(CR + "# GLOBALLY MIN GRAMMAR size is " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
@@ -317,7 +248,7 @@ public class GrammarVizAnomaly {
     findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
-    Collections.sort(res, new ReducedGrammarSizeSorter());
+    Collections.sort(res, Comparator.comparing(SampledPoint::getCompressedGrammarSize));
 
     System.out.println(CR + "# GLOBALLY MIN PRUNED grammar size: " + res.get(0).toString() + CR
         + "Running RRAPruned ..." + CR);
@@ -338,7 +269,7 @@ public class GrammarVizAnomaly {
     }
 
     // Collections.sort(resCovered, new ReductionSorter());
-    Collections.sort(resCovered, new GrammarSizeSorter());
+    Collections.sort(resCovered, Comparator.comparing(SampledPoint::getGrammarSize));
 
     System.out.println(CR + "# COVERED ABOVE THRESHOLD MIN GRAMMAR parameters are "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
@@ -350,7 +281,7 @@ public class GrammarVizAnomaly {
     findRRAPruned(ts, windowSize, alphabetSize, paaSize, saxNRStrategy, discordsToReport,
         giImplementation, outputPrefix, normalizationThreshold);
 
-    Collections.sort(resCovered, new ReducedGrammarSizeSorter());
+    Collections.sort(resCovered, Comparator.comparing(SampledPoint::getCompressedGrammarSize));
 
     System.out.println(CR + "# COVERED ABOVE THRESHOLD MIN PRUNED GRAMMAR : "
         + resCovered.get(0).toString() + CR + "Running RRAPruned ..." + CR);
@@ -717,25 +648,23 @@ public class GrammarVizAnomaly {
 
     // [1] build an array of rules along with their use frequency
     //
-    HashMap<RuleDescriptor, ArrayList<RuleInterval>> rules = new HashMap<RuleDescriptor, ArrayList<RuleInterval>>();
+    HashMap<Integer, ArrayList<RuleInterval>> rules = new HashMap<>();
 
     for (GrammarRuleRecord r : grules) {
       if (0 == r.ruleNumber()) {
         continue;
       }
       ArrayList<RuleInterval> intervals = grules.get(r.ruleNumber()).getRuleIntervals();
-      rules.put(new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(),
-              r.getMeanLength(), r.getRuleUseFrequency()), intervals);
+      rules.put(r.ruleNumber(), intervals);
     }
 
     // [2] populate all intervals with their coverage
     //
-    ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
-    for (Map.Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
+    ArrayList<RuleInterval> intervals = new ArrayList<>();
+    for (Map.Entry<Integer, ArrayList<RuleInterval>> e : rules.entrySet()) {
       for (RuleInterval ri : e.getValue()) {
-        // ri.setCoverage(e.getKey().getRuleFrequency());
         ri.setCoverage(e.getValue().size());
-        ri.setId(e.getKey().getRuleIndex());
+        ri.setId(e.getKey());
         intervals.add(ri);
       }
     }

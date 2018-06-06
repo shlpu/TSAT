@@ -9,7 +9,7 @@ require(gridExtra)
 require(lattice)
 require(gtable)
 #
-#$ java -cp "grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar" net.seninp.grammarviz.GrammarVizAnomaly -d anomaly_01.csv -alg RRAPRUNED -n 3 -w 160 -p 6 -a 6 -o out
+#$ java -cp "grammarviz2-0.0.1-SNAPSHOT-jar-with-dependencies.jar" net.seninp.grammarviz.cli.RRA.GrammarVizAnomaly -d anomaly_01.csv -alg RRAPRUNED -n 3 -w 160 -p 6 -a 6 -o out
 #GrammarViz2 CLI anomaly discovery
 #parameters:
   #  input file:                  anomaly_01.csv

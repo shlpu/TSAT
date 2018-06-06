@@ -1,10 +1,10 @@
-package net.seninp.grammarviz;
+package net.seninp.grammarviz.cli.RPM;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import edu.gmu.dataprocess.UCRUtils;
 import net.seninp.grammarviz.logic.RPMHandler;
-import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.GrammarVizConfiguration;
 import net.seninp.util.StackTrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.zip.DataFormatException;
-
-import static edu.gmu.dataprocess.UCRUtils.readUCRData;
 
 /**
  * Created by dwicke on 4/14/17.

@@ -1,4 +1,4 @@
-package net.seninp.grammarviz.cli;
+package net.seninp.grammarviz.cli.motif;
 
 import com.beust.jcommander.Parameter;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;

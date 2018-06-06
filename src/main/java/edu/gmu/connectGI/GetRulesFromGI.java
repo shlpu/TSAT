@@ -12,7 +12,6 @@ import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.alphabet.NormalAlphabet;
 import net.seninp.jmotif.sax.datastructure.SAXRecords;
-import net.seninp.jmotif.sax.parallel.ParallelSAXImplementation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -250,59 +249,9 @@ public class GetRulesFromGI {
 		}
 	}
 
-	private double calcDistThreshold(ArrayList<RepeatedPattern> allRepeatedPatterns) {
-		// Put all repeated pattern together.
-		ArrayList<RuleInterval> allPatterns = new ArrayList<RuleInterval>();
-		for (RepeatedPattern rp : allRepeatedPatterns) {
-			allPatterns.addAll(rp.getSequences());
-		}
 
-		int numPatterns = allPatterns.size();
-		int min = 0;
-		int max = numPatterns - 1;
 
-		ArrayList<Double> pDists = new ArrayList<Double>();
-		for (int i = 0; i < numPatterns; i++) {
-			int[] idxes = generateRandomTwoIdxes(min, max);
-			int idx1 = idxes[0];
-			int idx2 = idxes[1];
 
-			RuleInterval ri1 = allPatterns.get(idx1);
-			int startPosition1 = ri1.getStart();
-			int patternLength1 = ri1.getLength();
-			double[] patternTS1 = Arrays.copyOfRange(concatenatedTS, startPosition1, startPosition1 + patternLength1);
-
-			RuleInterval ri2 = allPatterns.get(idx2);
-			int startPosition2 = ri2.getStart();
-			int patternLength2 = ri2.getLength();
-			double[] patternTS2 = Arrays.copyOfRange(concatenatedTS, startPosition2, startPosition2 + patternLength2);
-
-			double d;
-			if (patternTS1.length > patternTS2.length)
-				d = DistMethods.calcDistEuclidean(patternTS1, patternTS2);
-			else
-				d = DistMethods.calcDistEuclidean(patternTS2, patternTS1);
-			pDists.add(d);
-		}
-
-		Collections.sort(pDists);
-
-		int idx25 = (int) (numPatterns * 0.05);
-
-		return pDists.get(idx25);
-	}
-
-	private int[] generateRandomTwoIdxes(int min, int max) {
-		ArrayList<Integer> list = new ArrayList<Integer>();
-		int[] randomTwo = new int[2];
-		for (int i = min; i <= max; i++) {
-			list.add(new Integer(i));
-		}
-		Collections.shuffle(list);
-		randomTwo[0] = list.get(0);
-		randomTwo[1] = list.get(1);
-		return randomTwo;
-	}
 
 	public void removeNotFrequentGroups(ArrayList<RepeatedPattern> allRepeatedPatterns, int maxRPNum,
 			int realRepeatedThreshold, Boolean isCoverageFre) {
@@ -391,162 +340,24 @@ public class GetRulesFromGI {
 
 	}
 
-	/**
-	 * XING
-	 * 
-	 * @param allRepeatedPatterns
-	 * @return
-	 */
+
 	private ArrayList<int[]> findRepeatedPatterns(ArrayList<RepeatedPattern> allRepeatedPatterns,
 			int[] startingPositions, Boolean isCoverageFre) {
 
 		ArrayList<int[]> allPatterns = new ArrayList<int[]>();
 
 		for (RepeatedPattern rp : allRepeatedPatterns) {
-
-			// int frequency = rp.getSequences().size();
-			// RuleInterval bsfInterval = calcRepresentative(rp.getSequences());
-			//
-			// int[] p = { bsfInterval.getStartPos(), bsfInterval.getLength(),
-			// frequency };
-			// allPatterns.add(p);
-
 			if (rp.getSequences().size() > 1) {
 				PatternsProcess pp = new PatternsProcess();
 				allPatterns.addAll(pp.refinePatternsByClustering(concatenatedTS, rp, startingPositions, isCoverageFre));
-			} else {
-				// int frequency = rp.getSequences().size();
-				// RuleInterval bsfInterval =
-				// calcRepresentative(rp.getSequences());
-				//
-				// int[] p = { bsfInterval.getStartPos(),
-				// bsfInterval.getLength(),
-				// frequency };
-				// allPatterns.add(p);
-				continue;
 			}
-
 		}
 		if (allPatterns.size() < 1)
 			return null;
 		return allPatterns;
 	}
 
-	public RuleInterval calcRepresentative(ArrayList<RuleInterval> arrPos) {
-		RuleInterval bsfInterval = new RuleInterval();
-		double[] origTS = this.concatenatedTS;
 
-		bsfInterval = getCentroid(origTS, arrPos);
-
-		return bsfInterval;
-	}
-
-	public RuleInterval getCentroid(double[] origTS, ArrayList<RuleInterval> arrPos) {
-
-		RuleInterval centroid = new RuleInterval();
-
-		int tsNum = arrPos.size();
-
-		double dt[][] = new double[tsNum][tsNum];
-		for (int i = 0; i < arrPos.size(); i++) {
-			RuleInterval saxPos = arrPos.get(i);
-
-			int start1 = saxPos.getStart();
-			int end1 = saxPos.getEnd();
-			double[] ts1 = Arrays.copyOfRange(origTS, start1, end1);
-
-			for (int j = 0; j < arrPos.size(); j++) {
-				RuleInterval saxPos2 = arrPos.get(j);
-				if (dt[i][j] > 0) {
-					continue;
-				}
-				double d = 0;
-				dt[i][j] = d;
-				if (i == j) {
-					continue;
-				}
-
-				int start2 = saxPos2.getStart();
-				int end2 = saxPos2.getEnd();
-				double[] ts2 = Arrays.copyOfRange(origTS, start2, end2);
-
-				if (ts1.length > ts2.length)
-					d = DistMethods.calcDistEuclidean(ts1, ts2);
-				else
-					d = DistMethods.calcDistEuclidean(ts2, ts1);
-
-				// if (ts1.length > ts2.length)
-				// ts1 = Arrays.copyOfRange(ts1, 0, ts2.length);
-				// else if (ts1.length < ts2.length)
-				// ts2 = Arrays.copyOfRange(ts2, 0, ts1.length);
-				// d = DistMethods.eculideanDistNorm(ts1, ts2);
-
-				// DTW dtw = new DTW(ts1, ts2);
-				// d = dtw.warpingDistance;
-
-				dt[i][j] = d;
-			}
-		}
-
-		int bestLine = -1;
-		double smallestValue = 10000000.00;
-
-		for (int k = 0; k < arrPos.size(); k++) {
-			double dk = 0;
-			for (int m = 0; m < arrPos.size(); m++) {
-				dk += dt[k][m];
-			}
-			if (smallestValue > dk) {
-				smallestValue = dk;
-				bestLine = k;
-			}
-		}
-
-		if (bestLine > -1)
-			centroid = arrPos.get(bestLine);
-
-		return centroid;
-	}
-
-	/**
-	 * The number of repeated patterns has to be at least half of the
-	 * concatenated TS
-	 * 
-	 * @param startingPositions
-	 * @return
-	 */
-	public Boolean isParameterGood(int[] startingPositions) {
-		// The number of concatenated time series.
-		int originalTSNum = startingPositions.length + 1;
-		// Threshold of repeated patterns number.
-		int numberThreshold = (int) (originalTSNum * 0.5);
-
-		int bestFrequency = 0;
-		int totalRule = 0;
-		if (giMethod.index() == GrammarInductionMethod.REPAIR.index()) {
-			// totalRule = this.getRulesNumberRepair();
-		} else {
-			totalRule = chartData.getRulesNumber();
-		}
-		// Get the frequency of the most frequent pattern
-		for (int idx = 1; idx < totalRule; idx++) {
-			ArrayList<RuleInterval> arrPos = null;
-			if (giMethod.index() == GrammarInductionMethod.REPAIR.index()) {
-				// arrPos = chartData.getRulePositionsByRuleNumRepair(idx);
-			} else {
-
-				arrPos = chartData.getRulePositionsByRuleNum(idx);
-			}
-
-			int frequency = arrPos.size();
-			if (bestFrequency < frequency)
-				bestFrequency = frequency;
-		}
-		// If there is not enough repeated patterns return false.
-		if (bestFrequency < numberThreshold)
-			return false;
-		return true;
-	}
 
 	/**
 	 * Process data with Sequitur. Populate and broadcast ChartData object.
@@ -570,7 +381,7 @@ public class GetRulesFromGI {
 		// the logging block
 		//
 		StringBuffer sb = new StringBuffer("setting up GI with params: ");
-		if (giMethod.index() == giMethod.SEQUITUR.index()) {
+		if (giMethod.index() == GrammarInductionMethod.SEQUITUR.index()) {
 			sb.append("algorithm: Sequitur, ");
 		} else {
 			sb.append("algorithm: RePair, ");
@@ -587,12 +398,12 @@ public class GetRulesFromGI {
 		// consoleLogger.debug("creating ChartDataStructure");
 		// TODO: Add the data file name.
 		String dataFileName = "";
-		chartData = new GrammarVizChartData(dataFileName, concatenatedTS, useSlidingWindow, numerosityReductionStrategy,
+		chartData = new GrammarVizChartData(concatenatedTS, useSlidingWindow, numerosityReductionStrategy,
 				windowSize, alphabetSize, paaSize);
 
 		try {
 
-			if (giMethod.index() == giMethod.SEQUITUR.index()) {
+			if (giMethod.index() == GrammarInductionMethod.SEQUITUR.index()) {
 
 				SAXProcessor sp = new SAXProcessor();
 				NormalAlphabet normalA = new NormalAlphabet();
@@ -643,27 +454,6 @@ public class GetRulesFromGI {
 				//System.err.println("Number of rules = " + rules.size());
 
 
-			} else {
-
-				// ParallelSAXImplementation ps = new
-				// ParallelSAXImplementation();
-				// SAXRecords parallelRes = ps.process(concatenatedTS, 2,
-				// windowSize, paaSize, alphabetSize,
-				// NumerosityReductionStrategy.EXACT,
-				// normalizationThreshold);
-				//
-				// @SuppressWarnings("unused")
-				// RePairRule rePairGrammar = RePairFactory
-				// .buildGrammar(parallelRes);
-				//
-				// RePairRule.expandRules();
-				// RePairRule.buildIntervals(parallelRes, concatenatedTS,
-				// windowSize);
-				//
-				// GrammarRules rules = RePairRule.toGrammarRulesData();
-				//
-				// chartData.setGrammarRules(rules);
-
 			}
 
 		} catch (Exception e) {
@@ -674,27 +464,7 @@ public class GetRulesFromGI {
 
 	}
 
-	public ArrayList<int[]> getPatternsLocation() {
-		return patternsLocation;
-	}
 
-	public void setPatternsLocation(ArrayList<int[]> patternsLocation) {
-		this.patternsLocation = patternsLocation;
-	}
 
-	// public ArrayList<RepeatedPattern> getAllPatterns(int wdSize, int paaSize,
-	// int alphabetaSize, String numerosityReductionStrategy,
-	// double[] concatenatedTS, int orignalLen,
-	// GrammarInductionMethod giMethod, int[] startingPositions) {
-	// boolean useSlidingWindow = true;
-	//
-	// MotifChartData chartData = new MotifChartData(concatenatedTS,
-	// useSlidingWindow, numerosityReductionStrategy, wdSize,
-	// alphabetaSize, paaSize, orignalLen, giMethod, startingPositions);
-	// chartData.buildSAX();
-	//
-	// patternsLocation = chartData.getPatterns();
-	// return chartData.getAllRepeatedPatterns();
-	// }
 
 }

@@ -4,21 +4,21 @@ package edu.gmu.grammar.classification.util;
  * An object to store a set of time series data, its idx value, its true label, and its transformed version of the data.
  */
 public class TimeSeriesTrain {
-	private String trueLable;
-	private double[] values;
-	private int idx;
+    private String trueLabel;
+    private double[] values;
+    private int idx;
 	private double[] transformedTS;
 
 	/**
 	 * Sets values.
-	 * @param trueLable - the true label of the data.
-	 * @param values - the values of the time series data.
-	 * @param idx - the index of the pattern.
+     * @param trueLabel - the true label of the data.
+     * @param values - the values of the time series data.
+     * @param idx - the index of the pattern.
 	 */
-	public TimeSeriesTrain(String trueLable, double[] values, int idx) {
-		this.trueLable = trueLable;
-		this.values = values;
-		this.idx = idx;
+    public TimeSeriesTrain(String trueLabel, double[] values, int idx) {
+        this.trueLabel = trueLabel;
+        this.values = values;
+        this.idx = idx;
 	}
 
 	/**
@@ -26,18 +26,18 @@ public class TimeSeriesTrain {
 	 *
 	 * @return - the true label.
 	 */
-	public String getTrueLable() {
-		return trueLable;
-	}
+    public String getTrueLabel() {
+        return trueLabel;
+    }
 
 	/**
 	 * Set the true label.
 	 *
-	 * @param trueLable - the true label.
-	 */
-	public void setTrueLable(String trueLable) {
-		this.trueLable = trueLable;
-	}
+     * @param trueLabel - the true label.
+     */
+    public void setTrueLabel(String trueLabel) {
+        this.trueLabel = trueLabel;
+    }
 
 	/**
 	 * Get the time series values.

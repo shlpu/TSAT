@@ -13,22 +13,6 @@ public enum CoverageCountStrategy {
     return index;
   }
 
-  public static CoverageCountStrategy fromValue(int value) {
-    switch (value) {
-    case 0:
-      return CoverageCountStrategy.COUNT;
-    case 1:
-      return CoverageCountStrategy.LEVEL;
-    case 2:
-      return CoverageCountStrategy.OCCURRENCE;
-    case 3:
-      return CoverageCountStrategy.YIELD;
-    case 4:
-      return CoverageCountStrategy.PRODUCT;
-    default:
-      throw new RuntimeException("Unknown index:" + value);
-    }
-  }
 
   public static CoverageCountStrategy fromValue(String value) {
     if (value.equalsIgnoreCase("count")) {

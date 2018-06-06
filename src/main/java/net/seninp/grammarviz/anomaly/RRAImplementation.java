@@ -1,19 +1,14 @@
 package net.seninp.grammarviz.anomaly;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.jmotif.distance.EuclideanDistance;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Implements RRA algorithm.
@@ -23,7 +18,6 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
  */
 public class RRAImplementation {
 
-  // private static TSProcessor tp = new TSProcessor();
   private static EuclideanDistance ed = new EuclideanDistance();
 
   // static block - we instantiate the logger
@@ -351,17 +345,6 @@ public class RRAImplementation {
     }
   }
 
-  // /**
-  // * Extracts a time series subsequence corresponding to the grammar rule adjusting for its
-  // length.
-  // *
-  // * @param series
-  // * @param randomInterval
-  // * @return
-  // */
-  // private static double[] extractSubsequence(double[] series, RuleInterval randomInterval) {
-  // return Arrays.copyOfRange(series, randomInterval.getStart(), randomInterval.getEnd());
-  // }
 
   /**
    * Finds all the Sequitur rules with a given Id and populates their start and end into the array.

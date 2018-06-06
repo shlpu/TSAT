@@ -1,18 +1,10 @@
 package net.seninp.grammarviz.anomaly;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.sequitur.SequiturFactory;
-import net.seninp.grammarviz.GrammarVizAnomaly;
+import net.seninp.grammarviz.cli.RRA.GrammarVizAnomaly;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.BruteForceDiscordImplementation;
@@ -21,6 +13,14 @@ import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.jmotif.sax.discord.HOTSAXImplementation;
 import net.seninp.jmotif.sax.registry.LargeWindowAlgorithm;
 import net.seninp.util.StackTrace;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class TestRRAanomaly {
 

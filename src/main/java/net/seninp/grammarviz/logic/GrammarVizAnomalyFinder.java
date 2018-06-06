@@ -1,21 +1,17 @@
 package net.seninp.grammarviz.logic;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Observable;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.RuleInterval;
-import net.seninp.grammarviz.GrammarVizAnomaly;
 import net.seninp.grammarviz.anomaly.RRAImplementation;
+import net.seninp.grammarviz.cli.RRA.GrammarVizAnomaly;
 import net.seninp.grammarviz.model.GrammarVizMessage;
 import net.seninp.jmotif.sax.SAXProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;
 import net.seninp.jmotif.sax.discord.DiscordRecords;
 import net.seninp.util.StackTrace;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Implements a runnable for the proposed in EDBT15 anomaly discovery technique.
@@ -46,25 +42,23 @@ public class GrammarVizAnomalyFinder extends Observable implements Runnable {
 
     // [1] build an array of rules along with their use frequency
     //
-    HashMap<RuleDescriptor, ArrayList<RuleInterval>> rules = new HashMap<RuleDescriptor, ArrayList<RuleInterval>>();
+    HashMap<Integer, ArrayList<RuleInterval>> rules = new HashMap<>();
 
     for (GrammarRuleRecord r : this.chartData.getGrammarRules()) {
       if (0 == r.ruleNumber()) {
         continue;
       }
       ArrayList<RuleInterval> intervals = getRulePositionsByRuleNum(r.ruleNumber());
-      rules.put(new RuleDescriptor(r.ruleNumber(), r.getRuleName(), r.getRuleString(),
-          r.getMeanLength(), r.getRuleUseFrequency()), intervals);
+      rules.put(r.ruleNumber(), intervals);
     }
 
     // [2] populate all intervals with their coverage
     //
     ArrayList<RuleInterval> intervals = new ArrayList<RuleInterval>();
-    for (Entry<RuleDescriptor, ArrayList<RuleInterval>> e : rules.entrySet()) {
+    for (Entry<Integer, ArrayList<RuleInterval>> e : rules.entrySet()) {
       for (RuleInterval ri : e.getValue()) {
-        // ri.setCoverage(e.getKey().getRuleFrequency());
         ri.setCoverage(e.getValue().size());
-        ri.setId(e.getKey().getRuleIndex());
+        ri.setId(e.getKey());
         intervals.add(ri);
       }
     }
