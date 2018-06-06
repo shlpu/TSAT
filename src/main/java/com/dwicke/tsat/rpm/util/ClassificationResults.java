@@ -1,4 +1,4 @@
-package com.dwicke.tsat.rpm.grammar.classification.util;
+package com.dwicke.tsat.rpm.util;
 
 import java.util.List;
 import java.util.Map;

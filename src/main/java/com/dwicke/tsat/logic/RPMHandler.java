@@ -1,10 +1,10 @@
 package com.dwicke.tsat.logic;
 
 import com.dwicke.tsat.model.GrammarVizMessage;
-import com.dwicke.tsat.rpm.grammar.classification.util.ClassificationResults;
-import com.dwicke.tsat.rpm.grammar.classification.util.PSDirectTransformAllClass;
-import com.dwicke.tsat.rpm.grammar.classification.util.RPMTrainedData;
-import com.dwicke.tsat.rpm.grammar.patterns.TSPattern;
+import com.dwicke.tsat.rpm.util.ClassificationResults;
+import com.dwicke.tsat.rpm.RPM;
+import com.dwicke.tsat.rpm.util.RPMTrainedData;
+import com.dwicke.tsat.rpm.patterns.TSPattern;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.seninp.util.StackTrace;
@@ -23,7 +23,7 @@ import java.util.Observable;
  */
 public class RPMHandler extends Observable implements Runnable {
 
-    private PSDirectTransformAllClass RPM;
+    private com.dwicke.tsat.rpm.RPM RPM;
     private RPMTrainedData trainingResults;
     private String trainingFilename;
     private double[][] trainingData;
@@ -40,8 +40,8 @@ public class RPMHandler extends Observable implements Runnable {
      */
     public RPMHandler() {
         super();
-        this.RPM = new PSDirectTransformAllClass();
-        this.numberOfIterations = PSDirectTransformAllClass.DEFAULT_NUMBER_OF_ITERATIONS;
+        this.RPM = new RPM();
+        this.numberOfIterations = com.dwicke.tsat.rpm.RPM.DEFAULT_NUMBER_OF_ITERATIONS;
         classLabs = new HashMap<>();
     }
 
@@ -55,7 +55,7 @@ public class RPMHandler extends Observable implements Runnable {
      */
     public synchronized void RPMTrain(String filename, double[][] data, String[] labels) throws java.io.IOException {
         String[] newLabels = createReformattedLabels(labels);
-        this.trainingResults = this.RPM.RPMTrain(filename, data, newLabels, PSDirectTransformAllClass.DEFAULT_STRATEGY,
+        this.trainingResults = this.RPM.RPMTrain(filename, data, newLabels, com.dwicke.tsat.rpm.RPM.DEFAULT_STRATEGY,
                 this.numberOfIterations);
         this.finalPatterns = this.trainingResults.finalPatterns();
     }

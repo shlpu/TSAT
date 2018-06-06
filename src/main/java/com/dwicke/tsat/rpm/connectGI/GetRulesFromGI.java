@@ -1,8 +1,8 @@
 package com.dwicke.tsat.rpm.connectGI;
 
 import com.dwicke.tsat.logic.GrammarVizChartData;
-import com.dwicke.tsat.rpm.grammar.classification.util.DistMethods;
-import com.dwicke.tsat.rpm.grammar.patterns.PatternsSimilarity;
+import com.dwicke.tsat.rpm.util.DistMethods;
+import com.dwicke.tsat.rpm.patterns.PatternsSimilarity;
 import net.seninp.gi.logic.GrammarRules;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.gi.sequitur.SAXRule;
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public class GetRulesFromGI {
-	private ArrayList<int[]> patternsLocation;
 
 	private String SPACE = " ";
 	private GrammarVizChartData chartData;
@@ -61,7 +60,6 @@ public class GetRulesFromGI {
 										GrammarInductionMethod giMethod, int[] startingPositions, double rpFrequencyTPer, int maxRPNum,
 										double overlapTPer, Boolean isCoverageFre, PatternsSimilarity pSimilarity) {
 		this.startingPositions = startingPositions;
-		// this.orignalLen = orignalLen;
 		this.windowSize = windowSize;
 		this.giMethod = giMethod;
 		this.concatenatedTS = concatenatedTS;
@@ -95,7 +93,7 @@ public class GetRulesFromGI {
 			}
 
 			allRepeatedPatterns.clear();
-			// }
+
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -153,13 +151,7 @@ public class GetRulesFromGI {
 				Boolean found = false;
 
 				for (RepeatedPattern rp : tempRepeatedPatterns) {
-					// if (Math.abs(len - rp.getLength()) <= (lDiffThrePer * rp
-					// .getLength())) {
-					//
-					// rp.getSequences().add(p);
-					// found = true;
-					// break;
-					// }
+
 					int rpLen = rp.getLength();
 					double proportion = len / rpLen;
 					if (proportion < lDiffThrePer || proportion > 1 / lDiffThrePer) {
@@ -191,7 +183,6 @@ public class GetRulesFromGI {
 			if (allRepeatedPatterns.size() > 1) {
 				double tSimilar = calcDistThreshold2(allRepeatedPatterns);
 				pSimilarity.addCandidate(tSimilar);
-				//System.err.println("TSimilar Candidate ======================================= " + tSimilar);
 			}
 		}
 
@@ -304,9 +295,7 @@ public class GetRulesFromGI {
 
 				RuleInterval rj = arrPos.get(j);
 
-				int lenj = rj.getLength();
 				int startj = rj.getStart();
-				int endj = rj.getEnd();
 
 				for (int k = j + 1; k < frequency; k++) {
 
@@ -316,9 +305,7 @@ public class GetRulesFromGI {
 					}
 
 					RuleInterval rk = arrPos.get(k);
-					int lenk = rk.getLength();
 					int startk = rk.getStart();
-					int endk = rk.getEnd();
 
 					if (Math.abs(startk - startj) <= pDiffThreshold) {
 						removeIdx.add(k);
@@ -331,10 +318,6 @@ public class GetRulesFromGI {
 			for (int ridx : removeIdx) {
 				arrPos.remove(ridx);
 			}
-
-			// if (removeIdx.size() > 0)
-			// System.out.println(removeIdx.size()
-			// + " overlaped sequences were removed!");
 
 		}
 

@@ -2,7 +2,7 @@ package com.dwicke.tsat.view;
 
 import com.dwicke.tsat.model.GrammarVizController;
 import com.dwicke.tsat.model.UserSession;
-import com.dwicke.tsat.rpm.grammar.patterns.TSPattern;
+import com.dwicke.tsat.rpm.patterns.TSPattern;
 import net.seninp.gi.logic.RuleInterval;
 import net.seninp.jmotif.sax.TSProcessor;
 import net.seninp.jmotif.sax.discord.DiscordRecord;

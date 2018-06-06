@@ -1,4 +1,4 @@
-package com.dwicke.tsat.rpm.grammar.patterns;
+package com.dwicke.tsat.rpm.patterns;
 
 /**
  * Stores both the pattern and the transformed data

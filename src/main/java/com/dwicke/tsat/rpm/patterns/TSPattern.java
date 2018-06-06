@@ -1,4 +1,4 @@
-package com.dwicke.tsat.rpm.grammar.patterns;
+package com.dwicke.tsat.rpm.patterns;
 
 import java.io.Serializable;
 import java.util.Arrays;

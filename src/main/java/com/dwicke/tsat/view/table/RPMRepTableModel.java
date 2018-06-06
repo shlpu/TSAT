@@ -1,6 +1,6 @@
 package com.dwicke.tsat.view.table;
 
-import com.dwicke.tsat.rpm.grammar.patterns.TSPattern;
+import com.dwicke.tsat.rpm.patterns.TSPattern;
 
 import java.util.Arrays;
 

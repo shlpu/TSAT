@@ -1,8 +1,8 @@
-package com.dwicke.tsat.rpm.grammar.classification.util;
+package com.dwicke.tsat.rpm.util;
 
-import com.dwicke.tsat.rpm.grammar.classification.GCProcessMultiClass;
-import com.dwicke.tsat.rpm.grammar.patterns.BestSelectedPatterns;
-import com.dwicke.tsat.rpm.grammar.patterns.TSPattern;
+import com.dwicke.tsat.rpm.classification.ProcessMultiClass;
+import com.dwicke.tsat.rpm.patterns.BestSelectedPatterns;
+import com.dwicke.tsat.rpm.patterns.TSPattern;
 
 import java.io.Serializable;
 import java.util.List;
@@ -54,12 +54,12 @@ public class RPMTrainedData implements Serializable {
      * @return - A set of patterns the are best for representing the classes
      */
     public TSPattern[] finalPatterns() {
-        GCProcessMultiClass gcp = new GCProcessMultiClass(this.folderNum);
+        ProcessMultiClass gcp = new ProcessMultiClass(this.folderNum);
         return gcp.combinePatterns(this.bestSelectedPatternsAllClass);
     }
 
     public double[][] getFeatureVector(Map<String, List<double[]>> dataset, ClassificationResults results) {
-        GCProcessMultiClass gcp = new GCProcessMultiClass(this.folderNum);
+        ProcessMultiClass gcp = new ProcessMultiClass(this.folderNum);
         TSPattern[] finalPatterns = gcp.combinePatterns(this.bestSelectedPatternsAllClass);
         return gcp.transformTSWithPatternsTest(finalPatterns, dataset, results);
     }

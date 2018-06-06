@@ -1,12 +1,12 @@
-package com.dwicke.tsat.rpm.grammar.classification;
+package com.dwicke.tsat.rpm.classification;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.dwicke.tsat.model.GrammarVizConfiguration;
 import com.dwicke.tsat.rpm.connectGI.GrammarInductionMethod;
-import com.dwicke.tsat.rpm.grammar.classification.util.ClassificationResults;
-import com.dwicke.tsat.rpm.grammar.classification.util.DistMethods;
-import com.dwicke.tsat.rpm.grammar.classification.util.TimeSeriesTrain;
+import com.dwicke.tsat.rpm.patterns.*;
+import com.dwicke.tsat.rpm.util.ClassificationResults;
+import com.dwicke.tsat.rpm.util.DistMethods;
 import com.dwicke.tsat.rpm.grammar.patterns.*;
 import org.slf4j.LoggerFactory;
 import weka.attributeSelection.AttributeSelection;
@@ -22,13 +22,9 @@ import weka.core.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-//import weka.classifiers.bayes.*;
-//import weka.classifiers.lazy.IBk;
-//import weka.classifiers.trees.*;
-//import weka.classifiers.meta.OneClassClassifier;
 
 
-public class GCProcessMultiClass {
+public class ProcessMultiClass {
 
 	private int folderNum;
 	private boolean testUnlabeled = false;
@@ -37,12 +33,12 @@ public class GCProcessMultiClass {
 	private static final Level LOGGING_LEVEL = Level.INFO;
 
 	static {
-		consoleLogger = (Logger) LoggerFactory.getLogger(GCProcessMultiClass.class);
+		consoleLogger = (Logger) LoggerFactory.getLogger(ProcessMultiClass.class);
 		consoleLogger.setLevel(LOGGING_LEVEL);
 	}
 
 
-	public GCProcessMultiClass(int folderNum) {
+	public ProcessMultiClass(int folderNum) {
 		this.folderNum = folderNum;
 	}
 
@@ -127,14 +123,12 @@ public class GCProcessMultiClass {
 	 * @param trainDataPerClass
 	 */
 	public PatternsAndTransformedData transformTS(HashMap<String, TSPatterns> selectedPatterns,
-                                                  Map<String, List<TimeSeriesTrain>> trainDataPerClass, PatternsSimilarity pSimilarity) {
+												  Map<String, List<double[]>> trainDataPerClass, PatternsSimilarity pSimilarity) {
 
 		// int tsNum = 0;
 		int patternNum = 0;
-		for (Entry<String, List<TimeSeriesTrain>> eTrain : trainDataPerClass.entrySet()) {
+		for (Entry<String, List<double[]>> eTrain : trainDataPerClass.entrySet()) {
 			String label = eTrain.getKey();
-			// tsNum += eTrain.getValue().size();
-
 			TSPatterns tsps = selectedPatterns.get(label);
 			patternNum += tsps.getPatterns().size();
 		}
@@ -200,21 +194,19 @@ public class GCProcessMultiClass {
 		return refinedPatterns.toArray(new TSPattern[refinedPatterns.size()]);
 	}
 
-	public double[][] transformTSWithPatterns(TSPattern[] allPatterns, Map<String, List<TimeSeriesTrain>> dataset) {
+	public double[][] transformTSWithPatterns(TSPattern[] allPatterns, Map<String, List<double[]>> dataset) {
 		int tsNum = 0;
 		int patternNum = allPatterns.length;
-		for (Entry<String, List<TimeSeriesTrain>> eTrain : dataset.entrySet()) {
-			// String label = eTrain.getKey();
+		for (Entry<String, List<double[]>> eTrain : dataset.entrySet()) {
 			tsNum += eTrain.getValue().size();
 		}
 
 		double[][] transformedTS = new double[tsNum][patternNum + 1];
 
 		int idxTs = 0;
-		for (Entry<String, List<TimeSeriesTrain>> eTrain : dataset.entrySet()) {
+		for (Entry<String, List<double[]>> eTrain : dataset.entrySet()) {
 			String clsLabel = eTrain.getKey();
-			for (TimeSeriesTrain tsTrain : eTrain.getValue()) {
-				double[] tsInstance = tsTrain.getValues();
+			for (double[] tsInstance : eTrain.getValue()) {
 
 				int idxPattern = 0;
 				for (int i = 0; i < patternNum; i++) {
@@ -330,7 +322,6 @@ public class GCProcessMultiClass {
 
 
 	public double classifyTransformedData(double[][] trainData, double[][] testData, StringBuffer output) {
-		// return svmClassify(trainData, testData);
 
 		Instances train = buildArff(trainData);
 		Instances test = buildArff(testData, trainData, train);

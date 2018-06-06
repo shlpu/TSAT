@@ -2,7 +2,7 @@ package com.dwicke.tsat.model;
 
 import com.dwicke.tsat.logic.GrammarVizChartData;
 import com.dwicke.tsat.logic.RPMHandler;
-import com.dwicke.tsat.rpm.dataprocess.UCRUtils;
+import com.dwicke.tsat.dataprocess.UCRUtils;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.gi.logic.GrammarRuleRecord;
 import net.seninp.gi.logic.GrammarRules;

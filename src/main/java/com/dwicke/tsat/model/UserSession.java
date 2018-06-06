@@ -3,7 +3,7 @@ package com.dwicke.tsat.model;
 import com.dwicke.tsat.logic.CoverageCountStrategy;
 import com.dwicke.tsat.logic.GrammarVizChartData;
 import com.dwicke.tsat.logic.RPMHandler;
-import com.dwicke.tsat.rpm.grammar.classification.util.PSDirectTransformAllClass;
+import com.dwicke.tsat.rpm.RPM;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
@@ -98,7 +98,7 @@ public class UserSession {
 
     this.countStrategy = DEFAULT_COUNT_STRATEGY;
 
-    this.rpmNumberOfIterations = PSDirectTransformAllClass.DEFAULT_NUMBER_OF_ITERATIONS;
+    this.rpmNumberOfIterations = RPM.DEFAULT_NUMBER_OF_ITERATIONS;
 
     // attempt to fill the rule coverage name automatically
     //

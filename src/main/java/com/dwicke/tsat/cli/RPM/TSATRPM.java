@@ -4,7 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.dwicke.tsat.logic.RPMHandler;
 import com.dwicke.tsat.model.GrammarVizConfiguration;
-import com.dwicke.tsat.rpm.dataprocess.UCRUtils;
+import com.dwicke.tsat.dataprocess.UCRUtils;
 import net.seninp.util.StackTrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,7 +4,7 @@ import com.apporiented.algorithm.clustering.AverageLinkageStrategy;
 import com.apporiented.algorithm.clustering.Cluster;
 import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
 import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
-import com.dwicke.tsat.rpm.grammar.classification.util.DistMethods;
+import com.dwicke.tsat.rpm.util.DistMethods;
 import net.seninp.gi.logic.RuleInterval;
 
 import java.util.ArrayList;

@@ -1,24 +1,26 @@
-package com.dwicke.tsat.rpm.grammar.classification.util;
+package com.dwicke.tsat.rpm;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.dwicke.tsat.rpm.connectGI.GrammarInductionMethod;
-import com.dwicke.tsat.rpm.grammar.classification.GCProcessMultiClass;
-import com.dwicke.tsat.rpm.grammar.patterns.BestSelectedPatterns;
-import com.dwicke.tsat.rpm.grammar.patterns.PatternsSimilarity;
-import com.dwicke.tsat.rpm.ps.direct.GCErrorFunctionMultiCls;
+import com.dwicke.tsat.rpm.classification.ProcessMultiClass;
+import com.dwicke.tsat.rpm.classification.TSClassEvaluation;
+import com.dwicke.tsat.rpm.util.ClassificationResults;
+import com.dwicke.tsat.rpm.util.RPMTrainedData;
+import com.dwicke.tsat.rpm.patterns.BestSelectedPatterns;
+import com.dwicke.tsat.rpm.patterns.PatternsSimilarity;
 import net.seninp.jmotif.direct.Point;
 import net.seninp.jmotif.direct.ValuePointColored;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.jmotif.sax.TSProcessor;
 import org.slf4j.LoggerFactory;
+import weka.classifiers.Evaluation;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
-public class PSDirectTransformAllClass {
+public class RPM {
 
 	// Default number of iterations for sampling
 	public static final int DEFAULT_NUMBER_OF_ITERATIONS = 5;
@@ -72,7 +74,7 @@ public class PSDirectTransformAllClass {
 	//
 	private int dimensions = 3;
 
-	private GCErrorFunctionMultiCls function;
+	private TSClassEvaluation function;
 
 	// block - we instantiate the logger
 	//
@@ -84,7 +86,7 @@ public class PSDirectTransformAllClass {
 	private final String COMMA = ", ";
 	 {
 		consoleLogger = (Logger) LoggerFactory
-				.getLogger(PSDirectTransformAllClass.class);
+				.getLogger(RPM.class);
 		consoleLogger.setLevel(LOGGING_LEVEL);
 	}
 
@@ -132,32 +134,7 @@ public class PSDirectTransformAllClass {
 		return res;
 	}
 
-	/**
-	 * Goes through the given labeled time series data and relabels the data with a increasing numeric value.
-	 *
-	 * @param res - The data to be relabeled.
-	 * @return - The relabeled data.
-	 */
-	private Map<String, List<double[]>> refineClassLabel(Map<String, List<double[]>> res) {
-		Set<String> keys = res.keySet();
-		Map<String, List<double[]>> newRes = new HashMap<String, List<double[]>>();
 
-		HashMap<String, String> replaceMap = new HashMap<String, String>();
-
-		int count = 1;
-		for (String k : keys) {
-			String newLabel = String.valueOf(count);
-			replaceMap.put(k, newLabel);
-			count++;
-		}
-		for (Map.Entry<String, List<double[]>> e : res.entrySet()) {
-            String label = e.getKey();
-
-            String newLabel = replaceMap.get(label);
-            newRes.put(newLabel, e.getValue());
-        }
-		return newRes;
-	}
 
 	/**
 	 * Converts the time series data from the data structures used by
@@ -189,17 +166,14 @@ public class PSDirectTransformAllClass {
 				seriesType = String.valueOf(num.intValue());
 			}
 
-			TSProcessor tsp = new TSProcessor();
-			double[] series = data[i];//tsp.znorm(data[i], 0.05);
+			double[] series = data[i];
 
 			if (!res.containsKey(seriesType)) {
-				res.put(seriesType, new ArrayList<double[]>());
+				res.put(seriesType, new ArrayList<>());
 			}
 
 			res.get(seriesType).add(series);
 		}
-
-		//res = refineClassLabel(res);
 
 		return res;
 	}
@@ -219,10 +193,10 @@ public class PSDirectTransformAllClass {
 	 * @return An object that represent the trained model and associating metadata.
 	 */
 	private RPMTrainedData RPMTrainPrivate(String strategy,
-												  int lowerWindow, int upperWindow,
-												  int lowerPaa, int upperPaa,
-												  int lowerAlphabet, int upperAlphabet,
-												  int iterations) {
+                                           int lowerWindow, int upperWindow,
+                                           int lowerPaa, int upperPaa,
+                                           int lowerAlphabet, int upperAlphabet,
+                                           int iterations) {
 		// Create RPM Trained Model representative object
 		RPMTrainedData rpmTrainedOutput = new RPMTrainedData();
 		// Set model's training data path record
@@ -435,7 +409,7 @@ public class PSDirectTransformAllClass {
 	 * @throws IOException
 	 */
 	public ClassificationResults RPMTestData(String testingDataFilePath,
-											 double[][] data, String[] labels) throws IOException {
+                                             double[][] data, String[] labels) throws IOException {
 		// Create results object to store the statistics
 		ClassificationResults results = new ClassificationResults();
 		// Load test data path
@@ -459,7 +433,7 @@ public class PSDirectTransformAllClass {
 	private void classifyWithTransformedDataAllCls(BestSelectedPatterns[] bestSelectedPatterns,
 												   ClassificationResults results) throws IndexOutOfBoundsException {
 		// Object that handles the processing
-		GCProcessMultiClass gcp = new GCProcessMultiClass(FOLDERNUM);
+		ProcessMultiClass gcp = new ProcessMultiClass(FOLDERNUM);
 		gcp.doClassifyTransformedMultiCls(bestSelectedPatterns,
 				trainData, testData, giMethod, results);
 	}
@@ -537,7 +511,7 @@ public class PSDirectTransformAllClass {
             NumerosityReductionStrategy strategy) {
 
 		// Initializing global varibales.
-		function = new GCErrorFunctionMultiCls(trainData, strategy, giMethod,
+		function = new TSClassEvaluation(trainData, strategy, giMethod,
 				FOLDERNUM, rpFrequencyTPer, maxRPNum, overlapTPer,
 				isCoverageFre, pSimilarity);
 		centerPoints = new ArrayList<Double[]>();
@@ -576,8 +550,7 @@ public class PSDirectTransformAllClass {
 
 		int clsNum = trainData.keySet().size();
 
-		ClassificationErrorEachSample classifyError = function
-				.valueAtTransformMultiClass(startingPoint);
+		Evaluation evaluation = function.evaluateTS(startingPoint);
 		directTime++;
 
 		if (minFunctionValuesDouble == null) {
@@ -586,8 +559,8 @@ public class PSDirectTransformAllClass {
 			function.thisRPatterns = null;
 			minFunctionValue = 1.0d;
 		} else {
-			minFunctionValue = classifyError.getAllError();
-			minFunctionValuesDouble = classifyError.getErrorPerClass();
+			minFunctionValue = evaluation.errorRate();
+			minFunctionValuesDouble = function.getErrorPerClass(evaluation);
 		}
 
 		sampledPoints = sampledPoints + 1;
@@ -737,14 +710,13 @@ public class PSDirectTransformAllClass {
 			Point pointToSample1 = Point.at(x_m1);
 
 			Double f_m1;
-			ClassificationErrorEachSample classifyError1 = function
-					.valueAtTransformMultiClass(pointToSample1);
+			Evaluation evaluation1 = function.evaluateTS(pointToSample1);
 			directTime++;
-			if (classifyError1 == null) {
+			if (evaluation1 == null) {
 				f_m1 = 1.0d;
 			} else {
-				f_m1 = classifyError1.getAllError();
-				double[] f_m1_each_class = classifyError1.getErrorPerClass();
+				f_m1 = evaluation1.errorRate();
+				double[] f_m1_each_class = function.getErrorPerClass(evaluation1);
 				updateBest(f_m1_each_class, pointToSample1);
 			}
 
@@ -771,14 +743,13 @@ public class PSDirectTransformAllClass {
 			Point pointToSample2 = Point.at(x_m2);
 
 			Double f_m2;
-			ClassificationErrorEachSample classifyError2 = function
-					.valueAtTransformMultiClass(pointToSample2);
+			Evaluation evaluation2 = function.evaluateTS(pointToSample2);
 			directTime++;
-			if (classifyError2 == null) {
+			if (evaluation2 == null) {
 				f_m2 = 1.0d;
 			} else {
-				f_m2 = classifyError2.getAllError();
-				double[] f_m2_each_class = classifyError2.getErrorPerClass();
+				f_m2 = evaluation2.errorRate();
+				double[] f_m2_each_class = function.getErrorPerClass(evaluation2);
 				updateBest(f_m2_each_class, pointToSample2);
 			}
 			//

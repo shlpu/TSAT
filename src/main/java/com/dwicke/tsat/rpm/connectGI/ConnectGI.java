@@ -1,8 +1,8 @@
 package com.dwicke.tsat.rpm.connectGI;
 
-import com.dwicke.tsat.rpm.grammar.patterns.PatternsSimilarity;
-import com.dwicke.tsat.rpm.grammar.patterns.TSPattern;
-import com.dwicke.tsat.rpm.grammar.patterns.TSPatterns;
+import com.dwicke.tsat.rpm.patterns.PatternsSimilarity;
+import com.dwicke.tsat.rpm.patterns.TSPattern;
+import com.dwicke.tsat.rpm.patterns.TSPatterns;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public class ConnectGI {
 
 	/**
 	 * Get patterns from concatenated data with Sequitur.
-	 * 
+	 *
 	 * @param concatenateData - a Map from class label to the concatenated time series data.
 	 * @param params - Parameter Vector: Window Size ([0][0]), PAA Size ([0][1]), Alphabet Size ([0][2]),
 	 *                  Numerosity Reduction Strategy ([0][3]).

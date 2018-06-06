@@ -1,4 +1,4 @@
-package com.dwicke.tsat.rpm.dataprocess;
+package com.dwicke.tsat.dataprocess;
 
 import net.seninp.jmotif.sax.TSProcessor;
 
