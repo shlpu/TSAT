@@ -1,9 +1,10 @@
 package net.seninp.grammarviz;
 
-import java.util.Locale;
-import net.seninp.grammarviz.controller.GrammarVizController;
+import net.seninp.grammarviz.model.GrammarVizController;
 import net.seninp.grammarviz.model.GrammarVizModel;
 import net.seninp.grammarviz.view.GrammarVizView;
+
+import java.util.Locale;
 
 /**
  * Main runnable of Sequitur GUI.

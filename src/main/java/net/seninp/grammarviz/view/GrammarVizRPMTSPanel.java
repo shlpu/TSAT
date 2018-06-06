@@ -1,7 +1,8 @@
 package net.seninp.grammarviz.view;
 
-import net.seninp.grammarviz.session.UserSession;
-import net.seninp.grammarviz.view.table.*;
+import net.seninp.grammarviz.model.UserSession;
+import net.seninp.grammarviz.view.table.RPMTSTableColumns;
+import net.seninp.grammarviz.view.table.RPMTSTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;

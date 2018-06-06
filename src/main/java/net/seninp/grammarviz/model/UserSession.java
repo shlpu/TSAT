@@ -1,20 +1,18 @@
-package net.seninp.grammarviz.session;
+package net.seninp.grammarviz.model;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import edu.gmu.grammar.classification.util.ClassificationResults;
 import edu.gmu.grammar.classification.util.PSDirectTransformAllClass;
-import edu.gmu.grammar.classification.util.RPMTrainedData;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.grammarviz.logic.GrammarVizChartData;
 import net.seninp.grammarviz.logic.RPMHandler;
 import net.seninp.jmotif.sax.NumerosityReductionStrategy;
 import net.seninp.util.StackTrace;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Keeps user parameters organized.

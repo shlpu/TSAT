@@ -1,30 +1,26 @@
 package net.seninp.grammarviz.view;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.UserSession;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
+import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTableHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTableHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.session.UserSession;
-import net.seninp.grammarviz.view.table.GrammarvizRulesTableColumns;
-import net.seninp.grammarviz.view.table.GrammarvizRulesTableModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * 

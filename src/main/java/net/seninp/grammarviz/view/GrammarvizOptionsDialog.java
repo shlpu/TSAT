@@ -1,17 +1,14 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.model.UserSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.session.UserSession;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /* 1.4 example used by DialogDemo.java. */
 class GrammarvizOptionsDialog extends JDialog implements ActionListener {
@@ -96,10 +93,7 @@ class GrammarvizOptionsDialog extends JDialog implements ActionListener {
 
       LOGGER.info(logStr.toString());
 
-    }
-    else if (CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand())) {
-      assert true;
-    }
+    } else assert !CANCEL_BUTTON_TEXT.equalsIgnoreCase(e.getActionCommand()) || true;
 
     this.dispose();
   }

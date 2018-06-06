@@ -19,48 +19,7 @@ public enum AnomalyAlgorithm {
     return index;
   }
 
-  public static AnomalyAlgorithm fromValue(int value) {
-    switch (value) {
-    case 0:
-      return AnomalyAlgorithm.BRUTEFORCE;
-    case 1:
-      return AnomalyAlgorithm.HOTSAX;
-    case 2:
-      return AnomalyAlgorithm.RRA;
-    case 3:
-      return AnomalyAlgorithm.RRAPRUNED;
-    case 4:
-      return AnomalyAlgorithm.RRASAMPLED;
-    case 5:
-      return AnomalyAlgorithm.EXPERIMENT;
-    default:
-      throw new RuntimeException("Unknown index:" + value);
-    }
-  }
 
-  public static AnomalyAlgorithm fromValue(String value) {
-    if (value.equalsIgnoreCase("bruteforce")) {
-      return AnomalyAlgorithm.BRUTEFORCE;
-    }
-    else if (value.equalsIgnoreCase("hotsaxtrie")) {
-      return AnomalyAlgorithm.HOTSAX;
-    }
-    else if (value.equalsIgnoreCase("rra")) {
-      return AnomalyAlgorithm.RRA;
-    }
-    else if (value.equalsIgnoreCase("rrapruned")) {
-      return AnomalyAlgorithm.RRAPRUNED;
-    }
-    else if (value.equalsIgnoreCase("rrasampled")) {
-      return AnomalyAlgorithm.RRASAMPLED;
-    }
-    else if (value.equalsIgnoreCase("experiment")) {
-      return AnomalyAlgorithm.EXPERIMENT;
-    }
-    else {
-      throw new RuntimeException("Unknown index:" + value);
-    }
-  }
 
   @Override
   public String toString() {

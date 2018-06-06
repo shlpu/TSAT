@@ -1,7 +1,20 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.Dimension;
-import java.awt.Font;
+import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.logic.GrammarVizChartData;
+import net.seninp.grammarviz.logic.RPMHandler;
+import net.seninp.grammarviz.model.GrammarVizController;
+import net.seninp.grammarviz.model.GrammarVizMessage;
+import net.seninp.grammarviz.model.UserSession;
+import net.seninp.jmotif.sax.NumerosityReductionStrategy;
+import net.seninp.util.StackTrace;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -9,42 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.TitledBorder;
-
-import net.seninp.grammarviz.logic.RPMHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.controller.GrammarVizController;
-import net.seninp.grammarviz.logic.GrammarVizChartData;
-import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.session.UserSession;
-import net.seninp.jmotif.sax.NumerosityReductionStrategy;
-import net.seninp.util.StackTrace;
-import javax.swing.*;
 
 /**
  * View component of Sequitur MVC GUI.
@@ -1263,12 +1240,7 @@ public class GrammarVizView implements Observer, ActionListener {
 
     else if (USE_GLOBAL_NORMALIZATION_ACTION.equalsIgnoreCase(command)) {
       log(Level.INFO, "global normalization toggled");
-      if (this.useGlobalNormalizationCheckBox.isSelected()) {
-        this.controller.getSession().useGlobalNormalization = true;
-      }
-      else {
-        this.controller.getSession().useGlobalNormalization = false;
-      }
+      this.controller.getSession().useGlobalNormalization = this.useGlobalNormalizationCheckBox.isSelected();
     }
 
     else if (NumerosityReductionStrategy.NONE.toString().equalsIgnoreCase(command)

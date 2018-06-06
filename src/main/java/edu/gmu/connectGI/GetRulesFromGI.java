@@ -391,13 +391,8 @@ public class GetRulesFromGI {
 		sb.append(", SAX window ").append(windowSize);
 		sb.append(", PAA ").append(paaSize);
 		sb.append(", Alphabet ").append(alphabetSize);
-		// consoleLogger.info(sb.toString());
-		// this.log(sb.toString());
-		//System.err.println(sb.toString());
-		//System.err.println("Timeseries length = " + concatenatedTS.length);
-		// consoleLogger.debug("creating ChartDataStructure");
-		// TODO: Add the data file name.
-		String dataFileName = "";
+
+
 		chartData = new GrammarVizChartData(concatenatedTS, useSlidingWindow, numerosityReductionStrategy,
 				windowSize, alphabetSize, paaSize);
 
@@ -414,46 +409,21 @@ public class GetRulesFromGI {
 					saxFrequencyData = sp.ts2saxViaWindow(concatenatedTS, windowSize, paaSize,
 							normalA.getCuts(alphabetSize), numerosityReductionStrategy, normalizationThreshold);
 
-					// DREW Parallel SAX
-//					ParallelSAXImplementation ps = new ParallelSAXImplementation();
-//					saxFrequencyData = ps.process(concatenatedTS, 8, windowSize, paaSize,
-//							alphabetSize, numerosityReductionStrategy, normalizationThreshold);
 
-					// saxFrequencyData =
-					// SequiturFactory.discretize(concatenatedTS,
-					// numerosityReductionStrategy,
-					// windowSize, paaSize, alphabetSize,
-					// normalizationThreshold);
-				} else {
-					// SequiturFactory.discretizeNoSlidingWindow(concatenatedTS,
-					// paaSize, alphabetSize,
-					// normalizationThreshold);
 				}
 
+				ArrayList<Integer> saxWordsIndexes = new ArrayList<>(saxFrequencyData.getAllIndices());
 
-				//System.err.println("Sax freq data = " + saxFrequencyData.getAllIndices().size());
-				// consoleLogger.trace("String: "
-				// + saxFrequencyData.getSAXString(SPACE));
-
-				ArrayList<Integer> saxWordsIndexes = new ArrayList<Integer>(saxFrequencyData.getAllIndices());
-				// consoleLogger.debug("running sequitur ...");
 				SAXRule sequiturGrammar = SequiturFactoryWithEscape.runSequitur(saxFrequencyData.getSAXString(SPACE),
 						startingPositions, saxWordsIndexes, windowSize);
 				saxWordsIndexes.clear();
-				// consoleLogger.debug("collecting grammar rules data ...");
 				GrammarRules rules = sequiturGrammar.toGrammarRulesData();
-				//System.err.println("Number of Grammar rules = " + rules.size());
 
-				// consoleLogger.debug("mapping rule intervals on timeseries
-				// ...");
 				SequiturFactory.updateRuleIntervals(rules, saxFrequencyData, useSlidingWindow, concatenatedTS,
 						windowSize, paaSize);
 
 				// consoleLogger.debug("done ...");
 				chartData.setGrammarRules(rules);
-				//System.err.println("Number of rules = " + rules.size());
-
-
 			}
 
 		} catch (Exception e) {

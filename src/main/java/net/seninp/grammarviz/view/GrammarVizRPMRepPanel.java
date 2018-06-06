@@ -1,8 +1,8 @@
 package net.seninp.grammarviz.view;
 
-import net.seninp.grammarviz.session.UserSession;
-import net.seninp.grammarviz.view.table.RPMRepTableModel;
+import net.seninp.grammarviz.model.UserSession;
 import net.seninp.grammarviz.view.table.RPMRepTableColumns;
+import net.seninp.grammarviz.view.table.RPMRepTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTableHeader;
 import org.slf4j.Logger;
@@ -86,7 +86,7 @@ public class GrammarVizRPMRepPanel  extends JPanel implements ListSelectionListe
                 }
 
                 return defaultRenderer;
-            };
+            }
         };
 
         this.RPMRepTable.setModel(this.RPMRepTableModel);

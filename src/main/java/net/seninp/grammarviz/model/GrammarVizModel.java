@@ -478,7 +478,6 @@ public class GrammarVizModel extends Observable implements Observer {
           }
 
           SAXRecords saxFrequencyData = mergeRecords(saxFrequencyDataArray);
-          // saxFrequencyData = saxFrequencyDataArray[0];
 
           LOGGER.trace("String: " + saxFrequencyData.getSAXString(SPACE));
 

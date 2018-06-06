@@ -1,15 +1,12 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.Dimension;
-import java.awt.Point;
+import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.model.UserSession;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.session.UserSession;
 
 /* 1.4 example used by DialogDemo.java. */
 class GrammarvizGuesserDialog extends JDialog implements ActionListener {

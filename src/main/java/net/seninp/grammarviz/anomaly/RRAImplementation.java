@@ -33,7 +33,7 @@ public class RRAImplementation {
    * @param intervals The intervals. In our implementation these come from the set of Sequitur
    * grammar rules.
    * @return Discords.
-   * @throws TSException If error occurs.
+   * @throws Exception If error occurs.
    */
   public static DiscordRecords series2RRAAnomalies(double[] series, int discordCollectionSize,
       ArrayList<RuleInterval> intervals) throws Exception {

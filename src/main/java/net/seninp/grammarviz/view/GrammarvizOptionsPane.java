@@ -4,7 +4,7 @@ import net.miginfocom.swing.MigLayout;
 import net.seninp.gi.GIAlgorithm;
 import net.seninp.grammarviz.logic.CoverageCountStrategy;
 import net.seninp.grammarviz.model.GrammarVizConfiguration;
-import net.seninp.grammarviz.session.UserSession;
+import net.seninp.grammarviz.model.UserSession;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

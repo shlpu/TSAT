@@ -1,14 +1,12 @@
 package net.seninp.grammarviz.view;
 
+import net.miginfocom.swing.MigLayout;
+import net.seninp.grammarviz.model.UserSession;
+
+import javax.swing.*;
+import javax.swing.text.NumberFormatter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.text.NumberFormatter;
-import net.miginfocom.swing.MigLayout;
-import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the parameter panel for GrammarViz.

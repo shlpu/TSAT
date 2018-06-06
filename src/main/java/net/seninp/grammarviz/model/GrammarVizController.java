@@ -1,17 +1,11 @@
-package net.seninp.grammarviz.controller;
+package net.seninp.grammarviz.model;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Observable;
-import java.util.logging.Level;
-import java.util.zip.DataFormatException;
-import javax.swing.*;
-
-import net.seninp.grammarviz.model.GrammarVizMessage;
-import net.seninp.grammarviz.model.GrammarVizModel;
-import net.seninp.grammarviz.session.UserSession;
 
 /**
  * Implements the Controler component for GrammarViz2 GUI MVC.

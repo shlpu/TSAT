@@ -1,33 +1,10 @@
 package net.seninp.grammarviz.view;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
+import net.seninp.gi.logic.GrammarRuleRecord;
+import net.seninp.gi.logic.RuleInterval;
+import net.seninp.grammarviz.logic.CoverageCountStrategy;
+import net.seninp.grammarviz.model.UserSession;
+import net.seninp.jmotif.sax.discord.DiscordRecord;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
@@ -49,18 +26,32 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.statistics.HistogramType;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.Layer;
-import org.jfree.ui.LengthAdjustmentType;
-import org.jfree.ui.RectangleAnchor;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.TextAnchor;
+import org.jfree.ui.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.seninp.gi.logic.GrammarRuleRecord;
-import net.seninp.gi.logic.RuleInterval;
-import net.seninp.grammarviz.logic.CoverageCountStrategy;
-import net.seninp.grammarviz.session.UserSession;
-import net.seninp.jmotif.sax.discord.DiscordRecord;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -134,11 +125,7 @@ public class GrammarvizChartPanel extends JPanel
     colors = generateColors(15);
   }
 
-  /**
-   * This sets the chartData and forces the panel to repaint itself showing the new chart.
-   * 
-   * @param chartData the data to use.
-   */
+
   public void setSession(UserSession session) {
     this.session = session;
     this.resetChartPanel();
@@ -197,8 +184,8 @@ public class GrammarvizChartPanel extends JPanel
 
   /**
    * Highlights the subsequence of the rule.
-   * 
-   * @param The rule index.
+   *
+   * @param rules The rule index.
    */
   private void highlightPatternInChart(ArrayList<String> rules) {
     LOGGER.debug("Selected rules: " + rules.toString());
@@ -233,8 +220,8 @@ public class GrammarvizChartPanel extends JPanel
 
   /**
    * Highlights the subsequence of the rule.
-   * 
-   * @param The rule index.
+   *
+   * @param rules The rule index.
    */
   private void highlightPatternInChartPacked(ArrayList<String> rules) {
     LOGGER.debug("Selected class: " + rules.toString());
