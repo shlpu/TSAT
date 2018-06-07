@@ -118,11 +118,11 @@ public class LoadTSDataset {
 
             int i = 0;
             for(Instance instance : data) {
-                dataset[i] = instance.toDoubleArray();
-                RPMLabels[i] = instance.classAttribute().toString();
+                double[] original = instance.toDoubleArray();
+                dataset[i] = Arrays.copyOf(original, original.length-1);
+                RPMLabels[i] = instance.toString(instance.classIndex());
+                i++;
             }
-
-
 
             return new Object[] {dataset, RPMLabels};
 
