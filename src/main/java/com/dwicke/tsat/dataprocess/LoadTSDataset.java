@@ -4,8 +4,12 @@ import com.dwicke.tsat.cli.RPM.TSATRPM;
 import net.seninp.util.StackTrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.ArffLoader;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -91,7 +95,7 @@ public class LoadTSDataset {
             return new Object[]{formatStyle, loadRowTS(fileName, isTestDataset)};
         }
         else if (formatStyle == ARFF) {
-
+            return new Object[] {formatStyle, loadARFF(fileName, isTestDataset)};
         }
 
         return null;
@@ -100,8 +104,31 @@ public class LoadTSDataset {
 
 
     public static Object[] loadARFF(String fileName, boolean isTestDataset) {
+        Path path = Paths.get(fileName);
 
-        return null;
+        try {
+            BufferedReader reader =
+                    new BufferedReader(new FileReader(path.toString()));
+            ArffLoader.ArffReader arff = new ArffLoader.ArffReader(reader);
+            Instances data = arff.getData();
+            data.setClassIndex(data.numAttributes() - 1);
+
+            double dataset[][] = new double[data.numInstances()][];
+            String[] RPMLabels = new String[data.numInstances()];
+
+            int i = 0;
+            for(Instance instance : data) {
+                dataset[i] = instance.toDoubleArray();
+                RPMLabels[i] = instance.classAttribute().toString();
+            }
+
+
+
+            return new Object[] {dataset, RPMLabels};
+
+        } catch(IOException e) {
+            return null;
+        }
     }
 
     public static Object[] loadRowTS(String fileName, boolean isTestDataset) {
