@@ -53,25 +53,18 @@ public class UCRUtils {
 			}
 			double[] series = new double[split.length - 1];
 			for (int i = 1; i < split.length; i++) {
-				series[i - 1] = Double.valueOf(split[i].trim()).doubleValue();
+				series[i - 1] = Double.valueOf(split[i].trim());
 			}
 			
 			TSProcessor tsp = new TSProcessor();
-//			double max = tsp.max(series);
-//			double min = tsp.min(series);
-//			for (int i = 0; i < series.length; i++) {
-//				series[i] = (series[i] - min) / (max - min);
-//			}
-//			series = tsp.znorm(series, 0.05);
 
 			if (!res.containsKey(seriesType)) {
-				res.put(seriesType, new ArrayList<double[]>());
+				res.put(seriesType, new ArrayList<>());
 			}
 			System.err.println("loaded class " + seriesType + " number = " + count++);
 			res.get(seriesType).add(series);
 		}
 
-	    //res = refineClassLabel(res);
 		br.close();
 		return res;
 
@@ -97,31 +90,5 @@ public class UCRUtils {
 		return res;
 	}
 
-	/**
-	 * Goes through the given labeled time series data and relabels the data with a increasing numeric value.
-	 *
-	 * @param res - The data to be relabeled.
-	 * @return - The relabeled data.
-	 */
-	private static Map<String, List<double[]>> refineClassLabel(Map<String, List<double[]>> res) {
-		Set<String> keys = res.keySet();
-		Map<String, List<double[]>> newRes = new HashMap<String, List<double[]>>();
-
-		HashMap<String, String> replaceMap = new HashMap<String, String>();
-
-		int count = 1;
-		for (String k : keys) {
-			String newLabel = String.valueOf(count);
-			replaceMap.put(k, newLabel);
-			count++;
-		}
-		for (Entry<String, List<double[]>> e : res.entrySet()) {
-			String label = e.getKey();
-
-			String newLabel = replaceMap.get(label);
-			newRes.put(newLabel, e.getValue());
-		}
-		return newRes;
-	}
 
 }

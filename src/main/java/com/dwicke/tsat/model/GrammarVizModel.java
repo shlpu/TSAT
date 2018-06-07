@@ -1,5 +1,6 @@
 package com.dwicke.tsat.model;
 
+import com.dwicke.tsat.dataprocess.LoadTSDataset;
 import com.dwicke.tsat.logic.GrammarVizChartData;
 import com.dwicke.tsat.logic.RPMHandler;
 import com.dwicke.tsat.dataprocess.UCRUtils;
@@ -90,220 +91,7 @@ public class GrammarVizModel extends Observable implements Observer {
 
   }
 
-  private double[][] loadDataPrivate(String limitStr, String fileName, boolean isTestDataset) {
-    // check if everything is ready
-    if ((null == fileName) || fileName.isEmpty()) {
-      this.log("unable to load data - no data source selected yet");
-      return null;
-    }
 
-
-    // make sure the path exists
-    Path path = Paths.get(fileName);
-    if (!(Files.exists(path))) {
-      this.log("file " + fileName + " doesn't exist.");
-      return null;
-    }
-
-    int formatStyle = 0;
-    // lets go
-    try {
-
-      // set the lines limit
-      long loadLimit = 0l;
-      if (!(null == limitStr) && !(limitStr.isEmpty())) {
-        loadLimit = Long.parseLong(limitStr);
-      }
-
-      // open the reader
-      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
-
-      // read by the line in the loop from reader
-      String line = reader.readLine();
-      String[] lineSplit = line.trim().split("\\s+");
-      if (lineSplit[0].compareTo("#") == 0 && lineSplit.length == 1) {
-        formatStyle = 1;
-      }
-      reader.close();
-    }catch(IOException e) {
-
-    }
-
-    if (formatStyle == 0) {
-      return loadDataColumnWise(limitStr,fileName,isTestDataset);
-    }else {
-      try {
-        System.err.println("Loading from ucr format");
-        Map<String, List<double[]>> data =  UCRUtils.readUCRData(fileName);
-        System.err.println("loaded data");
-        int numEntries = 0;
-        for (Map.Entry<String, List<double[]>> en : data.entrySet())
-        {
-          numEntries += en.getValue().size();
-        }
-
-        if (data.keySet().size() == 1 && !data.keySet().toArray(new String[data.keySet().size()])[0].equals("-1")) {
-          throw new DataFormatException("There needs to be more than one example for each class during training");
-        }
-        System.err.println("There are " + data.keySet().size() + " number of classes");
-        double dataset[][] = new double[numEntries][];
-        RPMLabels = new String[numEntries];
-        int index = 0;
-        System.err.println("creating the dataset");
-        for (Map.Entry<String, List<double[]>> en : data.entrySet())
-        {
-          for (double[] lis : en.getValue()) {
-            RPMLabels[index] = en.getKey();
-            dataset[index] = lis;
-            index++;
-          }
-        }
-        System.err.println("Done");
-        this.enableRPM = true;
-        return dataset;
-
-      }catch(Exception e) {
-        String stackTrace = StackTrace.toString(e);
-        //System.err.println(StackTrace.toString(e));
-        this.log("error while trying to read data from " + fileName + ":\n " + e.getMessage() + " \n" + stackTrace);
-
-        return null;
-      }
-    }
-
-  }
-
-
-  private double[][] loadDataColumnWise(String limitStr, String fileName, boolean isTestDataset) {
-    if ((null == fileName) || fileName.isEmpty()) {
-      this.log("unable to load data - no data source selected yet");
-      return null;
-    }
-
-    // make sure the path exists
-    Path path = Paths.get(fileName);
-    if (!(Files.exists(path))) {
-      this.log("file " + fileName + " doesn't exist.");
-      return null;
-    }
-
-    // read the input
-    //
-    // init the data araay
-    ArrayList<ArrayList<Double> > data = new ArrayList<ArrayList<Double> >();
-
-    // lets go
-    try {
-
-      // set the lines limit
-      long loadLimit = 0l;
-      if (!(null == limitStr) && !(limitStr.isEmpty())) {
-        loadLimit = Long.parseLong(limitStr);
-      }
-
-      // open the reader
-      BufferedReader reader = Files.newBufferedReader(path, DEFAULT_CHARSET);
-
-      // read by the line in the loop from reader
-      String line = null;
-      long lineCounter = 0;
-      this.enableRPM = false;
-
-      while ((line = reader.readLine()) != null) {
-
-        String[] lineSplit = line.trim().split("\\s+");
-
-        if(0 == lineCounter)
-        {
-          if(lineSplit[0].compareTo("#") == 0) {
-            this.log("Found RPM Data");
-            this.enableRPM = true;
-            ArrayList<String> labels = new ArrayList<String>();
-
-            for(int i = 1; i < lineSplit.length; i++) {
-              String label = lineSplit[i];
-              if (label.equals("0")) {
-                this.enableRPM = false;
-                throw new DataFormatException("0 is not a valid label.  Please change the label and reload.");
-              }
-
-              labels.add(lineSplit[i]);
-
-            }
-
-            if (!isTestDataset) {
-              HashSet<String> setlabels = new HashSet<>(labels);
-
-              if (setlabels.size() == 1) {
-                throw new DataFormatException("There needs to be more than one class");
-              }
-              for (String curlabel : setlabels) {
-                if (Collections.frequency(labels, curlabel) == 1) {
-                  throw new DataFormatException("There needs to be more than one example for each class during training");
-                }
-              }
-            }
-            this.RPMLabels = labels.toArray(new String[labels.size()]);
-            continue;
-          }
-          data = new ArrayList<ArrayList<Double> >();
-          for (int i = 0; i < lineSplit.length; i++) {
-            data.add(new ArrayList<Double>());
-          }
-        }
-
-        if (lineSplit.length < data.size()) {
-          this.log("line " + (lineCounter+1) + " of file " + fileName + " contains too few data points.");
-        }
-
-        // we read only first column
-        for (int i = 0; i < lineSplit.length; i++) {
-          double value = new BigDecimal(lineSplit[i]).doubleValue();
-          data.get(i).add(value);
-        }
-
-        lineCounter++;
-
-        // break the load if needed
-        if ((loadLimit > 0) && (lineCounter > loadLimit)) {
-          break;
-        }
-      }
-      reader.close();
-    }
-    catch (DataFormatException e) {
-      String stackTrace = StackTrace.toString(e);
-      //System.err.println(StackTrace.toString(e));
-      this.log("error while trying to read data from " + fileName + ":\n" + e.getMessage() + "\n" + stackTrace);
-
-      return null;
-    }
-    catch (Exception e) {
-      String stackTrace = StackTrace.toString(e);
-      //System.err.println(StackTrace.toString(e));
-      this.log("error while trying to read data from " + fileName + ":\n" + stackTrace);
-
-      return null;
-    }
-    //finally {
-    //  assert true;
-    //}
-
-    double[][] output = null;
-    // convert to simple doubles array and clean the variable
-    if (!(data.isEmpty())) {
-      output = new double[data.size()][data.get(0).size()];
-      // this.ts[0] = new double[data.get(0).size()];
-
-      for (int i = 0; i < data.size(); i++) {
-        for (int j = 0; j < data.get(0).size(); j++) {
-          output[i][j] = data.get(i).get(j);
-        }
-      }
-    }
-    data = new ArrayList<ArrayList<Double> >();
-    return output;
-  }
 
   /**
    * Load the data which is supposedly in the file which is selected as the data source.
@@ -312,7 +100,16 @@ public class GrammarVizModel extends Observable implements Observer {
    */
   public synchronized void loadData(String limitStr) {
 
-    this.ts = loadDataPrivate(limitStr, this.dataFileName, false);
+    Object[] objData = LoadTSDataset.loadData(limitStr, this.dataFileName, false);
+    if ((int)objData[0] != LoadTSDataset.singleTS) {
+      this.enableRPM = true; // the single time ts is the only one that isn't classification
+      this.RPMLabels =  (String []) ((Object[]) objData[1])[1];
+    }
+    this.ts = (double[][]) ((Object[]) objData[1])[0];
+
+
+
+
     if(!(this.ts == null)) {
       LOGGER.debug("loaded " + this.ts[0].length + " points....");
 
@@ -671,7 +468,17 @@ public class GrammarVizModel extends Observable implements Observer {
   public synchronized void RPMTest(String filename) {
     this.log("Testing Model using " + filename + "...");
     try {
-      double[][] testData = loadDataPrivate("0", filename, true);
+
+      Object[] objData = LoadTSDataset.loadData("0", filename, true);
+      if ((int)objData[0] != LoadTSDataset.singleTS) {
+        this.enableRPM = true; // the single time ts is the only one that isn't classification
+        this.RPMLabels =  (String []) ((Object[]) objData[1])[1];
+      }
+      double[][] testData = (double[][]) ((Object[]) objData[1])[0];
+
+
+
+
       if(this.enableRPM) {
         this.rpmHandler.RPMTestData(filename, testData, this.RPMLabels);
         setChanged();
@@ -700,89 +507,6 @@ public class GrammarVizModel extends Observable implements Observer {
     notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "model: " + message));
   }
 
-  /**
-   * Saves the grammar stats.
-   * 
-   * @param data the data for collecting stats.
-   */
-  protected void saveGrammarStats(GrammarVizChartData data) {
 
-    boolean fileOpen = false;
-
-    BufferedWriter bw = null;
-    try {
-      String currentPath = new File(".").getCanonicalPath();
-      bw = new BufferedWriter(new OutputStreamWriter(
-          new FileOutputStream(currentPath + File.separator + "grammar_stats.txt"), "UTF-8"));
-      StringBuffer sb = new StringBuffer();
-      sb.append("# filename: ").append(this.dataFileName).append(CR);
-      sb.append("# sliding window: ").append(data.getSAXWindowSize()).append(CR);
-      if (data.isSlidingWindowOn()) {
-        sb.append("# window size: ").append(data.getSAXWindowSize()).append(CR);
-      }
-      sb.append("# paa size: ").append(data.getSAXPaaSize()).append(CR);
-      sb.append("# alphabet size: ").append(data.getSAXAlphabetSize()).append(CR);
-      bw.write(sb.toString());
-      fileOpen = true;
-    }
-    catch (IOException e) {
-      System.err.print(
-          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-    }
-
-    // ArrayList<int[]> ruleLengths = new ArrayList<int[]>();
-
-    for (GrammarRuleRecord ruleRecord : data.getGrammarRules()) {
-
-      StringBuffer sb = new StringBuffer();
-      sb.append("/// ").append(ruleRecord.getRuleName()).append(CR);
-      sb.append(ruleRecord.getRuleName()).append(" -> \'").append(ruleRecord.getRuleString().trim())
-          .append("\', expanded rule string: \'").append(ruleRecord.getExpandedRuleString())
-          .append("\'").append(CR);
-
-      if (ruleRecord.getRuleIntervals().size() > 0) {
-
-        int[] starts = new int[ruleRecord.getRuleIntervals().size()];
-        int[] lengths = new int[ruleRecord.getRuleIntervals().size()];
-        int i = 0;
-        for (RuleInterval sp : ruleRecord.getRuleIntervals()) {
-          starts[i] = sp.getStart();
-          lengths[i] = (sp.endPos - sp.startPos);
-          i++;
-        }
-        sb.append("subsequences starts: ").append(Arrays.toString(starts)).append(CR)
-            .append("subsequences lengths: ").append(Arrays.toString(lengths)).append(CR);
-      }
-
-      sb.append("rule occurrence frequency ").append(ruleRecord.getRuleIntervals().size())
-          .append(CR);
-      sb.append("rule use frequency ").append(ruleRecord.getRuleUseFrequency()).append(CR);
-      sb.append("min length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[0]).append(CR);
-      sb.append("max length ").append(ruleRecord.minMaxLengthAsString().split(" - ")[1]).append(CR);
-      sb.append("mean length ").append(ruleRecord.getMeanLength()).append(CR);
-
-      if (fileOpen) {
-        try {
-          bw.write(sb.toString());
-        }
-        catch (IOException e) {
-          System.err.print(
-              "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-        }
-      }
-    }
-
-    // try to write stats into the file
-    try {
-      if (fileOpen) {
-        bw.close();
-      }
-    }
-    catch (IOException e) {
-      System.err.print(
-          "Encountered an error while writing stats file: \n" + StackTrace.toString(e) + "\n");
-    }
-
-  }
 
 }
