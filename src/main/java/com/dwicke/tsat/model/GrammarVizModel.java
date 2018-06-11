@@ -101,6 +101,7 @@ public class GrammarVizModel extends Observable implements Observer {
   public synchronized void loadData(String limitStr) {
 
     Object[] objData = LoadTSDataset.loadData(limitStr, this.dataFileName, false);
+
     if ((int)objData[0] != LoadTSDataset.singleTS) {
       this.enableRPM = true; // the single time ts is the only one that isn't classification
       this.RPMLabels =  (String []) ((Object[]) objData[1])[1];
@@ -483,6 +484,7 @@ public class GrammarVizModel extends Observable implements Observer {
         this.rpmHandler.RPMTestData(filename, testData, this.RPMLabels);
         setChanged();
         notifyObservers(new GrammarVizMessage(GrammarVizMessage.RPM_CLASS_RESULTS_UPDATE_MESSAGE, this.rpmHandler));
+        this.log("Finished testing see tabs labeled RPM Classification and RPM Time Series Results for result info");
         //this.log("RPM Testing Results: " + results.toString());
       } else {
         this.log("Not RPM Data");
