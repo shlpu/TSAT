@@ -16,7 +16,7 @@
 }
 
 \graphicspath{{pictures/}}
-\newcommand\TSAT{\textbf{TSAT }}
+\newcommand\TSAT{\textbf{TSAT}}
 
 \begin{document}
 \title{User Manual: Using RPM with TSAT}
@@ -27,7 +27,7 @@
 \section{Introduction to TSAT}
 
 
-\TSAT or the Time Series Analysis Tool is a software application that has enhanced the capabilities of GrammarViz 2.0 and 3.0~\cite{senin-anomaly,senin-gv2,senin-gv3}.  \TSAT has three main features:
+{\TSAT} or the Time Series Analysis Tool is a software application that has enhanced the capabilities of GrammarViz 2.0 and 3.0~\cite{senin-anomaly,senin-gv2,senin-gv3}.  {\TSAT} has three main features:
 \begin{description}
 	\item[Supervised Classification] Using labeled time series train an algorithm to classify unknown time series
 	\item[Motif Discovery] Finding repeated patterns within a time series
@@ -35,39 +35,48 @@
 \end{description}
 
 \subsection{Interface Layout}
-The main method for interacting with \TSAT in this user guide will be through the graphical user interface, or the GUI.  When TSAT is started the GUI should look like that in Figure~\ref{fig:tsat-interface}.
+The main method for interacting with {\TSAT} in this user guide will be through the graphical user interface, or the GUI.  When TSAT is started the GUI should look like that in Figure~\ref{fig:tsat-interface}.
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{pictures/TSAT-interface}
-	\caption{Initial state of the \TSAT Graphical User Interface (GUI).}
+	\caption{Initial state of the {\TSAT} Graphical User Interface (GUI).}
 	\label{fig:tsat-interface}
 \end{figure}
 
 There are eleven regions in the main GUI used to set parameters, load files, and analyze results.  The nine main regions in the GUI have a rectangular outline around them with a label.  They include: ``Data Source'', ``SAX Parameters'', ``Numerosity reduction'', ``Run GI'', ``Run RPM'', ``Data display'', ``Grammar rules'', ``Rule Subsequences, normalized'', and ``Workflow management.''  The other two regions are the top menu bar (with ``File'', ``Settings'', and ``Help'') and the text area at the bottom of the GUI.  Presently, the items under ``Help'' do not have any meaningful functionality.  The text area at the bottom of the GUI is used to log useful information about the state of GUI.  That text area may also be referred to as the logging area.
 
 \subsection{Tools Introduction}
-\TSAT provides implementations of a number of algorithms used to analyze time series including Representative Pattern Mining (RPM) to perform time series classification, Motif Discovery to find repeating patterns, and Discord Discovery to detect anomalies.
+{\TSAT} provides implementations of a number of algorithms used to analyze time series including Representative Pattern Mining (RPM) to perform time series classification, Motif Discovery to find repeating patterns, and Discord Discovery to detect anomalies.
 
 
-\paragraph{Motif Discovery}
-The main insight that enables the other algorithms to work is the concept of a motif within a time series.  In order to identify motifs within a time series \TSAT executes two main algorithms SAX (Symbolic Aggregate Approximation) and Sequitur.
+\subsubsection{Motif Discovery}
+A motif is a reoccurring pattern within a time series (an example motif is shown in Figure~\ref{fig:tsat-example-motif}) and both anomaly detection and representative pattern mining build from this concept.  In order to identify motifs within a time series {\TSAT} first converts the time series into a string (a sequence of words) and then performs context free grammar induction (GI).  Specifically {\TSAT} executes two main algorithms SAX (Symbolic Aggregate Approximation) with numerosity reduction and a user chosen GI algorithm either Sequitur or Re-Pair~\cite{senin-gv2,nevill1997identifying,larsson2000off}.  The motifs are then defined as the subsequences in the time series defined by the grammar rules.  {\TSAT} allows the user to explore the motifs by sorting by how frequently the rule is used in the root rule (labeled R0 in {\TSAT}).
 
-SAX converts the time series into a string, or a sequence of characters.  It does this by using a fixed size sliding window over the time series and performing Piecewise Aggregate Approximation (PAA) on each window and converting those values into words.
+\paragraph{SAX}SAX converts the time series into a string, or a sequence of characters.  It does this by using a fixed size sliding window over the time series and performing Piecewise Aggregate Approximation (PAA) on each window and converting those values into words.  This is called subsequence discretization~\cite{lonardi2002finding}.
 
-First SAX splits the time series up into smaller time series by only looking at a fixed size window.  So, if the time series is of length 1000 and the window length is 100 then each time series that SAX looks at is of length 100.  SAX uses a sliding window with a step size of one.  This means that the first time series given the same example spans from timestep 1 to 100 and the second time series is 2 to 101 and so there will be 999 different time series of length 100.  The formula is \(n - w + 1\) where \(n\) is the length of the time series and \(w\) is the length of the sliding window.
-
-Then for each sliding window time series, PAA produces a word by first performing z-normalization on the values.  This means converting the time series values to values with a mean and standard deviate of approximately 0 and 1 respectively. Then the algorithm splits the window up into \(m\) equal sized segments (the PAA size) and for each of the segments it computes the mean value.  
-
-SAX maps each mean value to a letter in the alphabet and produces a word (a sequence of letters/characters).  The number of characters, \(a\), available in the alphabet is chosen by the user.  Since the values of z-normalized time series follow the Normal distribution, the breakpoints for each character can be determined by making \(a\) equal-sized areas under the Normal curve using lookup tables (illustrated along the y-axis in Figure~\ref{fig:tsat-sax}). Then for each of the windows we have created a word.  Figure~\ref{fig:tsat-sax} shows the process of converting a time series (without any sliding window) into a SAX word.
+First SAX splits the time series up into smaller time series by only looking at a fixed size window, or subsequence extraction as seen in Figure~\ref{fig:tsat-slidingwindow}.  So, if the time series is of length 1000 and the window length is 100 then each time series that SAX looks at is of length 100.  SAX uses a sliding window with a step size of one.  This means that the first time series given the same example spans from timestep 1 to 100 and the second time series is 2 to 101 and so there will be 999 different time series of length 100.  The formula is \(n - w + 1\) where \(n\) is the length of the time series and \(w\) is the length of the sliding window (the \textbf{window length}).
 
 \begin{figure}[H]
+	\centering
+	\includegraphics[width=0.7\textwidth]{pictures/TSAT-slidingwindow}
+	\caption{Subsequence extraction from a sliding window.  Adopted from:\\ \url{http://grammarviz2.github.io/grammarviz2_site/morea/assets/sax-error.png}}
+	\label{fig:tsat-slidingwindow}
+\end{figure}
+
+
+Then for each sliding window time series, PAA produces a word by first performing z-normalization on the values.  This means converting the time series values to values with a mean and standard deviate of approximately 0 and 1 respectively. Then the algorithm splits the window up into \(m\) equal sized segments called the \textbf{PAA size} and for each of the segments it computes the mean value.  
+
+SAX maps each mean value to a letter in the alphabet and produces a word (a sequence of letters/characters).  The number of characters, \(a\), available in the alphabet is chosen by the user (the \textbf{alphabet size}).  Since the values of z-normalized time series follow the Normal distribution~\cite{lin2003symbolic}, the breakpoints for each character can be determined by making \(a\) equal-sized areas under the Normal curve using lookup tables (illustrated along the y-axis in Figure~\ref{fig:tsat-sax}). Then for each of the windows we have created a word.  Figure~\ref{fig:tsat-sax} shows the process of converting a time series (without any sliding window) into a SAX word.  It should be pointed out that the ``observation that normalized subsequences have highly Gaussian distribution, is not critical to correctness of any of the algorithms that use SAX, including the ones in this work. A pathological dataset that violates this assumption will only affect the efficiency of the algorithms~\cite{keogh2004hot}.''
+
+\begin{figure}[H]
+	\centering
 	\includegraphics[width=.7\textwidth]{pictures/TSAT-SAX}
 	\caption{``A time series is discretized by first obtaining a PAA approximation and then using predetermined breakpoints to map the PAA coefficients into SAX symbols. In the example above, with n = 128, w = 8 and a = 3, the time series is mapped to the word baabccbc.''  The figure and the included caption are from~\cite{lin2007experiencing}.}
 	\label{fig:tsat-sax}
 \end{figure}
 
 
-The list of words produced using this procedure is also compressed using numerosity reduction.  Numerosity reduction reduces the size of this list of words by skipping duplicate words.  For example,
+\paragraph{Numerosity Reduction}The list of words produced using this procedure is also compressed using numerosity reduction.  Numerosity reduction reduces the size of this list of words by skipping duplicate words.  Additionally, ``numerosity reduction makes motif discovery more robust, as we are matching patterns based on their shapes, even if they do not have the exact same lengths''~\cite{li2012visualizing}.  For example, a time series \(S_{1}\) 
 
 \[
 S_{1}= aac_{1}\, aac_{2}\, abc_{3}\, abb_{4}\, acd_{5}\, aac_{6}\, aac_{7}\, aac_{8}\, abc_{9}\, \dots
@@ -76,13 +85,48 @@ is converted to the much smaller string using numerosity reduction:
 \[S2 = \textit{aac}_{1}~ \textit{abc}_{3}~ \textit{abb}_{4}~ \textit{acd}_{5}~ \textit{aac}_{6}~ \textit{abc}_{9}\]
 where the subscripts are the window numbers.
 
-Sequitur is a context free grammar induction tool.  This tool takes the string from SAX and builds a grammar.  The rules that Sequitur generates then define the motifs.
+\paragraph{Grammar Induction GI}Then grammar induction is used to produce grammar rules, the motifs, from the SAX string. Both Sequitur and Re-Pair are context free grammar induction algorithms that are included in {\TSAT}.  {\TSAT} uses Sequitur as its default.  However, there are a number of differences according to~\cite{readmeGI}:
+\begin{itemize}
+	\item Sequitur implementation is slower than Re-Pair
+	\item Sequitur tends to produce more rules, but Sequitur rules are less frequent than Re-Pair rules
+	\item Sequitur rule-corresponding subsequences vary in length more
+	\item Sequitur rules usually cover more points than Re-Pair
+	\item Sequitur rule coverage depth is lower than that of Re-Pair
+\end{itemize}
+
+A simple example (not a time series) of a context free grammar is to take the following string ``a rose is a rose is a rose'' this can be converted to the following grammar rules:
+
+\begin{center}
+	S \(\rightarrow\) BBA\\
+	A \(\rightarrow\) B is\\
+	B \(\rightarrow\) a rose\\
+\end{center}
+Where S is the root rule, meaning that no rule uses this rule and A and B are grammar rules that are used in S. Also, note that the grammar forms a hierarchy and therefore will not contain cycles.  As the above example illustrates the lengths of the motifs can be of varying lengths as the rule may contain other rules (note that in an actual time series each word would be the same length).
+\begin{figure}[H]
+	\includegraphics[width=\textwidth]{pictures/TSAT-example-motif}
+	\caption{Example motif found using {\TSAT} with the subsequences highlighted in the Data Display and shown in the Rules Subsequences areas.}
+	\label{fig:tsat-example-motif}
+\end{figure}
+\paragraph{Setting the Parameters}One example motif found by {\TSAT} in ECG data is shown in Figure~\ref{fig:tsat-example-motif}.  There are only three parameters, alphabet size, PAA length, and window size.  Past studies have empirically shown that an alphabet size of 3 or 4 will work in most settings and that the PAA length depends on the data.  The PAA length (also known as word size) tends to be a smaller value for smooth and slow changing time series and a larger value for more complex time series~\cite{keogh2004hot}. ``Note however, that grammar induction step effectively mitigates improper sliding window selection''~\cite{motifSite}.
 
 
-\paragraph{Anomaly Detection}
+\subsubsection{Anomaly Detection}
 
-\paragraph{Representative Pattern Mining - RPM}
+%Anomalies are discords the subsequences whose distance to their nearest non-self match is the largest.
+
+%anomalous subsequences correspond to rare grammar rules, we call the algorithm RRA (Rare Rule Anomaly)
+
+%A subsequence is a non-self match with another subsequence if there subsequences do not overlap
+
+{\TSAT} also implements anomaly detection called Rare Rule Anomaly detection due to how it identifies the anomalies.  In {\TSAT}, anomalies are anomalous subsequences which correspond to rare grammar rules.  More specifically, anomalies are discords or the subsequences whose distance to their nearest non-self match is the largest.  A subsequence is a non-self match with another subsequence if their subsequences do not overlap.
+
+
+Anomaly detection is not sensitive to window size.
+
+\subsubsection{Representative Pattern Mining - RPM}
 \label{RPMOverview}
+
+
 
 \subsection{Overview}
 
@@ -371,6 +415,9 @@ During the operation of RPM it goes though a step that gets repeated many times.
 \section{Motif Discovery}
 \subsection{File format}
 \subsection{Guide to Motif Discovery}
+
+
+``Note however, that grammar induction step effectively mitigates improper sliding window selection.'' (\url{http://grammarviz2.github.io/grammarviz2_site/morea/motif/experience-m1.html}).
 
 \section{Anomaly Detection}
 \subsection{File format}
