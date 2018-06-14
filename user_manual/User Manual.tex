@@ -137,6 +137,20 @@ Both the exact and approximate methods can find variable length anomalies.  Howe
 
 
 
+Univariate multiclass supervised time series classification is implemented in {\TSAT} with the \textbf{Representative Pattern Mining} or \textbf{RPM} for short algorithm~\cite{wang2016rpm}.  But before describing RPM here are some definitions to some common machine learning terms that will be used:
+
+\begin{description}
+	\item[Attribute] An attribute, variable, or feature is a value that is used to describe the data point.  For example, a time series is an attribute.
+	\item[Class] A class or label is the name used to describe a set of attributes.  In classification the goal is to classify examples as belonging to a particular class or to assign a label.
+	\item[Example] An example is the set of attributes used to describe a single data point.
+	\item[Univariate] Univariate, single attribute, or single feature means that each example is represented by a single attribute.  This means a single time series in time series classification is defined to be an example.
+	\item[Multivariate] Multivariate, multi-attribute, or multi-feature means that each example is represented by multiple attributes.  This means multiple time series in time series classification is defined to be an example.
+\end{description}
+
+
+
+RPM works is by identifying appropriate Sliding window size, PAA size, and alphabet length and it identifies the motifs that match the class it belongs to more so than the other classes.
+
 \subsection{Overview}
 
 \section{Time Series Classification using RPM}
