@@ -50,6 +50,7 @@ There are eleven regions in the main GUI used to set parameters, load files, and
 
 
 \subsubsection{Motif Discovery}
+\label{MotifSec}
 A motif is a reoccurring pattern within a time series (an example motif is shown in Figure~\ref{fig:tsat-example-motif}) and both anomaly detection and representative pattern mining build from this concept.  In order to identify motifs within a time series {\TSAT} first converts the time series into a string (a sequence of words) and then performs context free grammar induction (GI).  Specifically {\TSAT} executes two main algorithms SAX (Symbolic Aggregate Approximation) with numerosity reduction and a user chosen GI algorithm either Sequitur or Re-Pair~\cite{senin-gv2,nevill1997identifying,larsson2000off}.  The motifs are then defined as the subsequences in the time series defined by the grammar rules.  {\TSAT} allows the user to explore the motifs by sorting by how frequently the rule is used in the root rule (labeled R0 in {\TSAT}).
 
 \paragraph{SAX}SAX converts the time series into a string, or a sequence of characters.  It does this by using a fixed size sliding window over the time series and performing Piecewise Aggregate Approximation (PAA) on each window and converting those values into words.  This is called subsequence discretization~\cite{lonardi2002finding}.
@@ -137,23 +138,66 @@ Both the exact and approximate methods can find variable length anomalies.  Howe
 
 
 
-Univariate multiclass supervised time series classification is implemented in {\TSAT} with the \textbf{Representative Pattern Mining} or \textbf{RPM} for short algorithm~\cite{wang2016rpm}.  But before describing RPM here are some definitions to some common machine learning terms that will be used:
+Univariate multiclass supervised time series classification is implemented in {\TSAT} with \textbf{Representative Pattern Mining} or \textbf{RPM}~\cite{wang2016rpm}.  RPM works by identifying an optimal sliding window size, PAA size, and alphabet length for each class and it identifies the motifs that match the class it belongs to more so than the other classes.  RPM then refines the set of motifs to the most representative and uses them to perform time series classification.
+
+Here are some definitions to a few common machine learning terms that you may encounter:
 
 \begin{description}
 	\item[Attribute] An attribute, variable, or feature is a value that is used to describe the data point.  For example, a time series is an attribute.
 	\item[Class] A class or label is the name used to describe a set of attributes.  In classification the goal is to classify examples as belonging to a particular class or to assign a label.
 	\item[Example] An example is the set of attributes used to describe a single data point.
 	\item[Univariate] Univariate, single attribute, or single feature means that each example is represented by a single attribute.  This means a single time series in time series classification is defined to be an example.
-	\item[Multivariate] Multivariate, multi-attribute, or multi-feature means that each example is represented by multiple attributes.  This means multiple time series in time series classification is defined to be an example.
+	\item[Multivariate] Multivariate, multi-attribute, or a feature vector means that each example is represented by multiple attributes.
+	\item[Supervised Classifier] An algorithm that creates a model representation from a set of labeled examples in order to classify unlabeled examples.  Some example classification algorithms are, Support Vector Machine, Random Forest, Logistic Regression, AdaBoost, or Naive Bayes.
+	\item[Training Data] The set of labeled examples used by the supervised classifier to create a model representation in order to make predictions.
+	\item[Test Data] The set of labeled examples that are independent from the training data and that are used to assess the performance of the classifier.
+	\item[Validation Data] The data that is held out and usually used to tune parameters.
+	\item[F1 Measure] Or F1 score is defined as \(2\cdot \frac{\textrm{precision }\cdot \textrm{ recall}}{\textrm{precision }+\textrm{ recall}}\).  Where \[\textrm{precision } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{ false positives}}\] and \[\textrm{recall } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{false negatives }}\].  Where in a binary class true positives mean that a classifier correctly labeled an example, false positive means that a classifier labeled an example as this class when it was the other class, and false negative means it was this class when labeled the other class.
 \end{description}
 
+The way RPM works is to identify the motifs that are most representative of each class and use them to classify new time series.  In order for RPM to identify representative patterns it first identifies the most frequent patterns or motifs within each class.  It does so by concatenating the time series that are within the same class and performing motif discovery as discussed in Section~\ref{MotifSec}.  RPM takes care to avoid motifs that span concatenated time series by ignoring these subsequences.
+
+However, because these are the most frequent motifs does not mean they are the most representative or class discriminative.  Therefore, RPM first reduces the number of motifs by removing similar patterns.  Then it selects the most representative patterns from this set of candidate patterns.  For example, the most representative patterns in the ECGFiveDays dataset are seen in Figure~\ref{fig:representativepatterns}.
+
+To identify the most representative patterns RPM uses a correlation-based feature selection algorithm. To perform feature selection RPM first creates feature vectors for each example time series. The features for each class are calculated as the distance a given time series example is to each of the candidate patterns.  TSAT implements both Euclidean distance and Dynamic Time Warping (DTW) distance algorithms (DTW is discussed in Section~\ref{DTW}).  The two dimensional feature vectors for the ECGFiveDays dataset are plotted in Figure~\ref{fig:featurevec}.
+
+\begin{figure}[H]
+	\includegraphics[width=.7\textwidth]{pictures/representativepatterns}
+	\caption{``Two classes from the ECGFiveDays dataset and the best representative patterns''~\cite{wang2016rpm}.  Image taken from~\cite{wang2016rpm}.}
+	\label{fig:representativepatterns}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width=.7\textwidth]{pictures/featurevec}
+	\caption{``Transformed data of train data from ECGFiveDays''~\cite{wang2016rpm}.  Image taken from~\cite{wang2016rpm}.}
+	\label{fig:featurevec}
+\end{figure}
 
 
-RPM works is by identifying appropriate Sliding window size, PAA size, and alphabet length and it identifies the motifs that match the class it belongs to more so than the other classes.
+This distance feature vector is then used as the training data to a supervised classifier. TSAT uses Random Forest as the supervised classifier.
+
+In order to set the optimal sliding window size, PAA size, and alphabet length (the SAX Parameter Combinations SPCs) for each class, RPM implements the DIRECT (Dividing Rectangles) parameter optimization algorithm.  The error function is one minus the F1 measure from a five fold cross validation on the validation data.  DIRECT will output the best SPCs so far therefore leaving it to the user to decide the number of iterations of the algorithm to perform.  Leaving the number of iterations to the user is useful as running DIRECT it time intensive as it must perform the motif discovery and training the classifier for each new SPC.  The number of iterations is discussed in more detail in Section~\ref{iterations}.
+
 
 \subsection{Overview}
 
+The rest of the user manual will go over in detail how to perform motif discovery (Section~\ref{MotifGuide}), anomaly detection (Section~\ref{AnomalyGuide}), and time series classification (Section~\ref{ClassGuide}) using TSAT's GUI.
+
+\section{Motif Discovery}
+\label{MotifGuide}
+\subsection{File format}
+\subsection{Guide to Motif Discovery}
+
+
+``Note however, that grammar induction step effectively mitigates improper sliding window selection.'' (\url{http://grammarviz2.github.io/grammarviz2_site/morea/motif/experience-m1.html}).
+
+\section{Anomaly Detection}
+\label{AnomalyGuide}
+\subsection{File format}
+\subsection{Guide to Anomaly Detection}
+
 \section{Time Series Classification using RPM}
+\label{ClassGuide}
 TSAT implements Representative Pattern Mining or RPM  (see Section~\ref{RPMOverview} for more details) to perform time series classification.  In order to perform time series classification you will need a training and a test dataset containing time series data.
 
 The standard method to train a supervised learning classifier is to take the labeled dataset and split it into two datasets, training and testing data.  One common way to split the data is to have 80\% training and 20\% testing.  
@@ -389,6 +433,7 @@ Once the model has been selected, click the ``Load Model'' button and the model 
 There are a few options that can be changed when using RPM in TSAT, some of them have already been mentioned and will be covered again.
 
 \subsubsection{Dynamic Time Warping}
+\label{DTW}
 Dynamic Time Warping, or DTW, is a method of measuring distance between two time series, this means how similar or different they are to each other. By default RPM uses Euclidean distance which is a simple and fast measurement, however it does not do well when the similar patterns between time series occur at different positions. This is where DTW comes in, it can handle temporal shifts in patterns and, depending on the data, can vastly improve the accuracy of the model. There is a cost however, DTW is a much slower operation and is very expensive to run so it is left as an option for the user. 
 
 DTW also has another parameter called ``Window'' which can have dramatic effects on DTW both in how long it takes to run and its accuracy. The window size basically limits how far DTW will go to try to accurately try to match the two time series. A smaller window will stop DTW from trying to over match them and will take less time to compute. A larger window will take much longer to compute but can allow DTW to match patterns that are father apart. Choosing a good window size can be highly dependent on the data and what is being compared, and therefore some experimentation may be needed to find a good window size. There are a few good rules when choosing a window size, for one a window size greater then 10 will usually give bad results so 10 is considered a good starting point. Often for the more common types of data a 3-5 window size can be much better option with significant speed ups. Note DTW's window should not be confused with the Window size in the SAX parameters section of the main window, these are two different and distinct uses of the word window. 
@@ -427,6 +472,7 @@ Now select the ``Dynamic Time Warping'' option and the desired ``Window'' then c
 
 \newpage
 \subsubsection{Iterations}
+\label{iterations}
 During the operation of RPM it goes though a step that gets repeated many times. This step only stops under two conditions, a minimum threshold is met or if the maximum number of iterations are reached. The iterations setting found under the ``Run RPM'' section of the main window in TSAT is how the user can control the maximum number of iterations, figure \ref{fig:TSAT-iteration-setting}. The number of iterations can have an effect on how accurate the model can get, however the more iterations RPM runs through the longer it will take to complete. This becomes a balance between the quality of the model and the how long the training phase will take. It should also should be noted that RPM can stop before the maximum number of iterations is met if the model has reached an ideal state. However, this does not mean that all models will or even can reach an ideal state before the maximum number of iterations is reached, indeed some data sets may never return a model that meets the requirements. As RPM runs through the iterations the model should get better but the amount it gets better by can be come increasingly insignificant and therefore adding another 10 iterations may not add any significant results to the model. The only way to know if adding more iterations will improve the model is by experimentation which would involve training multiple times, increasing the maximum number of iterations every run until the testing results return no significant improvements.
 
 \begin{figure}[H]
@@ -435,16 +481,7 @@ During the operation of RPM it goes though a step that gets repeated many times.
 	\label{fig:TSAT-iteration-setting}
 \end{figure}
 
-\section{Motif Discovery}
-\subsection{File format}
-\subsection{Guide to Motif Discovery}
 
-
-``Note however, that grammar induction step effectively mitigates improper sliding window selection.'' (\url{http://grammarviz2.github.io/grammarviz2_site/morea/motif/experience-m1.html}).
-
-\section{Anomaly Detection}
-\subsection{File format}
-\subsection{Guide to Anomaly Detection}
 
 \section{Error Messages}
 \subsection{File Errors}
