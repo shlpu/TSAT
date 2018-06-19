@@ -207,7 +207,8 @@ The rest of the user manual will go over in detail how to perform motif discover
 
 \paragraph{Step 1} Browse for the time series data file and click load data in the data source section.
 
-\begin{figure}
+\begin{figure}[H]
+	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step1-browse}
 	\caption{}
 	\label{fig:step1-browse}
@@ -216,7 +217,8 @@ The rest of the user manual will go over in detail how to perform motif discover
 
 \paragraph{Step 2} Set the SAX parameters either manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.
 
-\begin{figure}
+\begin{figure}[H]
+	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/Step2-loaded}
 	\caption{}
 	\label{fig:step2-loaded}
@@ -225,11 +227,26 @@ The rest of the user manual will go over in detail how to perform motif discover
 
 \paragraph{Step 3} Evaluate results by clicking on the grammar rules in the ``Grammar Rules'' tab and seeing the subsequences highlighted in the ``Data Display'' section and graphed in the ``Rule Subsequence'' section.
 
-\begin{figure}
+\begin{figure}[H]
+	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step3-motifs}
 	\caption{}
 	\label{fig:step3-motifs}
 \end{figure}
+
+
+\subsubsection{Guess SAX Parameters}
+
+Rather than manually trying different SAX parameters TSAT has built in functionality to guess what it perceives as optimal parameters based on user defined range.  This method uses the Re-Pair grammar induction algorithm and the entire process is described in~\cite{paramSelection}.
+
+\paragraph{Step 1} After loading the dataset from Step 1 in the previous section and instead of setting the SAX parameters manually, click ``Guess.''  This will change the ``Data Display'' to read ``Select the time series interval for guessing.''
+
+\paragraph{Step 2} Next Press and hold the left mouse button and drag the mouse across the time series until the desired subsequence of the time series is highlighted and then release the mouse button.  Note that the selected subsequence should be free of anomalies and noise otherwise the guess may produce biases in the results.
+
+\paragraph{Step 3} After releasing the mouse button a dialog will appear with the title ``Sampler interval and parameter ranges verification.''  Here you may adjust the values as appropriate and then click ``OK'' otherwise if you wish to cancel press ``Cancel.''  
+
+
+\paragraph{Step 4} If you  have pressed ``OK'' then the process will beginning and if you wish to stop it press ``stop!'' and TSAT will stop searching for the SAX parameters.  Otherwise after a period of time the values in the ``SAX Parameters'' section will be replaced with the parameters that guessing mechanism found.
 
 
 \section{Anomaly Detection}

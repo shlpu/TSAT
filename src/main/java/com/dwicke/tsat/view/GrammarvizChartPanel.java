@@ -881,6 +881,8 @@ public class GrammarvizChartPanel extends JPanel
                   executorService.shutdown();
                   // DREW
                   setOperationalButton.setText("Guess");
+                  setOperationalButton.revalidate();
+                  setOperationalButton.repaint();
                 }
               });
               setOperationalButton.revalidate();
