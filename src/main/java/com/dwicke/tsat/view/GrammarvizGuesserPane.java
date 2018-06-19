@@ -110,6 +110,27 @@ public class GrammarvizGuesserPane extends JPanel {
 
   }
 
+  public void updateSession(UserSession userSession) {
+
+    userSession.samplingStart = Integer.valueOf(intervalStartField.getText());
+    userSession.samplingEnd = Integer.valueOf(intervalEndField.getText());
+
+    userSession.minimalCoverThreshold = Double.valueOf(minimalCoverField.getText());
+
+    userSession.boundaries[0] = Integer.valueOf(windowMinField.getText());
+    userSession.boundaries[1] = Integer.valueOf(windowMaxField.getText());
+    userSession.boundaries[2] = Integer.valueOf(windowIncrement.getText());
+
+    userSession.boundaries[3] = Integer.valueOf(paaMinField.getText());
+    userSession.boundaries[4] = Integer.valueOf(paaMaxField.getText());
+    userSession.boundaries[5] = Integer.valueOf(paaIncrement.getText());
+
+    userSession.boundaries[6] = Integer.valueOf(alphabetMinField.getText());
+    userSession.boundaries[7] = Integer.valueOf(alphabetMaxField.getText());
+    userSession.boundaries[8] = Integer.valueOf(alphabetIncrement.getText());
+
+  }
+
   /**
    * Provides a convenient integer formatter.
    * 

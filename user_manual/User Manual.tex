@@ -185,16 +185,68 @@ The rest of the user manual will go over in detail how to perform motif discover
 
 \section{Motif Discovery}
 \label{MotifGuide}
+
+
+
 \subsection{File format}
+
+
+
+
 \subsection{Guide to Motif Discovery}
+%1. Browse for the time series data file and click load data in the data source section
+%2. Set the SAX parameters
+%	a. manually
+%	b. guess (1. click guess 2. click on the time series 3. fill in the fields and click ok 4. wait (make sure to make small enough regions to guess otherwise will take a very long time) 5. )
+% Options: Sequitur and RePair
+%3. Click Discretize in the Run GI section
+%4. Evaluate results by clicking on the grammar rules in the Grammar Rules tab and seeing the subsequences highlighted in the Data Display section and graphed in the Rule Subsequence section
+
+% need to discuss the rule length histogram, cluster rules, and prune rules buttons and what they do as well.
 
 
-``Note however, that grammar induction step effectively mitigates improper sliding window selection.'' (\url{http://grammarviz2.github.io/grammarviz2_site/morea/motif/experience-m1.html}).
+\paragraph{Step 1} Browse for the time series data file and click load data in the data source section.
+
+\begin{figure}
+	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step1-browse}
+	\caption{}
+	\label{fig:step1-browse}
+\end{figure}
+
+
+\paragraph{Step 2} Set the SAX parameters either manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.
+
+\begin{figure}
+	\includegraphics[width=0.7\linewidth]{pictures/motifguide/Step2-loaded}
+	\caption{}
+	\label{fig:step2-loaded}
+\end{figure}
+
+
+\paragraph{Step 3} Evaluate results by clicking on the grammar rules in the ``Grammar Rules'' tab and seeing the subsequences highlighted in the ``Data Display'' section and graphed in the ``Rule Subsequence'' section.
+
+\begin{figure}
+	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step3-motifs}
+	\caption{}
+	\label{fig:step3-motifs}
+\end{figure}
+
 
 \section{Anomaly Detection}
 \label{AnomalyGuide}
-\subsection{File format}
 \subsection{Guide to Anomaly Detection}
+
+This section assumes that you have already performed the steps from Section~\ref{MotifGuide} and have loaded a time series and have produced the motifs.  This section will cover both the approximate and exact forms of anomaly detection using rule density and the Rare Rule Anomaly detection algorithm.
+
+
+\paragraph{Rules Density} By clicking on ``Settings'' and then ``TSAT options'' menu items and a dialog window will appear and you can choose a coverage strategy in the ``Coverage Strategy'' tab.
+
+\paragraph{Rare Rule Anomaly Detection}
+% Find Anomalies
+% Options: Sequitur and RePair
+
+
+
 
 \section{Time Series Classification using RPM}
 \label{ClassGuide}
