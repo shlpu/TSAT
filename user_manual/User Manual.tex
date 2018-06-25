@@ -186,11 +186,19 @@ The rest of the user manual will go over in detail how to perform motif discover
 \section{Motif Discovery}
 \label{MotifGuide}
 
-
+Here the manual will go over the steps on how to format the time series and perform motif discovery in TSAT.  How motif discovery works in TSAT is discussed in Section~\ref{MotifSec} in detail.
 
 \subsection{File format}
 
+In order to perform motif discovery in TSAT the time series must be formatted in a way that TSAT can read.  TSAT requires that the time series be stored in a file where each line in the file contains one entry coresponding to a single time step in the time series.  There must not be any missing lines.  For example a correct file might look like:
 
+\begin{allintypewriter}
+	\noindent
+	-5.3\\
+	2.3\\
+	4\\
+	42\\
+\end{allintypewriter}
 
 
 \subsection{Guide to Motif Discovery}
@@ -205,48 +213,81 @@ The rest of the user manual will go over in detail how to perform motif discover
 % need to discuss the rule length histogram, cluster rules, and prune rules buttons and what they do as well.
 
 
-\paragraph{Step 1} Browse for the time series data file and click load data in the data source section.
+\paragraph{Step 1 (Figure~\ref{fig:step1-browse})} Click ``Browse'' and browse for the time series data file and click ``OK'' when file is selected or ``Cancel'' if you wish to quit browsing.  Then click the ``Load data'' button in the data source section and the time series will be displayed in the Data display section.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step1-browse}
-	\caption{}
+	\caption{Click ``Browse'' $\rightarrow$ select file and click ``OK'' $\rightarrow$ click ``Load data''.}
 	\label{fig:step1-browse}
 \end{figure}
 
 
-\paragraph{Step 2} Set the SAX parameters either manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.
+\paragraph{Step 2 (Figure~\ref{fig:step2-loaded})} Set the SAX parameters, ``Window'', ``PAA'', and ``Alphabet'' manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.  How to set the SAX parameters is discussed in Section~\ref{MotifSec}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/Step2-loaded}
-	\caption{}
+	\caption{Set SAX Parameters and click ``Discretize''.}
 	\label{fig:step2-loaded}
 \end{figure}
 
 
-\paragraph{Step 3} Evaluate results by clicking on the grammar rules in the ``Grammar Rules'' tab and seeing the subsequences highlighted in the ``Data Display'' section and graphed in the ``Rule Subsequence'' section.
+\paragraph{Step 3 (Figure~\ref{fig:step3-motifs})} Evaluate results by clicking on the grammar rules in the ``Grammar Rules'' tab and seeing the subsequences highlighted in the ``Data Display'' section and graphed in the ``Rule Subsequence'' section.  Each grammar rule row has nine column values: R\#, Level, Frequency in R0, Rule, Expanded Rule, Used, Mean Length, and Min-max length.  These values correspond to:
+
+\begin{description}
+	\item[R\#] The rule number where rule number 0 is the root grammar rule.
+	\item[Level]  The grammar level or the distance from the root rule.
+	\item[Frequency in R0]  The number of times this rule is used in the root rule.
+	\item[Rule] The actual grammar rule.
+	\item[Expanded Rule]  The grammar rule that has its non-terminal symbols replaced with the terminal symbols.
+	\item[Used]  The number of times that rule is used by other rules.
+	\item[Mean Length] The average length of the subsequence that this rule spans.
+	\item[Min-max Length] The minimum and the maximum length that the rule spans in the time series.
+\end{description}
+
+A selected rule or motif found by {\TSAT} is shown in Figure~\ref{fig:step3-motifs}.  Note that multiple rules can be selected by holding the ctrl key and clicking on the rules or holding shift and using the arrow keys to move up and down.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{pictures/motifguide/step3-motifs}
-	\caption{}
+	\caption{List of motifs found by TSAT in the ``Grammar Rules'' tab.  Click on each rule to highlight them in the Data display and graph the subsequence in Rule Subsequence section.  Multiple rules can be selected by holding the ctrl key and clicking on the rules or holding shift and using the arrow keys to move up and down.}
 	\label{fig:step3-motifs}
 \end{figure}
 
 
 \subsubsection{Guess SAX Parameters}
 
-Rather than manually trying different SAX parameters TSAT has built in functionality to guess what it perceives as optimal parameters based on user defined range.  This method uses the Re-Pair grammar induction algorithm and the entire process is described in~\cite{paramSelection}.
+Rather than manually trying different SAX parameters, TSAT has built in functionality to guess what it perceives as optimal parameters based on user defined range.  This method uses the Re-Pair grammar induction algorithm and the entire process is beyond the scope of this manual but is described in detail in~\cite{paramSelection}.
 
-\paragraph{Step 1} After loading the dataset from Step 1 in the previous section and instead of setting the SAX parameters manually, click ``Guess.''  This will change the ``Data Display'' to read ``Select the time series interval for guessing.''
+\paragraph{Step 1 (Figure~\ref{fig:step1-guess})} After loading the dataset from Step 1 in the previous section and instead of setting the SAX parameters manually, click ``Guess.''  This will change the ``Data Display'' to read ``Select the time series interval for guessing.'' Next, Press and hold the left mouse button and drag the mouse across the time series until the desired subsequence of the time series is highlighted and then release the mouse button.  Note that the selected subsequence should be free of anomalies and noise otherwise the guess may produce biases in the results.
 
-\paragraph{Step 2} Next Press and hold the left mouse button and drag the mouse across the time series until the desired subsequence of the time series is highlighted and then release the mouse button.  Note that the selected subsequence should be free of anomalies and noise otherwise the guess may produce biases in the results.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/step1-guess}
+	\caption{Click ``Guess'' and then select time series subsequence by clicking and dragging without anomalies or noise.  The green highlighted region is the selected region. }
+	\label{fig:step1-guess}
+\end{figure}
 
-\paragraph{Step 3} After releasing the mouse button a dialog will appear with the title ``Sampler interval and parameter ranges verification.''  Here you may adjust the values as appropriate and then click ``OK'' otherwise if you wish to cancel press ``Cancel.''  
+
+\paragraph{Step 2 (Figure~\ref{fig:step2-setrange})} After releasing the mouse button a dialog will appear with the title ``Sampler interval and parameter ranges verification.''  Here you may adjust the values as appropriate and then click ``OK'' otherwise if you wish to cancel press ``Cancel.''  
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/step2-setrange}
+	\caption{Adjust the range values as appropriate to your time series.  Note that the larger the range the longer it will take to search. }
+	\label{fig:step2-setrange}
+\end{figure}
 
 
-\paragraph{Step 4} If you  have pressed ``OK'' then the process will beginning and if you wish to stop it press ``stop!'' and TSAT will stop searching for the SAX parameters.  Otherwise after a period of time the values in the ``SAX Parameters'' section will be replaced with the parameters that guessing mechanism found.
+\paragraph{Step 4 (Figure~\ref{fig:step3-guessresults})} If you  have pressed ``OK'' then the process will beginning and if you wish to stop it press ``stop!'' and TSAT will stop searching for the SAX parameters.  Otherwise after a period of time the values in the ``SAX Parameters'' section will be replaced with the parameters that guessing mechanism found.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/step3-guessresults}
+	\caption{The inferred SAX parameters are filled in the ``SAX parameters'' section.}
+	\label{fig:step3-guessresults}
+\end{figure}
 
 
 \section{Anomaly Detection}
@@ -256,11 +297,48 @@ Rather than manually trying different SAX parameters TSAT has built in functiona
 This section assumes that you have already performed the steps from Section~\ref{MotifGuide} and have loaded a time series and have produced the motifs.  This section will cover both the approximate and exact forms of anomaly detection using rule density and the Rare Rule Anomaly detection algorithm.
 
 
-\paragraph{Rules Density} By clicking on ``Settings'' and then ``TSAT options'' menu items and a dialog window will appear and you can choose a coverage strategy in the ``Coverage Strategy'' tab.
+\paragraph{Rules Density} 
+
+After following the steps in Section~\ref{MotifGuide} of loading the dataset and identifying the motifs click the ``Rules Density'' button in the ``Workflow management'' section of the GUI.  Once clicked the results will be displayed in the Data display.  White corresponds to a zero density indicating an anomaly and the darker the color blue the less likely an anomaly exists in that subsequence.  The rule density is displayed in Figure~\ref{fig:ruledensity}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/RuleDensity}
+	\caption{Rule density plot in the Data display area.}
+	\label{fig:ruledensity}
+\end{figure}
+
+
+
+By clicking on ``Settings'' and then ``TSAT options'' menu items and a dialog window will appear and you can choose a coverage strategy in the ``Coverage Strategy'' tab (shown in Figure~\ref{fig:coveragestrategy}). Changing the coverage strategy will change how the rule density is calculated.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/coveragestrategy}
+	\caption{Changing the coverage strategy.}
+	\label{fig:coveragestrategy}
+\end{figure}
 
 \paragraph{Rare Rule Anomaly Detection}
 % Find Anomalies
 % Options: Sequitur and RePair
+
+The exact strategy for finding anomalies in {\TSAT} is by using the Rare Rule Anomaly detection algorithm.  This is done by clicking ``Find anomalies'' in the ``Workflow management'' section and then clicking on the ``TSAT anomalies'' tab in the ``Grammar rules'' section.  The top 10 anomalies will be listed in the table in the ``TSAT anomalies'' tab.  Rank, Position, Length, NN Distance, and Grammar Rule are the columns.  Also, when an anomaly is clicked on, the subsequence is highlighted in the Data display and shown in the Rule subsequences section.  Multiple anomalies can be selected by holding Ctrl and then clicking.  The anomaly in the data is shown in Figure~\ref{fig:rraresult}.
+
+\begin{desciption}
+	\item[Rank] The smaller the value the more anomalous the subsequence.
+	\item[Position] The start location of the anomaly.
+	\item[Length] The length of the subsequence containing the anomaly.
+	\item[NN Distance] The distance to the closest subsequence.  The larger this value is the smaller the value Rank is.
+	\item[Grammar Rule] The grammar rule that corresponds to the anomaly.  Can return to the Grammar Rules tab and find the rule based on this number.
+\end{desciption}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\textwidth]{pictures/motifguide/RRAResult}
+	\caption{Rare Rule Anomalies listed in ``TSAT anomalies'' tab.}
+	\label{fig:rraresult}
+\end{figure}
 
 
 
