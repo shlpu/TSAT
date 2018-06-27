@@ -325,13 +325,13 @@ By clicking on ``Settings'' and then ``TSAT options'' menu items and a dialog wi
 
 The exact strategy for finding anomalies in {\TSAT} is by using the Rare Rule Anomaly detection algorithm.  This is done by clicking ``Find anomalies'' in the ``Workflow management'' section and then clicking on the ``TSAT anomalies'' tab in the ``Grammar rules'' section.  The top 10 anomalies will be listed in the table in the ``TSAT anomalies'' tab.  Rank, Position, Length, NN Distance, and Grammar Rule are the columns.  Also, when an anomaly is clicked on, the subsequence is highlighted in the Data display and shown in the Rule subsequences section.  Multiple anomalies can be selected by holding Ctrl and then clicking.  The anomaly in the data is shown in Figure~\ref{fig:rraresult}.
 
-\begin{desciption}
+\begin{description}
 	\item[Rank] The smaller the value the more anomalous the subsequence.
 	\item[Position] The start location of the anomaly.
 	\item[Length] The length of the subsequence containing the anomaly.
 	\item[NN Distance] The distance to the closest subsequence.  The larger this value is the smaller the value Rank is.
 	\item[Grammar Rule] The grammar rule that corresponds to the anomaly.  Can return to the Grammar Rules tab and find the rule based on this number.
-\end{desciption}
+\end{description}
 
 \begin{figure}[H]
 	\centering
@@ -424,10 +424,10 @@ In column, row, or ARFF format when predicting unlabeled test data, the test dat
 
 As can be seen the label is ``?'' and the time series follows after the label.  When training there must always be more than one example from each class label and there must be more than one label.
 
-\subsection{Training}
+\subsection{Training the Model}
 \label{RPMTrain}
 
-Once you have the data in the proper format and TSAT open training RPM can begin.
+Once you have the data in the proper format, training RPM can begin.
 
 \paragraph{Step 1}
 First click on the ``Browse'' button under the ``Data Sources'' section of the window, as seen in figure \ref{fig:TSAT-training-step-1}. 
@@ -502,6 +502,14 @@ Once the testing is complete the tab labeled ``RPM Classification'' will be popu
 	\includegraphics[width=\textwidth]{TSAT-testing-step-2}
 	\caption{The results from the testing}
 	\label{fig:TSAT-testing-step-2}
+\end{figure}
+
+Additionally, under the ``RPM Time Series Results'' tab shows the list of time series that were predicted incorrectly along with the the actual class the time series belongs, the predicted class, time series ID, and the time series.  Shown in Figure~\ref{fig:TSAT-testing-step-3}.
+
+\begin{figure}[H]
+	\includegraphics[width=\textwidth]{TSAT-testing-step-3}
+	\caption{The results from the testing}
+	\label{fig:TSAT-testing-step-3}
 \end{figure}
 
 \subsection{Testing Unlabeled Data}
