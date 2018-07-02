@@ -97,7 +97,7 @@ public class TSATRPM {
     public RPMHandler train() throws Exception {
 
         RPMHandler rpmHandler = new RPMHandler();
-        Object[] objData = LoadTSDataset.loadData("0", rpmHandler.getTrainingFilename(), false);
+        Object[] objData = LoadTSDataset.loadData("0", this.trainDataFilename, false);
         double[][] data = (double[][]) ((Object[]) objData[1])[0];
         this.RPMLabels =  (String []) ((Object[]) objData[1])[1];
 

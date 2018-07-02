@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Observable;
 
 /**
- * Created by David Fleming on 1/24/17.
- * updated by Drew
  *
  * A class to handle the state of RPM for GrammarViz.
  */
