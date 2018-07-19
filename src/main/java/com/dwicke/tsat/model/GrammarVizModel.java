@@ -102,10 +102,17 @@ public class GrammarVizModel extends Observable implements Observer {
 
     Object[] objData = LoadTSDataset.loadData(limitStr, this.dataFileName, false);
 
+    if (((Object[]) objData[1]) == null) {
+      // there was a problem with the file.
+      this.setChanged();
+      notifyObservers(new GrammarVizMessage(GrammarVizMessage.STATUS_MESSAGE, "Error in the formatting of file " + this.dataFileName));
+    }
+
     if ((int)objData[0] != LoadTSDataset.singleTS) {
       this.enableRPM = true; // the single time ts is the only one that isn't classification
       this.RPMLabels =  (String []) ((Object[]) objData[1])[1];
     }
+
     this.ts = (double[][]) ((Object[]) objData[1])[0];
 
 
