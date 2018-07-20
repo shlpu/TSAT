@@ -280,7 +280,7 @@ In order to perform motif discovery in TSAT the time series must be formatted in
 \end{figure}
 
 
-\paragraph{Step 2 (Figure~\ref{fig:step2-loaded})} Set the SAX parameters, ``Window'', ``PAA'', and ``Alphabet'' manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.  How to set the SAX parameters is discussed in Section~\ref{MotifSec}.
+\paragraph{Step 2 (Figure~\ref{fig:step2-loaded})} Set the SAX parameters, ``Window'', ``PAA'', and ``Alphabet'' manually in the ``SAX Parameters'' section and then click ``Discretize'' in the ``Run GI'' section to produce the motifs.  Also, note that you can adjust the numerosity reduction strategy from Exact to either Off or MINDIST and toggling the sliding window and global normalization. How to set the SAX parameters is discussed in Section~\ref{MotifSec}.
 
 \begin{figure}[H]
 	\centering
@@ -311,6 +311,11 @@ A selected rule or motif found by {\TSAT} is shown in Figure~\ref{fig:step3-moti
 	\caption{List of motifs found by TSAT in the ``Grammar Rules'' tab.  Click on each rule to highlight them in the Data display and graph the subsequence in Rule Subsequence section.  Multiple rules can be selected by holding the ctrl key and clicking on the rules or holding shift and using the arrow keys to move up and down.}
 	\label{fig:step3-motifs}
 \end{figure}
+
+Additionally, note that by clicking ``Save chart'' in the ``Workflow management'' section {\TSAT} will save a png image of the data display area to a file located in the same directory as the jar file with a file name corresponding to yyyyMMddhhmmssSS.png.
+
+Also, by clicking the ``Rule length histogram'' button in the ``Workflow management'' section {\TSAT} will display a histogram of the rule lengths in Data Display area.
+
 
 
 \subsubsection{Guess SAX Parameters}
@@ -345,6 +350,48 @@ Rather than manually trying different SAX parameters, TSAT has built in function
 	\caption{The inferred SAX parameters are filled in the ``SAX parameters'' section.}
 	\label{fig:step3-guessresults}
 \end{figure}
+
+\subsubsection{Options}
+
+The settings for motif discovery are is accessed by clicking the menu item ``Settings'' and then under that click ``TSAT options'' in order to open the settings.  There are a number of settings including choice of grammar induction, normalization threshold, and location for the output.
+
+\paragraph{Grammar Induction}
+The default grammar induction algorithm is Sequitur.  However, RePAIR is also an option. 
+
+Then click on the ``GI Implementation'' tab and the option for RePAIR is presented.  Click on the desired radio button and then click ``save'' to keep your selection or click ``cancel'' to quit.
+
+\paragraph{Normalization Threshold}
+The normalization threshold is default value of 0.05 is usually appropriate but is adjustable under the ``Options'' tab.
+
+\paragraph{Output}
+Currently the Output tab does not affect the location of output files other than for the Rule density curve filename. 
+
+
+\subsection{Rule Pruning}
+
+{\TSAT} provides two means for pruning the motifs or the rules: clustering and a greedy pruning algorithm.  Pruning is useful in order to gain better visual insight into the motifs of the time series that are of importance.  This section assumes that the desired time series has been loaded and discretization has been performed following Section~\ref{MotifSec}.
+
+\subsubsection{Clustering Technique}
+
+The clustering method prunes the motifs by classifying the subsequences by length and removing the overlapping in the same length range. This technique is accessed by clicking on the ``Cluster rules'' button in the Workflow management section of the GUI.
+
+Once clicked you are asked for ``threshold for length'' and a ``threshold for overlap.''  The threshold for overlap is not actually currently used.
+
+However the value for the threshold length is used and the subsequences with the length difference within threshold: ``threshouldLength'' will be classified as a class with the function ``classifyMotifs(double)'', i.e. 1-100 and 101-205 will be classified as a class when the threshold is 0.1, because the length difference is 5, which is less than the threshold (0.1 * 100 = 10). If two sub-sequences within one class share a common part which is more than the threshold: ``thresouldCom'', one of them will be removed by the function ``removeOverlappingInSimiliar(double)''. i.e. 1-100 and 21-120.
+
+Once finished the results are presented in the ``Regularized rules'' tab in ``Grammar Rules'' section.
+
+\subsubsection{Greedy Rule Pruning}
+
+The other approach to rule pruning uses a greedy algorithm following a greedy solution of minimum-cardinality set cover problem (an NP-hard problem).  This is an attempt to find the smallest set of rules which cover the most of the input time series in a greedy fashion.  According to~\cite{pruneSite}:
+\begin{quote}
+	The intuition behind this algorithm is simple -- since our task in hand is to find maximally repeated and minimally-overlapping subsequences (which we consider the most informative), at each iteration, as the best candidate we select the rule which covers the most of the uncovered-so-far time series span thus naturally provides the most information about its structure.
+\end{quote}
+
+This functionality is experimental still.  However, it can be used after discretization by clicking ``Prune rules'' in the ``Workflow management'' section of the GUI.  This will update the ``Grammar rules'' tab in the ``Workflow management'' section with the pruned rules.
+
+
+
 
 \subsection{Python Interface}
 The python interface for motif discovery is accessed via the buildMotifs function that has the function signature:
