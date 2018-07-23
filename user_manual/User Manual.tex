@@ -10,7 +10,22 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage[printwatermark]{xwatermark}
-\newwatermark*[allpages,color=red!50,angle=45,scale=5,xpos=0,ypos=0]{DRAFT}
+%\newwatermark*[allpages,color=red!20,angle=45,scale=5,xpos=0,ypos=0]{DRAFT}
+\usepackage{tikz}
+\usepackage{lipsum}
+
+\newsavebox\mybox
+\savebox\mybox{\tikz[color=red,opacity=0.3]\node{DRAFT};}
+\newwatermark*[
+allpages,
+angle=45,
+scale=10,
+xpos=-30,
+ypos=50
+]{\usebox\mybox}
+
+
+
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
