@@ -1,10 +1,21 @@
-\documentclass[letterpaper, 12pt]{article}
+\documentclass[titlepage, letterpaper, 12pt]{article}
 
 \usepackage[english]{babel}
 \usepackage[margin=0.85in]{geometry}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{subcaption}
+%\usepackage{draftwatermark}
+%\SetWatermarkScale{5}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage[printwatermark]{xwatermark}
+\newwatermark*[allpages,color=red!50,angle=45,scale=5,xpos=0,ypos=0]{DRAFT}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+
+
 \PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
 \newenvironment{allintypewriter}{\ttfamily}{\par}
 \hypersetup{
@@ -24,6 +35,21 @@
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\chead{UNCLASSIFIED}
+\rhead{}
+\cfoot{UNCLASSIFIED}
+\rfoot{\thepage}
+
+
+\fancypagestyle{firstpage}{%
+	\fancyhf{}% clear default for head and foot
+	\chead{UNCLASSIFIED}
+	\cfoot{UNCLASSIFIED}
+}
+\usepackage{xpatch}
+\xapptocmd{\titlepage}{\thispagestyle{firstpage}}{}{}
+
 
 \lstset{frame=tb,
 	language=Java,
@@ -46,13 +72,14 @@
 \newcommand\TSAT{\textbf{TSAT}}
 
 \begin{document}
-\title{User Manual: Using RPM with TSAT}
+\title{User Manual: TSAT}
+\date{Summer 2018}
 \maketitle
+
 \tableofcontents
 \newpage
 
-\section{Introduction to TSAT}
-
+\section{Manual Overview}
 
 {\TSAT} or the Time Series Analysis Tool is a software application that has enhanced the capabilities of GrammarViz 2.0 and 3.0~\cite{senin-anomaly,senin-gv2,senin-gv3}.  {\TSAT} has three main features:
 \begin{description}
@@ -61,7 +88,21 @@
 	\item[Anomaly Detection] Finding rarely repeated patterns within a time series
 \end{description}
 
+This manual is to provide users, power users, and developers a detailed guide to using the Time Series Analysis Tool ({\TSAT}).  Background information and definitions are provided in section~\ref{intro} along with an overview of the interface in section~\ref{GUI}.
+
+\paragraph{Users} This is a manual for users who want to quickly learn the common features and how to use them.  The relevant sections include section~\ref{MotifGuide},~\ref{AnomalyGuide}, and~\ref{ClassGuide} where the guide will provide step-by-step instructions on using Motif Discovery, Anomaly Detection, and Time Series Classification in {\TSAT}.  Some background material on machine learning is provided in section~\ref{MLTerms}. 
+
+\paragraph{Power Users} This is a manual for power users that have a background in machine learning.  Therefore, in addition to the guide there is additional information into the time series algorithms in sections~\ref{MotifSec},~\ref{anomalybackground}, and~\ref{RPMOverview}.
+
+\paragraph{Developers} In addition to providing a detailed guide to TSAT's graphical user interface the manual also includes helpful information on the python interface for motif discovery, anomaly detection, and Time Series Classification in sections~\ref{introPython},~\ref{pythonMotif},~\ref{pythonAnomaly}, and~\ref{pythonRPM} and relevant notes in section~\ref{Notes}. 
+
+\section{Introduction to TSAT}
+\label{intro}
+
+The Time Series Analysis Tool or {\TSAT} for short is a software application for analyzing time series.  This tool provides both a Graphical User Interface or GUI described in section~\ref{GUI} and a python interface detailed in section~\ref{introPython}.  This section also provides an overview of the algorithms that are implemented in section~\ref{tools}.
+
 \subsection{Interface Layout}
+\label{GUI}
 The main method for interacting with {\TSAT} in this user guide will be through the graphical user interface, or the GUI.  When TSAT is started the GUI should look like that in Figure~\ref{fig:tsat-interface}.
 
 \begin{figure}[H]
@@ -73,6 +114,7 @@ The main method for interacting with {\TSAT} in this user guide will be through 
 There are eleven regions in the main GUI used to set parameters, load files, and analyze results.  The nine main regions in the GUI have a rectangular outline around them with a label.  They include: ``Data Source'', ``SAX Parameters'', ``Numerosity reduction'', ``Run GI'', ``Run RPM'', ``Data display'', ``Grammar rules'', ``Rule Subsequences, normalized'', and ``Workflow management.''  The other two regions are the top menu bar (with ``File'', ``Settings'', and ``Help'') and the text area at the bottom of the GUI.  Presently, the items under ``Help'' do not have any meaningful functionality.  The text area at the bottom of the GUI is used to log useful information about the state of GUI.  That text area may also be referred to as the logging area.
 
 \subsection{Python Interface}
+\label{introPython}
 In addition to a Graphical User Interface, {\TSAT} also has a python interface.  This interface consists of wrappers of the major functionality of {\TSAT}'s GUI. 
 
 The python interface is found in the python directory as python/tsail.py.  In order for the python interface to work, the {\TSAT} jar must be located in:\\ \texttt{/target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar}\\
@@ -101,6 +143,7 @@ tsail.RPMTest(pathToTest, modelFile, num_iters)
 For motifs, anomaly detection and representative pattern matching respectively.  In each of the chapters on Motif Discovery, Anomaly detection, and Time Series Classification there are instructions on how to use these functions.  Examples of their usage are also provided within tsail.py.
 
 \subsection{Tools Introduction}
+\label{tools}
 {\TSAT} provides implementations of a number of algorithms used to analyze time series including Representative Pattern Mining (RPM) to perform time series classification, Motif Discovery to find repeating patterns, and Discord Discovery to detect anomalies.
 
 
@@ -167,14 +210,14 @@ Where S is the root rule, meaning that no rule uses this rule and A and B are gr
 
 
 \subsubsection{Anomaly Detection}
+\label{anomalybackground}
 
-%Anomalies are discords the subsequences whose distance to their nearest non-self match is the largest.
 
 %anomalous subsequences correspond to rare grammar rules, we call the algorithm RRA (Rare Rule Anomaly)
 
 %A subsequence is a non-self match with another subsequence if there subsequences do not overlap
 
-{\TSAT} also implements two anomaly detection algorithms taking an exact approach and an approximate approach~\cite{senin2015time}.  Specifically the \textbf{Rare Rule Anomaly} (RRA) algorithm and the \textbf{rule density curve} algorithm.  Each method uses the grammar rules generated by Sequitur or Re-Pair to extract the corresponding subsequences in the time series.  However, each method uses these subsequences in a different way.
+Anomalies in {\TSAT} are surprising patterns or more specifically grammar rules that occur rarely in the time series.   {\TSAT} implements two anomaly detection algorithms taking an exact approach and an approximate approach~\cite{senin2015time}.  Specifically the \textbf{Rare Rule Anomaly} (RRA) algorithm and the \textbf{rule density curve} algorithm.  Each method uses the grammar rules generated by Sequitur or Re-Pair to extract the corresponding subsequences in the time series.  However, each method uses these subsequences in a different way.
 
 RRA defines anomalous subsequences as \textit{discords} or the subsequences whose euclidean distance (normalized by the subsequence length) to their nearest non-self match is the largest.  A subsequence is a non-self match with another subsequence if their subsequences do not overlap. 
 
@@ -188,14 +231,10 @@ Both the exact and approximate methods can find variable length anomalies.  Howe
 \end{quote}
 
 
-\subsubsection{Representative Pattern Mining - RPM}
-\label{RPMOverview}
+\subsubsection{Machine Learning Terms}
+\label{MLTerms}
 
-
-
-Univariate multiclass supervised time series classification is implemented in {\TSAT} with \textbf{Representative Pattern Mining} or \textbf{RPM}~\cite{wang2016rpm}.  RPM works by identifying an optimal sliding window size, PAA size, and alphabet length for each class and it identifies the motifs that match the class it belongs to more so than the other classes.  RPM then refines the set of motifs to the most representative and uses them to perform time series classification.
-
-Here are some definitions to a few common machine learning terms that you may encounter:
+Before getting into Representative Pattern Mining (RPM), which uses machine learning, this section provides some useful definitions to a few common machine learning terms that may be encountered in this guide:
 
 \begin{description}
 	\item[Attribute] An attribute, variable, or feature is a value that is used to describe the data point.  For example, a time series is an attribute.
@@ -207,8 +246,37 @@ Here are some definitions to a few common machine learning terms that you may en
 	\item[Training Data] The set of labeled examples used by the supervised classifier to create a model representation in order to make predictions.
 	\item[Test Data] The set of labeled examples that are independent from the training data and that are used to assess the performance of the classifier.
 	\item[Validation Data] The data that is held out and usually used to tune parameters.
-	\item[F1 Measure] Or F1 score is defined as \(2\cdot \frac{\textrm{precision }\cdot \textrm{ recall}}{\textrm{precision }+\textrm{ recall}}\).  Where \[\textrm{precision } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{ false positives}}\] and \[\textrm{recall } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{false negatives }}\].  Where in a binary class true positives mean that a classifier correctly labeled an example, false positive means that a classifier labeled an example as this class when it was the other class, and false negative means it was this class when labeled the other class.
 \end{description}
+
+
+
+\begin{table}[]
+	\centering
+	\begin{tabular}{l|l|l|l}
+		\cline{2-3}
+		n=106                                                                              & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Actual\\ positive\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Actual\\ negative\end{tabular}} &                          \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}Predicted\\ positive\end{tabular}} & TP=1                                                                           & FP=5                                                                           & \multicolumn{1}{l|}{6}   \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}Predicted\\ negative\end{tabular}} & FN=5                                                                           & TN=95                                                                          & \multicolumn{1}{l|}{100} \\ \hline
+		& 6                                                                              & 100                                                                            &                          \\ \cline{2-3}
+	\end{tabular}
+	\caption{Example Confusion Matrix.  TN = True Negative, FP = False Positive, FN = False Negative, TP = True Positive}
+	\label{confusionmatrix}
+\end{table}
+
+In addition there are a number of means for describing the performance of the classifiers.
+\begin{description}
+	\item[Accuracy] The accuracy of a classifier is the number correctly classified examples divided by the total number of examples. 
+	\item[Confusion Matrix] A confusion matrix is useful in describing fully the performance of the classifier and one is illustrated in table~\ref{confusionmatrix}.  Here there are two classes, negative and positive, and the confusion matrix describes the result of the classifier.  For example, if the class is actually positive and is predicted negative then the value of FN would increase by one.  Also, the values in the confusion matrix are used to calculate the F1 Measure and the Matthews correlation coefficient.
+	\item[F1 Measure] Or F1 score is defined as \(2\cdot \frac{\textrm{precision }\cdot \textrm{ recall}}{\textrm{precision }+\textrm{ recall}}\).  Where \[\textrm{precision } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{ false positives}}\] and \[\textrm{recall } = \frac{\textrm{true positives}}{\textrm{true positives } + \textrm{false negatives }}\].  Where in a binary class true positives mean that a classifier correctly labeled an example, false positive means that a classifier labeled an example as this class when it was the other class, and false negative means it was this class when labeled the other class.  Therefore, a value of 1 is perfect precision and recall and 0 is the worst.
+	\item[Matthews correlation coefficient] This value takes into account true and false positives and negatives and is generally regarded as a balanced measure which can be used even if the classes are of very different sizes~cite{MCC}.  It is defined as: \[\frac{TP\times TN - FP \times FN}{\sqrt{(TP + FP)(TP + FN)(TN+FP)(TN+FN)}} \]
+\end{description}
+
+Accuracy is a flawed method for describing the performance of a classifier.  For example, consider the confusion matrix in table~\ref{confusionmatrix} where the accuracy is 90\%.  However, the F1 score is 0.1666 which indicates that the precision and recall is not performing well at all.  This is due to the imbalance of the datasets and rebalancing using a technique such as up-sampling should be used to balance the number of examples in each class.
+
+\subsubsection{Representative Pattern Mining - RPM}
+\label{RPMOverview}
+
+Univariate multiclass supervised time series classification is implemented in {\TSAT} with \textbf{Representative Pattern Mining} or \textbf{RPM}~\cite{wang2016rpm}.  RPM works by identifying an optimal sliding window size, PAA size, and alphabet length for each class and it identifies the motifs that match the class it belongs to more so than the other classes.  RPM then refines the set of motifs to the most representative and uses them to perform time series classification.
 
 The way RPM works is to identify the motifs that are most representative of each class and use them to classify new time series.  In order for RPM to identify representative patterns it first identifies the most frequent patterns or motifs within each class.  It does so by concatenating the time series that are within the same class and performing motif discovery as discussed in Section~\ref{MotifSec}.  RPM takes care to avoid motifs that span concatenated time series by ignoring these subsequences.
 
@@ -255,9 +323,15 @@ In order to perform motif discovery in TSAT the time series must be formatted in
 	2.3\\
 	4\\
 	42\\
+	230\\
+	10\\
+	34\\
+	53\\
+	19\\
+	42\\
 \end{allintypewriter}
 
-
+\vspace{-3em}
 \subsection{Guide to Motif Discovery}
 %1. Browse for the time series data file and click load data in the data source section
 %2. Set the SAX parameters
@@ -394,6 +468,7 @@ This functionality is experimental still.  However, it can be used after discret
 
 
 \subsection{Python Interface}
+\label{pythonMotif}
 The python interface for motif discovery is accessed via the buildMotifs function that has the function signature:
 \begin{lstlisting}
 tsail.buildMotifs(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size=4, strategy="EXACT", threshold=0.01, numworkers=2)
@@ -492,7 +567,7 @@ public double coverage; // coverage or any other sorting criterion
 \label{AnomalyGuide}
 \subsection{Guide to Anomaly Detection}
 
-This section assumes that you have already performed the steps from Section~\ref{MotifGuide} and have loaded a time series and have produced the motifs.  This section will cover both the approximate and exact forms of anomaly detection using rule density and the Rare Rule Anomaly detection algorithm.
+Anomaly detection is used to identify surprising patterns which correspond to rare grammar rules or motifs.  This section assumes that you have already performed the steps from Section~\ref{MotifGuide} and have loaded a time series and have produced the motifs.  This section will cover both the approximate and exact forms of anomaly detection using rule density and the Rare Rule Anomaly detection algorithm.
 
 
 \paragraph{Rules Density} 
@@ -539,6 +614,7 @@ The exact strategy for finding anomalies in {\TSAT} is by using the Rare Rule An
 \end{figure}
 
 \subsection{Python Interface}
+\label{pythonAnomaly}
 The function signature for calling anomaly detection using the Rare Rule Anomaly algorithm is:
 \begin{lstlisting}
 RRA(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size=4, threshold=0.01, discords_num=5)
@@ -710,7 +786,9 @@ This should bring up the file browser prompt in figure \ref{fig:TSAT-training-st
 
 \newpage
 \paragraph{Step 3}
-After selecting the file press the button labeled ``Load Data'' and  TSAT will load the data and the graphs will be populated, and if the data is found to be RPM compatible data then the ``Train'' button should become available. The text field labeled ``Row Limit'' allows the user to limit the number of rows that are read in from file, for example if the file contains 100 rows the user could limit it to the first 50. 
+After selecting the file press the button labeled ``Load Data'' and  TSAT will load the data and the graphs will be populated, and if the data is found to be RPM compatible data then the ``Train'' button should become available. The text field labeled ``Row Limit'' allows the user to limit the number of rows that are read in from file, for example if the file contains 100 rows the user could limit it to the first 50.
+
+If the time series data is successfully loaded then all of the time series will be graphed in the ``data display'' area.  The data can be zoomed in to by left clicking and dragging the mouse over the area you wish to zoom into.  In order to zoom back out, right click on the graph area, hover over ``Auto Range'' in the menu, and then click ``Both Axes.''  Other features available after right clicking are to save the plot, print, copy, zoom in, and zoom out, and auto range.  The purpose of this display is to allow the user to gain an intuition of what the time series data looks like.
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{TSAT-training-step-4}
@@ -729,6 +807,8 @@ Hitting this button will begin the training phase of RPM, this can take some tim
 
 \newpage
 Selecting the patterns will display their graph on the right hand side of the window, multiple patterns can be selected.
+
+The time series data that is displayed in the ``Rule Subsequence'' area corresponds to the selected patterns.  These subsequences can be zoomed in to by left clicking and dragging the mouse over the area you wish to zoom into.  In order to zoom back out, right click on the graph area, hover over ``Auto Range'' in the menu, and then click ``Both Axes.''  Other features available after right clicking are to save the plot, print, copy, zoom in, and zoom out, and auto range.  The purpose of this display is to allow the user to gain an intuition of what the time series data looks like.
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{TSAT-training-step-6}
@@ -771,7 +851,7 @@ Additionally, under the ``RPM Time Series Results'' tab shows the list of time s
 Using the same method for loading the test data when the data is labeled we can see the results for unlabeled data.  Here the test data labels are all question marks so the results will consist of the probability that the test example is in each of the different training classes and the predicted label.  For example, in figure \ref{fig:TSAT-Results-Unknown-Test} the solid box has the label probability for each class and dashed box has the predicted class label.
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{RPMTimeSeriesResultsUnknown}
-	\caption{Solid box highlights the probability that the time series was in each of the different class labels and the dashed box highlights the predicted label.}
+	\caption{Solid box highlights the probability that the time series was in each of the different class labels and the dashed box highlights the predicted label.  For example, instance 1 has label probability values of 0.03, 0.9, and 0.07.  This means that the classifier claims that this instance is label 1 with probability 0.03, label 2 with probability of 0.09, and label 3 with probability 0.07. The predicted class is 2.  This can be interpreted as instance 1 being given label 2 since it has a probability of 0.9 (the highest probability) of being the correct label (according to the ``Label probability for each class'' column).  }
 	\label{fig:TSAT-Results-Unknown-Test}
 \end{figure}
 
@@ -780,7 +860,7 @@ Using the same method for loading the test data when the data is labeled we can 
 Creating a model can take some time and there for being able to save the model for later uses is a useful feature. Saving the RPM model will generate a file that can be loaded in later for further testing. One thing to note is that the saved model does not contain the training data however the training data is still needed when doing testing there for a copy of the training data must be retained.
 
 \paragraph{Step 1}
-Once a model has been trained up clicking the save model button, as in figure \ref{fig:TSAT-save-model-step-1}, a file browser prompt will appear.
+Once a model has been trained, click the save model button, as in figure \ref{fig:TSAT-save-model-step-1}, a file browser prompt will appear.
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{TSAT-save-model-step-1}
@@ -790,7 +870,7 @@ Once a model has been trained up clicking the save model button, as in figure \r
 
 \newpage
 \paragraph{Step 2}
-With the file browser prompt select a location to save the model and give it a name, then click the ``OK'' button to save the model.
+With the file browser prompt select a location to save the model and give it a name (in figure~\ref{fig:TSAT-save-model-step-2} the model name is CBF\_Model), then click the ``OK'' button to save the model.  Here, CBF is the name of the dataset that was trained.  The files that are displayed in this folder are additional training and test time series files.  It is recommended to keep the model file in the same directory as the train and test datasets.
 
 \begin{figure}[H]
 	\includegraphics[width=\textwidth]{TSAT-save-model-step-2}
@@ -848,7 +928,7 @@ Dynamic Time Warping, or DTW, is a method of measuring distance between two time
 
 DTW also has another parameter called ``Window'' which can have dramatic effects on DTW both in how long it takes to run and its accuracy. The window size basically limits how far DTW will go to try to accurately try to match the two time series. A smaller window will stop DTW from trying to over match them and will take less time to compute. A larger window will take much longer to compute but can allow DTW to match patterns that are father apart. Choosing a good window size can be highly dependent on the data and what is being compared, and therefore some experimentation may be needed to find a good window size. There are a few good rules when choosing a window size, for one a window size greater then 10 will usually give bad results so 10 is considered a good starting point. Often for the more common types of data a 3-5 window size can be much better option with significant speed ups. Note DTW's window should not be confused with the Window size in the SAX parameters section of the main window, these are two different and distinct uses of the word window. 
 
-\newpage
+%\newpage
 \paragraph{Step 1}
 To change between Euclidean distance and DTW first open the settings menu:
 
@@ -893,7 +973,7 @@ During the operation of RPM it goes though a step that gets repeated many times.
 
 
 \subsection{Python Interface}
-
+\label{pythonRPM}
 There are three functions: RPMTrainTest, RPMTrain, and RPMTest and they can be called external from tsail.py as:
 
 \begin{lstlisting}
@@ -943,8 +1023,8 @@ When running RPMTrainTest you will generate three files as output instead of 1.
 
 Files with the .train and .test extensions are the json of the python dictionaries as discussed in previous sections.  The last file can be imported into TSAT GUI as it is the same as the saved model in {\TSAT}. Example usage of all three functions are contained within tsail.py.
 
-\section{FAQs}
-
+\section{Notes}
+~\label{Notes}
 When training there must always be more than one example from each class label and there must be more than one label.
 
 \paragraph{Installation}
