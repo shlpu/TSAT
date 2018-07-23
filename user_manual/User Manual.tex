@@ -14,6 +14,7 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 
+\usepackage{alltt}
 
 
 \PassOptionsToPackage{hyphens}{url}\usepackage{hyperref}
@@ -70,6 +71,7 @@
 
 \graphicspath{{pictures/}}
 \newcommand\TSAT{\textbf{TSAT}}
+\newcommand\TSATVERSION{1.0}
 
 \begin{document}
 \title{User Manual: TSAT}
@@ -117,15 +119,15 @@ There are eleven regions in the main GUI used to set parameters, load files, and
 \label{introPython}
 In addition to a Graphical User Interface, {\TSAT} also has a python interface.  This interface consists of wrappers of the major functionality of {\TSAT}'s GUI. 
 
-The python interface is found in the python directory as python/tsail.py.  In order for the python interface to work, the {\TSAT} jar must be located in:\\ \texttt{/target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar}\\
+The python interface is found in the python directory as python/tsail.py.  In order for the python interface to work, the {\TSAT} jar must be located in:\\ \texttt{/target/tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar}\\
 If it is not there, either its alternative location must be set within tsail.py by editing within tsail.py the following variable to the correct location:
 \begin{lstlisting}
-TSAT_JAR_LOCATION = "../target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+TSAT_JAR_LOCATION = "../target/tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar"
 \end{lstlisting} 
 or {\TSAT} can be recompiled by running:\\
 \noindent\texttt{mvn package -Psingle}\\
 which will generate the jar file in the correct location:\\
-\texttt{/target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar}\\
+\texttt{/target/tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar}\\
 In the python directory in TSAT you can run python and then type:
 \begin{lstlisting}
 import tsail
@@ -1036,16 +1038,16 @@ This tutorial assumes that you are running Ubuntu 16.04 with Java 1.8 or greater
 	cd TSAT\\
 	mvn package -Psingle\\
 \end{allintypewriter}
-This will create tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar in the target directory.  You can execute the jar and run the GUI by double clicking on it after changing its permissions:
-\begin{verbatim}
-chmod +x tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-\end{verbatim}  
+This will create tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar in the target directory.  You can execute the jar and run the GUI by double clicking on it after changing its permissions:
+\begin{alltt}
+chmod +x tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar
+\end{alltt}  
 
 
 To run the GUI from a shell you can do:
-\begin{verbatim}
-$ java -Xmx2g -jar target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar 
-\end{verbatim}
+\begin{alltt}
+$ java -Xmx2g -jar target/tsat-{\TSATVERSION}-SNAPSHOT-jar-with-dependencies.jar 
+\end{alltt}
 
 The -Xmx2g allocates max of 2Gb of memory for the software.
 

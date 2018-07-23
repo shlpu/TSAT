@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-TSAT_JAR_LOCATION = "../target/tsat-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+TSAT_JAR_LOCATION = "../target/tsat-1.0-SNAPSHOT-jar-with-dependencies.jar"
 
 
 def buildMotifs(pathToTimeseries, outputFile, window_size=30, word_size=6, alphabet_size=4, strategy="EXACT",
