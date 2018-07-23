@@ -354,10 +354,12 @@ public class ProcessMultiClass {
 				System.out.println("F1 score:");
 
 				for (int i = 0; i < train.numClasses(); i++) {
-					System.out.println("class " + (i + 1) + "F1 Score: " + eval.fMeasure(i) + " AUC: " + eval.areaUnderROC(i));
+					System.out.println("class " + (i + 1) + "F1 Score: " + eval.fMeasure(i) + " AUC: " + eval.areaUnderROC(i) + " MCC = " + eval.matthewsCorrelationCoefficient(i));
 				}
 				System.out.println("Weighted F1 Score = " + eval.weightedFMeasure());
 				System.out.println("Weighted AUC = " + eval.weightedAreaUnderROC());
+				System.out.println("Weighted MCC = " + eval.weightedMatthewsCorrelation());
+
 				System.out.println(eval.toMatrixString());
 
 
